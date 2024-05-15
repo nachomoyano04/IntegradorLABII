@@ -1,0 +1,60 @@
+.formPrescribir{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.formularioPrescripcion{
+    background-color: #CCC;
+    font-size: 20px;
+    border-radius: 15px;
+}
+.formDiagnostico{
+    display: flex;
+    flex-direction: column;
+    margin: 30px;
+}
+
+.formVigencia{
+    display: flex;
+    margin: 30px;
+    align-items: center;
+}
+.formVigencia label {
+    margin-right: 7%;
+}
+
+.formMedico, .formPaciente{
+    display: flex;
+    margin: 30px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.formMedico label, .formPaciente label, .formVigencia label{
+    width: 20%;
+}
+
+.formMedico select, .formPaciente select{
+    width: 60%;
+}
+
+.formBotonPrescribir{
+    display: flex;
+    margin: 30px;
+    flex-direction: row-reverse;
+}
+
+.botonPrescribir{
+    border-style: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.tituloH1{
+    color: aliceblue;
+}
+
+.textAreaDiagnostico{
+    margin-top: 10px;
+}

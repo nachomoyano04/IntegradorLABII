@@ -1,0 +1,36 @@
+extends inicio.pug
+block content
+    .formPrescribir
+        h1.tituloH1 Prescripción
+        form.formularioPrescripcion(action="/inicio", method="POST")
+            .formDiagnostico
+                label Diagnostico 
+                textarea.textAreaDiagnostico(name="diagnostico", placeholder="Ingrese el diagnostico del paciente...", required, rows="5", cols="50", minlength="10")
+            //- .formFechaPrescripcion 
+            //-     label Fecha de prescripción
+            //-     p #{fechaDeHoy}
+            .formVigencia
+                label Vigencia 
+                input(type="date", name="vigencia", required)
+            .formMedico
+                label Medico
+                select(name="medico", required)
+                    option(disabled, selected, hidden) Seleccione un médico
+                    //mostramos los nombres de los médicos
+                    -if(medicos)
+                        -for(let med of medicos){
+                            option #{med.nombre} #{med.apellido}, #{med.especialidad}
+                        -}
+                i.fa-solid.fa-user-plus
+            .formPaciente
+                label Paciente 
+                select(name="paciente", required)
+                    option(disabled, selected, hidden) Seleccione un paciente 
+                    //mostramos los nombres de los pacientes
+                    -if(pacientes)
+                        -for(let pac of pacientes){
+                            option #{pac.nombre} #{pac.apellido}, DNI#{pac.documento}
+                        -}
+                i.fa-solid.fa-user-plus
+            .formBotonPrescribir
+                input.botonPrescribir(type="submit", value="Prescribir")

@@ -1,0 +1,56 @@
+/*BODY*/
+        .bodyInicio{
+            background-color: 2C3E50;
+            margin: 0px;
+        }
+
+/*BARRA DE NAVEGACION*/
+        .divNavBar{            
+            display: flex;
+            background-color: #CCC;
+            justify-content: space-between;
+            align-items:center;
+        }
+
+        .labdosNavBar{
+            font-size: 40px;
+        }
+
+        .inicioNavBar, .registrosNavBar{
+            font-size: 25px;
+        }
+
+        .labdosNavBar, .inicioNavBar, .registrosNavBar{
+            text-decoration: none;
+            color: black;
+        }
+/*FOOTER*/
+        .footer{
+            background-color: #CCC;
+            padding: 5px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .divNavBarInicioYRegistros, a{
+            align-items:center;
+            margin: 0px 20px;
+        }
+
+        .footer li {
+            list-style-type: none;
+            text-decoration: none;
+            color: black;
+            font-size: 20px;
+        }
+        .footer a{
+            text-decoration: none;
+            color: black
+        }
+        .footer ul{
+            display: flex;
+            justify-content: space-around;
+        }
+        .div{
+            height: 65px;
+        }

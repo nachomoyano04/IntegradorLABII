@@ -1,0 +1,31 @@
+extends inicio.pug
+block content
+    .formRegistrarMedico
+        h1.tituloH1 Registrar Médico
+        form.formularioRegistroMedico(action="/registrar/medico", method="POST")
+            .divNombreMedico 
+                label(for="nombre") Nombre 
+                input.inputFormRegistro(type="text", required, name="nombre", id="nombre", autocomplete="off") 
+            .divApellidoMedico 
+                label(for="apellido") Apellido 
+                input.inputFormRegistro(type="text", required, name="apellido",  id="apellido", autocomplete="off")
+            .divDocumentoMedico 
+                label(for="documento") Documento 
+                input.inputFormRegistro(type="number", required, name="documento",  id="documento", autocomplete="off")
+            .divProfesionMedico 
+                label(for="profesion") Profesion 
+                input.inputFormRegistro(type="text", required, name="profesion",  id="profesion", autocomplete="off")
+            .divEspecialidadMedico
+                label(for="especialidad") Especialidad 
+                input.inputFormRegistro(type="text", required, name="especialidad",  id="especialidad", autocomplete="off") 
+            .divDomicilioMedico
+                label(for="domicilio") Domicilio 
+                input.inputFormRegistro(type="text", required, name="domicilio", placeholder="calle/altura/ciudad/provincia",  id="domicilio", autocomplete="off") 
+            .divMatriculaMedico
+                label(for="matricula") Matricula 
+                input.inputFormRegistro(type="text", required, name="matricula",  id="matricula", autocomplete="off")
+            .divCodigoRefeps 
+                label(for="idRefeps") REFEPS 
+                input.inputFormRegistro(type="number", required, name="idRefeps", id="idRefeps", autocomplete="off") 
+            .divBotonRegistrarMedico
+                input.botonRegistrarMedico(type="submit", value="Registrar")

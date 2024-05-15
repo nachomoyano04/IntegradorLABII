@@ -1,0 +1,28 @@
+extends inicio.pug 
+block content
+    .formRegistrarPaciente
+        h1.tituloH1 Registrar Paciente
+        form.formularioRegistroPaciente(action="/registrar/paciente", method="POST")
+            .divNombrePaciente 
+                label(for="nombre") Nombre 
+                input.inputFormRegistro(type="text", required, name="nombre", id="nombre", autocomplete="off") 
+            .divApellidoPaciente 
+                label(for="apellido") Apellido 
+                input.inputFormRegistro(type="text", required, name="apellido",  id="apellido", autocomplete="off")
+            .divDocumentoPaciente 
+                label(for="documento") Documento 
+                input.inputFormRegistro(type="number", required, name="documento",  id="documento", autocomplete="off")
+            .divFechaNacimietoPaciente 
+                label(for="fechaNacimiento") Fecha de nacimiento 
+                input.inputFormRegistro(type="date", required, name="fechaNacimiento",  id="fechaNacimiento", autocomplete="off")
+            .divSexoPaciente
+                label(for="sexo") Sexo 
+                input.inputFormRegistro(type="text", required, name="sexo",  id="sexo", autocomplete="off") 
+            .divObraSocialPaciente
+                label(for="obraSocial") Obra social 
+                input.inputFormRegistro(type="text", required, name="obraSocial", placeholder="calle/altura/ciudad/provincia",  id="obraSocial", autocomplete="off") 
+            .divPlanPaciente
+                label(for="plan") Plan 
+                input.inputFormRegistro(type="text", required, name="plan",  id="plan", autocomplete="off")
+            .divBotonRegistrarPaciente
+                input.botonRegistrarPaciente(type="submit", value="Registrar")
