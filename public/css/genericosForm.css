@@ -1,0 +1,76 @@
+/*GENERICOS FORM*/
+.divBotones{
+    display: flex;
+    flex-direction: row-reverse;
+    margin: 30px;   
+
+}
+.botones{
+    border-style: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.4s ease;
+}
+.botones:hover{
+    background-color: #2C3E50;
+    color: white
+}
+.divform{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.formulario{
+    background-color: #CCC;
+    font-size: 20px;
+    border-radius: 15px;
+    width: 50%;
+}
+.inputFormRegistro{
+    width: 60%;
+    border: 1px solid #9a9a9a;
+    padding: 5px;
+    border-radius: 5px;
+}
+.labels{
+    display: flex;
+    margin: 30px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tituloH1{
+    color: aliceblue;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    color: black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    font-size: 12px;
+    width: 150px;
+    text-align: center;
+    color: aliceblue;
+    background-color: #2C3E50;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    bottom: 75%;
+    left: 120%;
+    margin-left: -100px;
+    text-transform: none;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}

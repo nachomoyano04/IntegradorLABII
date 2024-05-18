@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import routerInicio from "./routes/inicio.js"
 import routerMedico from "./routes/registroMedico.js"
 import routerPaciente from "./routes/registroPaciente.js";
+import routerPrescribir from "./routes/prescribir.js"
 
 const app = express();
 const PORT = 3000;
@@ -19,6 +20,7 @@ app.use(express.static(path.join(__dirname, "public")))
 app.use("/", routerInicio);
 app.use("/registrar/medico", routerMedico)
 app.use("/registrar/paciente", routerPaciente);
+app.use("/prescribir", routerPrescribir)
 
 app.listen(PORT, () => {
     console.log(`Server listen in port ${PORT} http://localhost:${PORT}`)

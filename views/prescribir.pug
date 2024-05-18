@@ -1,36 +1,45 @@
 extends inicio.pug
 block content
-    .formPrescribir
+    .divform
         h1.tituloH1 Prescripción
-        form.formularioPrescripcion(action="/inicio", method="POST")
+        form.formulario(action="/inicio", method="POST")
             .formDiagnostico
                 label Diagnostico 
                 textarea.textAreaDiagnostico(name="diagnostico", placeholder="Ingrese el diagnostico del paciente...", required, rows="5", cols="50", minlength="10")
-            //- .formFechaPrescripcion 
-            //-     label Fecha de prescripción
-            //-     p #{fechaDeHoy}
-            .formVigencia
+            .labels
                 label Vigencia 
-                input(type="date", name="vigencia", required)
-            .formMedico
+                input.inputFormRegistro(type="date", name="vigencia", required)
+            .labels
                 label Medico
-                select(name="medico", required)
-                    option(disabled, selected, hidden) Seleccione un médico
+                a.tooltip(href="/registrar/medico")
+                    i.fa-solid.fa-user-plus
+                        p.tooltiptext Registrar nuevo médico
+                select.inputFormRegistro(name="medico", required)
+                    option(disabled, selected, hidden, value="") Seleccione un médico
                     //mostramos los nombres de los médicos
                     -if(medicos)
                         -for(let med of medicos){
                             option #{med.nombre} #{med.apellido}, #{med.especialidad}
                         -}
-                i.fa-solid.fa-user-plus
-            .formPaciente
-                label Paciente 
-                select(name="paciente", required)
-                    option(disabled, selected, hidden) Seleccione un paciente 
+            .labels
+                label Paciente
+                a.tooltip(href="/registrar/paciente")
+                    i.fa-solid.fa-user-plus
+                        p.tooltiptext Registrar nuevo paciente
+                select.inputFormRegistro(name="paciente", required)
+                    option(disabled, selected, hidden, value="") Seleccione un paciente 
                     //mostramos los nombres de los pacientes
                     -if(pacientes)
                         -for(let pac of pacientes){
                             option #{pac.nombre} #{pac.apellido}, DNI#{pac.documento}
                         -}
-                i.fa-solid.fa-user-plus
-            .formBotonPrescribir
-                input.botonPrescribir(type="submit", value="Prescribir")
+            .labels
+                label Medicamento
+                input.inputFormRegistro#inputMedicamentoPrescripcion(type="text", required, placeholder="opcional")
+            .labels
+                label Prestacion
+                input.inputFormRegistro(type="text", required, placeholder="opcional")    
+            .divBotones
+                input.botones(type="submit", value="Prescribir")
+    script(src="js/prescribirScript.js")
+    

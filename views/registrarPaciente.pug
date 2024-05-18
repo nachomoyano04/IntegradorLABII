@@ -1,28 +1,46 @@
 extends inicio.pug 
 block content
-    .formRegistrarPaciente
+    .divform
         h1.tituloH1 Registrar Paciente
-        form.formularioRegistroPaciente(action="/registrar/paciente", method="POST")
-            .divNombrePaciente 
+        form.formulario(action="/registrar/paciente", method="POST")
+            .labels 
                 label(for="nombre") Nombre 
                 input.inputFormRegistro(type="text", required, name="nombre", id="nombre", autocomplete="off") 
-            .divApellidoPaciente 
+            .labels 
                 label(for="apellido") Apellido 
                 input.inputFormRegistro(type="text", required, name="apellido",  id="apellido", autocomplete="off")
-            .divDocumentoPaciente 
+            .labels 
                 label(for="documento") Documento 
                 input.inputFormRegistro(type="number", required, name="documento",  id="documento", autocomplete="off")
-            .divFechaNacimietoPaciente 
+            .labels 
                 label(for="fechaNacimiento") Fecha de nacimiento 
                 input.inputFormRegistro(type="date", required, name="fechaNacimiento",  id="fechaNacimiento", autocomplete="off")
-            .divSexoPaciente
-                label(for="sexo") Sexo 
-                input.inputFormRegistro(type="text", required, name="sexo",  id="sexo", autocomplete="off") 
-            .divObraSocialPaciente
+            .labels
+                label(for="sexo") Sexo
+                select.inputFormRegistro(name="sexo")
+                    option(value="femenino") Femenino 
+                    option(value="masculino") Masculino 
+                    option(value="otro") Otro 
+                    option(value="desconocido") Desconocido 
+            .labels
                 label(for="obraSocial") Obra social 
-                input.inputFormRegistro(type="text", required, name="obraSocial", placeholder="calle/altura/ciudad/provincia",  id="obraSocial", autocomplete="off") 
-            .divPlanPaciente
-                label(for="plan") Plan 
-                input.inputFormRegistro(type="text", required, name="plan",  id="plan", autocomplete="off")
-            .divBotonRegistrarPaciente
-                input.botonRegistrarPaciente(type="submit", value="Registrar")
+                select.inputFormRegistro(name="obraSocial")
+                    -if(obraSocial){
+                        -for(let os of obraSocial){
+                            option(value= os.nombre) #{os.nombre}
+                        -}
+                    -}else{
+                        option(value="", disabled) no existen obras sociales
+                    -}
+            .labels
+                label(for="plan") Plan
+                select.inputFormRegistro(name="plan", disabled, required)
+                    -if(planes){
+                        -for(let p of planes){
+                            option(value= p.tipo) #{p.tipo}
+                        -}
+                    -}else{
+                        option(value="") debe seleccionar una Obra Social primero
+                    -}
+            .divBotones
+                input.botones(type="submit", value="Registrar")

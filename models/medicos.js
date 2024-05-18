@@ -6,7 +6,7 @@ const getAllDoctors = () => { //funcion que obtiene todos los medicos para el se
         return doctors;
     }catch(error){
         console.log(`Error: ${error}`);
-        throw error;
+        return error;
     }
 }
 

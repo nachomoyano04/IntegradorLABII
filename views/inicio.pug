@@ -4,12 +4,21 @@ html
         link(href="/css/navYFooter.css", rel="stylesheet")
         link(href="/css/formPrescribir.css", rel="stylesheet")
         link(href="/css/registrarMedico.css", rel="stylesheet")
+        link(href="/css/registrarPaciente.css", rel="stylesheet")
+        link(rel="stylesheet", href="/css/genericosForm.css")
         link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css")
+        link(rel="icon", type="image/png" href="/images/iconoPaginaMedicina.png") 
     body.bodyInicio
         //barra de navegacion:
         .navBar
             include includes/navbar.pug
         block content
+        -if(inicio){
+            .divCardBotones 
+                a.cardBotones(href="/registrar/medico") Registrar Medico 
+                a.cardBotones(href="/registrar/paciente") Registrar Paciente 
+                a.cardBotones(href="/prescribir") Prescribir
+        -}
         //- div para ocupar lo que no ocupa el footer
         .div
         .footer

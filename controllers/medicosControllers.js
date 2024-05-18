@@ -4,13 +4,16 @@ const registroMedicoGet = (req, res) => {
     res.render("registrarMedico",{})
 }
 
-const insertarDoctorPost = (req, res) => {
+const insertarDoctorPost = async (req, res) => {
     const {nombre, apellido, documento, profesion, especialidad, domicilio, matricula, idRefeps} = req.body;
     try{
-        insertDoctor(nombre, apellido, documento, profesion, especialidad, domicilio, matricula, idRefeps);
+        const resultado = await insertDoctor(nombre, apellido, documento, profesion, especialidad, domicilio, matricula, idRefeps);
+        if(resultado instanceof Error){
+            throw error;
+        }
         res.redirect("/");
     }catch(error){
-        console.log(`ERROR: error.message()`);
+            res.status(500).send("Error interno en el servidor")
     }
 }
 

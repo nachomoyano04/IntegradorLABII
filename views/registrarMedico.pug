@@ -1,31 +1,45 @@
 extends inicio.pug
 block content
-    .formRegistrarMedico
+    .divform
         h1.tituloH1 Registrar Médico
-        form.formularioRegistroMedico(action="/registrar/medico", method="POST")
-            .divNombreMedico 
+        form.formulario(action="/registrar/medico", method="POST")
+            .labels 
                 label(for="nombre") Nombre 
                 input.inputFormRegistro(type="text", required, name="nombre", id="nombre", autocomplete="off") 
-            .divApellidoMedico 
+            .labels 
                 label(for="apellido") Apellido 
                 input.inputFormRegistro(type="text", required, name="apellido",  id="apellido", autocomplete="off")
-            .divDocumentoMedico 
+            .labels 
                 label(for="documento") Documento 
                 input.inputFormRegistro(type="number", required, name="documento",  id="documento", autocomplete="off")
-            .divProfesionMedico 
+            .labels 
                 label(for="profesion") Profesion 
-                input.inputFormRegistro(type="text", required, name="profesion",  id="profesion", autocomplete="off")
-            .divEspecialidadMedico
+                select.inputFormRegistro(name="profesion", id="profesion") 
+                    -if(profesiones){
+                        -for(let p of profesiones){
+                            option(value= p.nombre) #{p.nombre} 
+                        -}
+                    -}else{
+                        option(value="") No existen profesiones disponibles
+                    -}
+            .labels
                 label(for="especialidad") Especialidad 
-                input.inputFormRegistro(type="text", required, name="especialidad",  id="especialidad", autocomplete="off") 
-            .divDomicilioMedico
+                select.inputFormRegistro(name="especialidad", id="especialidad") 
+                    -if(especialidades){
+                        -for(let e of especialidades){
+                            option(value= e.nombre) #{e.nombre}
+                        -}
+                    -}else{
+                        option(value="") No existen especialidades disponibles 
+                    -}
+            .labels
                 label(for="domicilio") Domicilio 
                 input.inputFormRegistro(type="text", required, name="domicilio", placeholder="calle/altura/ciudad/provincia",  id="domicilio", autocomplete="off") 
-            .divMatriculaMedico
+            .labels
                 label(for="matricula") Matricula 
                 input.inputFormRegistro(type="text", required, name="matricula",  id="matricula", autocomplete="off")
-            .divCodigoRefeps 
+            .labels 
                 label(for="idRefeps") REFEPS 
                 input.inputFormRegistro(type="number", required, name="idRefeps", id="idRefeps", autocomplete="off") 
-            .divBotonRegistrarMedico
-                input.botonRegistrarMedico(type="submit", value="Registrar")
+            .divBotones
+                input.botones(type="submit", value="Registrar")
