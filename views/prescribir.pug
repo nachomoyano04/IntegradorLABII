@@ -36,10 +36,12 @@ block content
             .labels
                 label Medicamento
                 input.inputFormRegistro#inputMedicamentoPrescripcion(type="text", required, placeholder="opcional")
+                .autocompletadoMedicamentos
             .labels
                 label Prestacion
                 input.inputFormRegistro(type="text", required, placeholder="opcional")    
             .divBotones
                 input.botones(type="submit", value="Prescribir")
     script(src="js/prescribirScript.js")
+    script(src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js")
     
