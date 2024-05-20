@@ -29,4 +29,14 @@ const getDoctorById = async (id) => {
     }
 }
 
-export {getAllDoctors, insertDoctor, getDoctorById}
+const getEspecialidades =  async () => {
+    const query = "SELECT * FROM especialidad";
+    try {
+        const resultado = await pool.query(query);
+        return resultado;
+    } catch (error) {
+        return error;
+    }
+}
+
+export {getAllDoctors, insertDoctor, getDoctorById, getEspecialidades}

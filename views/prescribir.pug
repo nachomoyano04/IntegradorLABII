@@ -2,7 +2,7 @@ extends inicio.pug
 block content
     .divform
         h1.tituloH1 Prescripción
-        form.formulario(action="/inicio", method="POST")
+        form.formulario(action="/prescribir", method="POST")
             .formDiagnostico
                 label Diagnostico 
                 textarea.textAreaDiagnostico(name="diagnostico", placeholder="Ingrese el diagnostico del paciente...", required, rows="5", cols="50", minlength="10")
@@ -14,7 +14,7 @@ block content
                 a.tooltip(href="/registrar/medico")
                     i.fa-solid.fa-user-plus
                         p.tooltiptext Registrar nuevo médico
-                select.inputFormRegistro(name="medico", required)
+                select.inputFormRegistro(name="medico")
                     option(disabled, selected, hidden, value="") Seleccione un médico
                     //mostramos los nombres de los médicos
                     -if(medicos)
@@ -26,7 +26,7 @@ block content
                 a.tooltip(href="/registrar/paciente")
                     i.fa-solid.fa-user-plus
                         p.tooltiptext Registrar nuevo paciente
-                select.inputFormRegistro(name="paciente", required)
+                select.inputFormRegistro(name="paciente")
                     option(disabled, selected, hidden, value="") Seleccione un paciente 
                     //mostramos los nombres de los pacientes
                     -if(pacientes)
@@ -36,12 +36,13 @@ block content
             .labels
                 label Medicamento
                 .inputMedicamentoPrescribir
-                    input#inputMedicamentoPrescripcion(type="text", required, placeholder="opcional")
+                    input#inputMedicamentoPrescripcion(type="text", required, placeholder="opcional", name="medicamento")
                     .autocompletadoMedicamentos
             .labels
                 label Prestacion
                 .inputPrestacionPrescribir
-                    input#inputPrestacionPrescripcion(type="text", required, placeholder="opcional")    
+                    input#inputPrestacionPrescripcion(type="text", required, placeholder="opcional", name="prestacion")    
+                    input(type="hidden", name="idPrestacion", id="idPrestacion")
                     .autocompletadoPrestaciones
             .divBotones
                 input.botones(type="submit", value="Prescribir")

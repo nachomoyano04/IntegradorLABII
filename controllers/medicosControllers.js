@@ -1,6 +1,8 @@
 import { insertDoctor } from "../models/medicos.js";
 
-const registroMedicoGet = (req, res) => {
+const registroMedicoGet = async (req, res) => {
+    const especialidades = await getEspecialidades(); 
+    const profesiones = await getProfesiones();
     res.render("registrarMedico",{})
 }
 

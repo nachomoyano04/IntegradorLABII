@@ -23,5 +23,9 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
     }
 }   
 
+const prescribirPost = async (req, res) => {
+    const {idPrestacion, diagnostico, vigencia, medico, paciente, medicamento, prestacion} = req.body;
+}
 
-export {prescribirGet};
+
+export {prescribirGet, prescribirPost};

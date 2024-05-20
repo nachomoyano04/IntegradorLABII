@@ -22,4 +22,8 @@ const getMedicamento = async() => {
     }
 }
 
-export {getMedicamento};
+const searchIdMedicamento = async(medicamento) => {
+    const query = `SELECT idMedicamento from medicamento WHERE `
+}
+
+export {/*searchIdMedicamento, */getMedicamento};
