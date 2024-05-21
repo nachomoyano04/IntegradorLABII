@@ -16,31 +16,28 @@ block content
                 label(for="fechaNacimiento") Fecha de nacimiento 
                 input.inputFormRegistro(type="date", required, name="fechaNacimiento",  id="fechaNacimiento", autocomplete="off")
             .labels
-                label(for="sexo") Sexo
-                select.inputFormRegistro(name="sexo")
+                label(for="selectSexo") Sexo
+                select.inputFormRegistro(name="sexo", id="selectSexo", required)
+                    option(value="", disabled, selected, hidden) Seleccione una opción 
                     option(value="femenino") Femenino 
                     option(value="masculino") Masculino 
                     option(value="otro") Otro 
                     option(value="desconocido") Desconocido 
             .labels
-                label(for="obraSocial") Obra social 
-                select.inputFormRegistro(name="obraSocial")
+                label(for="selectObraSocial") Obra social 
+                select.inputFormRegistro(name="obraSocial", id="selectObraSocial", required)
                     -if(obraSocial){
+                        option(value="", disabled, selected, hidden) Seleccione una obra social 
                         -for(let os of obraSocial){
-                            option(value= os.nombre) #{os.nombre}
+                            option(value= os.idObraSocial) #{os.nombre}
                         -}
                     -}else{
                         option(value="", disabled) no existen obras sociales
                     -}
             .labels
-                label(for="plan") Plan
-                select.inputFormRegistro(name="plan", disabled, required)
-                    -if(planes){
-                        -for(let p of planes){
-                            option(value= p.tipo) #{p.tipo}
-                        -}
-                    -}else{
-                        option(value="") debe seleccionar una Obra Social primero
-                    -}
+                label(for="selectPlan") Plan
+                select.inputFormRegistro(name="plan", id="selectPlan", disabled, required)
+                        option(value="", selected, disabled) Debe seleccionar una Obra Social primero
             .divBotones
                 input.botones(type="submit", value="Registrar")
+    script(type="module", src="/js/registrarPaciente.js")

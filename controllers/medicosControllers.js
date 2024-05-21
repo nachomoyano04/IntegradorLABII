@@ -1,21 +1,20 @@
 import { insertDoctor } from "../models/medicos.js";
+import { getEspecialidades } from "../models/especialidades.js";
+import { getProfesiones } from "../models/profesiones.js";
 
 const registroMedicoGet = async (req, res) => {
     const especialidades = await getEspecialidades(); 
     const profesiones = await getProfesiones();
-    res.render("registrarMedico",{})
+    res.render("registrarMedico",{especialidades, profesiones})
 }
 
 const insertarDoctorPost = async (req, res) => {
-    const {nombre, apellido, documento, profesion, especialidad, domicilio, matricula, idRefeps} = req.body;
+    const medico = req.body;
     try{
-        const resultado = await insertDoctor(nombre, apellido, documento, profesion, especialidad, domicilio, matricula, idRefeps);
-        if(resultado instanceof Error){
-            throw error;
-        }
+        const resultado = await insertDoctor(medico);
         res.redirect("/");
     }catch(error){
-            res.status(500).send("Error interno en el servidor")
+        res.status(500).send(`Error interno en el servidor: ${error}`)
     }
 }
 

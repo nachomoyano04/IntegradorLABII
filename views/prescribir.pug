@@ -26,22 +26,23 @@ block content
                 a.tooltip(href="/registrar/paciente")
                     i.fa-solid.fa-user-plus
                         p.tooltiptext Registrar nuevo paciente
-                select.inputFormRegistro(name="paciente")
+                select.inputFormRegistro(name="idPaciente", required)
                     option(disabled, selected, hidden, value="") Seleccione un paciente 
                     //mostramos los nombres de los pacientes
                     -if(pacientes)
                         -for(let pac of pacientes){
-                            option #{pac.nombre} #{pac.apellido}, DNI#{pac.documento}
+                            option(value= pac.idPaciente) #{pac.nombre} #{pac.apellido}, DNI#{pac.documento}
                         -}
             .labels
                 label Medicamento
                 .inputMedicamentoPrescribir
-                    input#inputMedicamentoPrescripcion(type="text", required, placeholder="opcional", name="medicamento")
+                    input#inputMedicamentoPrescripcion(type="text", required, placeholder="opcional", autocomplete = "off")
+                    input(type="hidden", name="idMedicamentoDetalle", id="idMedicamentoDetalle")
                     .autocompletadoMedicamentos
             .labels
                 label Prestacion
                 .inputPrestacionPrescribir
-                    input#inputPrestacionPrescripcion(type="text", required, placeholder="opcional", name="prestacion")    
+                    input#inputPrestacionPrescripcion(type="text", required, placeholder="opcional", autocomplete = "off")    
                     input(type="hidden", name="idPrestacion", id="idPrestacion")
                     .autocompletadoPrestaciones
             .divBotones

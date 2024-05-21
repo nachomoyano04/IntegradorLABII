@@ -8,17 +8,25 @@ axios('http://localhost:3000/prescribir?query=medicamentos')
     inputMedicamentos.addEventListener("input", (evento) => {
         let palabra = evento.target.value;
         let medicamentos = res.data.medicamentos;
-        let medicamentosEnString = medicamentos.map(e => e.nombreGenerico.concat(" ", e.cantidadConcentracion, " ",e.unidadMedidaCon, " ", e.forma, " x", e.cantidadPresentacion , " ", e.unidadMedidaPres));
+        // let medicamentosEnString = medicamentos.map(e => e.nombreGenerico.concat(" ", e.cantidadConcentracion, " ",e.unidadMedidaCon, " ", e.forma, " x", e.cantidadPresentacion , " ", e.unidadMedidaPres));
         if(palabra !== ""){
             borrarAutocompletadoAnterior(autocompletadoMedicamento);
-            let medicamentoRecomendado = medicamentosEnString.filter(e => e.toLowerCase().includes(palabra.toLowerCase()));
+            // let medicamentoRecomendado = medicamentosEnString.filter(e => e.toLowerCase().includes(palabra.toLowerCase()));
+            let medicamentoRecomendado = medicamentos.filter(e => {
+                const medicamentoString = e.nombreGenerico.concat(" ", e.cantidadConcentracion, " ",e.unidadMedidaCon, " ", e.forma, " x", e.cantidadPresentacion , " ", e.unidadMedidaPres);
+                const comparacion = medicamentoString.toLowerCase().includes(palabra.toLowerCase())
+                return comparacion;
+            });
             for(let mr of medicamentoRecomendado){
                 let div = document.createElement("div");
-                div.innerHTML = mr;
+                let contenido = mr.nombreGenerico.concat(" ", mr.cantidadConcentracion, " ",mr.unidadMedidaCon, " ", mr.forma, " x", mr.cantidadPresentacion , " ", mr.unidadMedidaPres);
+                div.innerHTML = contenido;
                 autocompletadoMedicamento.appendChild(div);
                 div.addEventListener("click", () => {
-                    inputMedicamentos.value = mr;
-                    borrarAutocompletadoAnterior(autocompletadoMedicamento)
+                    inputMedicamentos.value = contenido;
+                    borrarAutocompletadoAnterior(autocompletadoMedicamento);
+                    let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
+                    idMedicamentoDetalle.value = mr.id;
                 })
             }
         }else if(palabra === ""){
@@ -28,7 +36,6 @@ axios('http://localhost:3000/prescribir?query=medicamentos')
     inputPrestaciones.addEventListener("input", (evento) => {
         let palabra = evento.target.value;
         let arregloDePrestaciones = res.data.prestaciones;
-        // console.log(arregloDePrestaciones);
         let prestacionesEnString = arregloDePrestaciones.map(e => JSON.stringify(e));
         borrarAutocompletadoAnterior(autocompletadoPrestacion);
         if(palabra !== ""){
@@ -80,20 +87,3 @@ const crearPrestacion = (prestacion) => {
     ul.appendChild(liResultado)
     return ul;
 }
-        // axios(`http://localhost:3000/prescribir?query=${input}`)
-        // .then(res => {
-        //     let medicamento = res.data;
-        //     if(medicamento !== ""){
-        //         console.log(autocompletadoMedicamento.hasChildNodes())                       //Opcion 1 consultando cada 3 letras a la BD
-        //         while(autocompletadoMedicamento.hasChildNodes()){
-        //             autocompletadoMedicamento.removeChild(autocompletadoMedicamento.firstChild);
-        //         }
-        //         for(let m of medicamento){
-        //             const {nombreGenerico, cantidad, unidad, forma, unidadMedida} = m;
-        //             let div = document.createElement("div");
-        //             div.innerHTML = `${nombreGenerico} ${cantidad} ${unidad} ${forma} ${unidadMedida}`;
-        //             autocompletadoMedicamento.appendChild(div)
-        //         }
-        //     }
-        // })
-        // .catch(error => console.log(error));

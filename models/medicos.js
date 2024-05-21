@@ -1,22 +1,22 @@
 import pool from "./database.js";
 
-const getAllDoctors = () => { //funcion que obtiene todos los medicos para el select
+const getAllDoctors = async() => { //funcion que obtiene todos los medicos para el select
     try{
-        const doctors = pool.query("SELECT * FROM medico");
+        const doctors = await pool.query("SELECT * FROM medico");
         return doctors;
     }catch(error){
-        console.log(`Error: ${error}`);
-        return error;
+        throw error;
     }
 }
 
-const insertDoctor = async(nombre, apellido, documento, profesion, especialidad, domicilio, matricula, idRefeps) => {
+const insertDoctor = async(medico) => {
     const query = "INSERT INTO medico SET ?";
     try {
-        await pool.query(query, {nombre, apellido, documento, profesion, especialidad, domicilio, matricula, idRefeps}); 
+        const resultado = await pool.query(query, medico); 
+        return resultado;
     }catch(error){
         console.log(`Error: ${error.message}`);
-        return error;
+        throw error;
     }
 }
 
@@ -24,19 +24,9 @@ const getDoctorById = async (id) => {
     try{
         const doctor = await pool.query("SELECT * FROM medico WHERE idMedico = ?", id);
         return doctor;
-    }catch(error){
-        return error;
+    }catch(error){ 
+        throw error;
     }
 }
 
-const getEspecialidades =  async () => {
-    const query = "SELECT * FROM especialidad";
-    try {
-        const resultado = await pool.query(query);
-        return resultado;
-    } catch (error) {
-        return error;
-    }
-}
-
-export {getAllDoctors, insertDoctor, getDoctorById, getEspecialidades}
+export {getAllDoctors, insertDoctor, getDoctorById}

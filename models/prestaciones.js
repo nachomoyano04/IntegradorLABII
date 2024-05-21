@@ -22,7 +22,7 @@ const getPrestaciones = async () => {
         const resultado = await pool.query(query);
         return resultado;
     }catch(error){
-        return error;
+        throw error;
     }
 }
 
@@ -33,7 +33,7 @@ const insertPrestacion = async (prestacion) => {
         const resultado = await pool.query(query, prestacion);
         return resultado;
     }catch(error){
-        return error;
+        throw error;
     }
 }
 
