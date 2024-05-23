@@ -2,50 +2,54 @@ extends inicio.pug
 block content
     .divform
         h1.tituloH1 Prescripción
-        form.formulario(action="/prescribir", method="POST")
-            .formDiagnostico
-                label Diagnostico 
-                textarea.textAreaDiagnostico(name="diagnostico", placeholder="Ingrese el diagnostico del paciente...", required, rows="5", cols="50", minlength="10")
-            .labels
-                label Vigencia 
-                input.inputFormRegistro(type="date", name="vigencia", required)
-            .labels
-                label Medico
-                a.tooltip(href="/registrar/medico")
-                    i.fa-solid.fa-user-plus
-                        p.tooltiptext Registrar nuevo médico
-                select.inputFormRegistro(name="medico")
-                    option(disabled, selected, hidden, value="") Seleccione un médico
-                    //mostramos los nombres de los médicos
-                    -if(medicos)
-                        -for(let med of medicos){
-                            option #{med.nombre} #{med.apellido}, #{med.especialidad}
-                        -}
-            .labels
-                label Paciente
-                a.tooltip(href="/registrar/paciente")
-                    i.fa-solid.fa-user-plus
-                        p.tooltiptext Registrar nuevo paciente
-                select.inputFormRegistro(name="idPaciente", required)
-                    option(disabled, selected, hidden, value="") Seleccione un paciente 
-                    //mostramos los nombres de los pacientes
-                    -if(pacientes)
-                        -for(let pac of pacientes){
-                            option(value= pac.idPaciente) #{pac.nombre} #{pac.apellido}, DNI#{pac.documento}
-                        -}
-            .labels
-                label Medicamento
-                .inputMedicamentoPrescribir
-                    input#inputMedicamentoPrescripcion(type="text", required, placeholder="opcional", autocomplete = "off")
-                    input(type="hidden", name="idMedicamentoDetalle", id="idMedicamentoDetalle")
-                    .autocompletadoMedicamentos
-            .labels
-                label Prestacion
-                .inputPrestacionPrescribir
-                    input#inputPrestacionPrescripcion(type="text", required, placeholder="opcional", autocomplete = "off")    
-                    input(type="hidden", name="idPrestacion", id="idPrestacion")
-                    .autocompletadoPrestaciones
-            .divBotones
-                input.botones(type="submit", value="Prescribir")
+        .divFormularioYPrescripcionesAnteriores
+            form.formularioPrescripcion(action="/prescribir", method="POST")
+                .formDiagnostico
+                    label Diagnostico 
+                    textarea.textAreaDiagnostico(name="diagnostico", placeholder="Ingrese el diagnostico del paciente...", required, rows="5", cols="50", minlength="10")
+                .labels
+                    label Vigencia 
+                    input.inputFormRegistro(type="date", name="vigencia", required)
+                .labels
+                    label Medico
+                    a.tooltip(href="/registrar/medico")
+                        i.fa-solid.fa-user-plus
+                            p.tooltiptext Registrar nuevo médico
+                    select.inputFormRegistro(name="idMedico", required)
+                        option(disabled, selected, hidden, value="") Seleccione un médico
+                        //mostramos los nombres de los médicos
+                        -if(medicos)
+                            -for(let med of medicos){
+                                //podria agregar la especialidad del médico al select también.
+                                option(value= med.idMedico) #{med.nombre} #{med.apellido} 
+                            -}
+                .labels
+                    label Paciente
+                    a.tooltip(href="/registrar/paciente")
+                        i.fa-solid.fa-user-plus
+                            p.tooltiptext Registrar nuevo paciente
+                    select.inputFormRegistro(name="idPaciente", required, id="selectPacientes")
+                        option(disabled, selected, hidden, value="") Seleccione un paciente 
+                        //mostramos los nombres de los pacientes
+                        -if(pacientes)
+                            -for(let pac of pacientes){
+                                option(value= pac.idPaciente) #{pac.nombre} #{pac.apellido}, DNI#{pac.documento}
+                            -}
+                .labels
+                    label Medicamento
+                    .inputMedicamentoPrescribir
+                        input#inputMedicamentoPrescripcion(type="text", placeholder="opcional", autocomplete = "off")
+                        input(type="hidden", name="idMedicamentoDetalle", id="idMedicamentoDetalle")
+                        .autocompletadoMedicamentos
+                .labels
+                    label Prestacion
+                    .inputPrestacionPrescribir
+                        input#inputPrestacionPrescripcion(type="text", placeholder="opcional", autocomplete = "off")    
+                        input(type="hidden", name="idPrestacion", id="idPrestacion")
+                        .autocompletadoPrestaciones
+                .divBotones
+                    input.botones(type="submit", value="Prescribir")
+            div#prescripcionesAnterioresPaciente
+
     script(src="js/prescribirScript.js")
     

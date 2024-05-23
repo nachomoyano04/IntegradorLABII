@@ -2,12 +2,10 @@ import { getAllDoctors } from "../models/medicos.js";
 import { getAllPatients } from "../models/pacientes.js";
 import { getMedicamento } from "../models/medicamentos.js";
 import { getPrestaciones } from "../models/prestaciones.js";
-import { insertPrescripcion } from "../models/prescripcion.js";
+import { insertPrescripcion, getPrescripcionByIdPaciente } from "../models/prescripcion.js";
 
 const prescribirGet = async(req, res) => { //funcion que renderiza el form prescribir obteniendo los medicos y pacientes 
     let queryMedicamento = req.query.query;
-    // console.log(req.originalUrl)
-    // console.log(`Query Medicamento: ${queryMedicamento}`)
     if(queryMedicamento === "medicamentos"){
         try {            
             let medicamentos = await getMedicamento();
@@ -17,7 +15,8 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
             }
             return res.status(200).send("");
         } catch (error) {
-            res.status(500).send("Error interno en el servidor"+error)
+            const mensajeDeError500 = `Error interno en el servidor: ${error}`
+            res.status(500).render("404", {error500:true, mensajeDeError500});
         }
     }else{
         try {
@@ -27,20 +26,33 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
             pacientes = pacientes[0];
             res.render("prescribir", {medicos, pacientes});
         } catch (error) {
-            res.status(500).send("Error en el servidor: "+error)
+            const mensajeDeError500 = `Error interno en el servidor: ${error}`
+            res.status(500).render("404", {error500:true, mensajeDeError500});
         }
     }
 }   
 
 const prescribirPost = async (req, res) => {
     const prescripcion = req.body;
+    console.log(prescripcion)
     try {
         const resultado = await insertPrescripcion(prescripcion);
         res.status(200).json(`Prescripción cargada correctamente con el id: ${resultado[0].insertId}`)        
     } catch (error) {
-        res.status(500).send(`Error interno en el servidor: ${error}`);
+        const mensajeDeError500 = `Error interno en el servidor: ${error}`
+        res.status(500).render("404", {error500:true, mensajeDeError500});
     }
 }
 
+const postIdPaciente = async (req, res) => {
+    const idPaciente = req.params.idPaciente;
+    try {
+        const prescripciones = await getPrescripcionByIdPaciente(idPaciente);
+        res.send(prescripciones);
+    } catch (error) {
+        const mensajeDeError500 = `Error interno en el servidor: ${error}`
+        res.status(500).render("404", {error500:true, mensajeDeError500});
+    }
+}
 
-export {prescribirGet, prescribirPost};
+export {prescribirGet, prescribirPost, postIdPaciente};

@@ -3,4 +3,8 @@ const inicioGet = async(req, res) => {
     res.render("inicio", {inicio})
 }
 
-export {inicioGet}
+const notFound404 = async(req, res) => {
+    res.render("404");
+}
+
+export {inicioGet, notFound404}

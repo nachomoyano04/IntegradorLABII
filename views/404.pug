@@ -1,0 +1,15 @@
+html
+    head
+        title Página no encontrada 
+        link(rel="stylesheet", href="/css/navYFooter.css")
+    body(style="margin:0px") 
+        -if(error500){
+            div
+                a.enlaceAInicio(href="http://localhost:3000") Volver a inicio
+            div.divMensajeError500 
+                p #{mensajeDeError500}
+        -}else{
+            div.body404
+                a.enlaceAInicio(href="http://localhost:3000") Volver a inicio
+        -}
+

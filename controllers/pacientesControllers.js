@@ -8,7 +8,8 @@ const registroPacienteGet = async (req, res) => {
         const obraSocial = await getObrasSociales();
         res.render("registrarPaciente", {obraSocial});
     } catch (error) {
-        res.status(500).send("Error en el servidor al obtener obras sociales");
+        const mensajeDeError500 = `Error interno en el servidor: ${error}`
+        res.status(500).render("404", {error500:true, mensajeDeError500});
     }
 }
 
@@ -18,7 +19,8 @@ const planesPorId = async(req, res) => {
         const planes = await getPlanByIdObraSocial(idObraSocial);
         return res.json(planes);
     } catch (error) {
-        res.status(500).send("Error en el servidor al obtener los planes por id");
+        const mensajeDeError500 = `Error interno en el servidor: ${error}`
+        res.status(500).render("404", {error500:true, mensajeDeError500});
     }
 }
 
@@ -31,7 +33,8 @@ const registroPacientePost = async (req, res) => {
         const resultado = await insertPatient(paciente);
         res.json(`Paciente insertado correctamente con el id: ${resultado[0].insertId}`);
     } catch (error) {
-        res.status(500).send("Error interno en el servidor al insertar un nuevo paciente asdasd");
+        const mensajeDeError500 = `Error interno en el servidor: ${error}`
+        res.status(500).render("404", {error500:true, mensajeDeError500});
     }
 } 
 

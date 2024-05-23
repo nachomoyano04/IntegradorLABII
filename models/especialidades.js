@@ -10,4 +10,6 @@ const getEspecialidades =  async () => {
     }
 }
 
+// const getEspecialidadById
+
 export {getEspecialidades}

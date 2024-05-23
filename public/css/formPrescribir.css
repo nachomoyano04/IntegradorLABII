@@ -44,3 +44,43 @@
     padding: 0px 15px;
     list-style-type: none;
 }
+
+
+
+/* SECCION PRESCRIPCIONES ANTERIORES DE X PACIENTE*/
+
+.divFormularioYPrescripcionesAnteriores{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.tituloPrescripcionesAnteriores{
+    font-size: 25px;
+    /* color: #2C3E50; */
+    text-align: center;
+}
+
+#prescripcionesAnterioresPaciente{
+    display: flex;
+    background-color: #CCC;
+    font-size: 20px;
+    border-radius: 15px;
+    width: 100%;
+    flex-direction: column;
+}
+
+.pPrescripcionesAnteriores{
+    margin-left: 25px;    
+}
+
+.pPrescripcionesAnteriores li{
+    list-style-type: square;
+}
+
+.formularioPrescripcion{
+    background-color: #CCC;
+    font-size: 20px;
+    border-radius: 15px;
+    margin: 0px 20px 20px 20px;
+}
