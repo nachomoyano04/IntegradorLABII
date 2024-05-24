@@ -9,7 +9,12 @@ block content
                     textarea.textAreaDiagnostico(name="diagnostico", placeholder="Ingrese el diagnostico del paciente...", required, rows="5", cols="50", minlength="10")
                 .labels
                     label Vigencia 
-                    input.inputFormRegistro(type="date", name="vigencia", required)
+                    .divVigencia
+                        label.labelDivVigencia(for="30dias") 30 días 
+                        input.inputFormRegistro(type="radio", name="vigencia", required, id="30dias") 
+                    .divVigencia
+                        label.labelDivVigencia(for="60dias") 60 días 
+                        input.inputFormRegistro(type="radio", name="vigencia", required, id="60dias") 
                 .labels
                     label Medico
                     a.tooltip(href="/registrar/medico")
@@ -48,7 +53,7 @@ block content
                         input(type="hidden", name="idPrestacion", id="idPrestacion")
                         .autocompletadoPrestaciones
                 .divBotones
-                    input.botones(type="submit", value="Prescribir")
+                    input.botones(type="submit", value="Prescribir", id="botonPrescribir")
             div#prescripcionesAnterioresPaciente
 
     script(src="js/prescribirScript.js")

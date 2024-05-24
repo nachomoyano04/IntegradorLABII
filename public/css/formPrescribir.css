@@ -6,6 +6,15 @@
 
 .textAreaDiagnostico{
     margin-top: 10px;
+    resize: none;
+}
+
+.divVigencia{
+    display: flex; 
+}
+
+.labelDivVigencia{
+    font-size: 15px;  
 }
 
 .autocompletadoMedicamentos, .autocompletadoPrestaciones{
@@ -45,6 +54,15 @@
     list-style-type: none;
 }
 
+#botonPrescribir:disabled{
+    background-color: #6a6a6a;
+    color: #CCC;
+}
+#botonPrescribir:disabled:hover{
+    background-color: #6a6a6a;
+    color: #CCC;
+    cursor: default;
+}
 
 
 /* SECCION PRESCRIPCIONES ANTERIORES DE X PACIENTE*/
@@ -53,6 +71,8 @@
     display: flex;
     flex-direction: row;
     align-items: flex-start;
+    height: 555px;
+    margin: 20px;
 }
 
 .tituloPrescripcionesAnteriores{
@@ -66,16 +86,28 @@
     background-color: #CCC;
     font-size: 20px;
     border-radius: 15px;
-    width: 100%;
+    width: 700px;
     flex-direction: column;
+    overflow-y: auto;
+    height: 100%;
 }
 
 .pPrescripcionesAnteriores{
-    margin-left: 25px;    
+    margin: 0px 25px 10px 25px;    
+}
+
+.pPrescripcionesAnteriores ul{
+    border: 2px solid black;
+    border-radius: 15px;
+    padding: 22px 45px;
 }
 
 .pPrescripcionesAnteriores li{
     list-style-type: square;
+}
+
+.botonAniadirResultado{
+    margin-top: 10px;
 }
 
 .formularioPrescripcion{
@@ -83,4 +115,16 @@
     font-size: 20px;
     border-radius: 15px;
     margin: 0px 20px 20px 20px;
+    height: 100%;
 }
+
+.textAreaResultadoObservacion{
+    resize: none;
+}
+
+.divAniadirResultado{
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+}
+

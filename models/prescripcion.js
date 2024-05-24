@@ -2,15 +2,12 @@ import pool from "./database.js";
 
 const insertPrescripcion = (prescripcion) => {
     let fecha = new Date().toLocaleString('sv-SE');
-    const {diagnostico, vigencia, idMedicamentoDetalle, idPrestacion, idMedico, idPaciente} = prescripcion;
-    let prescripcionConFecha = {};
-    if(idPrestacion === ""){
-        prescripcionConFecha = {diagnostico, fecha, vigencia, idMedicamentoDetalle, idPrestacion: null, idMedico, idPaciente};
-    }else if(idMedicamentoDetalle = ""){
-        prescripcionConFecha = {diagnostico, fecha, vigencia, idMedicamentoDetalle: null, idPrestacion, idMedico, idPaciente};
-    }else{
-        prescripcionConFecha = {diagnostico, fecha, vigencia, idMedicamentoDetalle, idPrestacion, idMedico, idPaciente};
-    }
+    let {diagnostico, vigencia, idMedico, idPaciente} = prescripcion;
+    let idMedicamentoDetalle = prescripcion.idMedicamentoDetalle || null;
+    let idPrestacion = prescripcion.idPrestacion || null;
+    let prescripcionConFecha = {diagnostico, fecha, vigencia, idMedicamentoDetalle, idPrestacion, idMedico, idPaciente};
+    console.log(`Prescripción:`)
+    console.log(prescripcionConFecha)
     const query = "INSERT INTO prescripcion SET ?";
     try{
         const resultado = pool.query(query, prescripcionConFecha);

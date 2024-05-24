@@ -4,6 +4,9 @@ let inputPrestaciones = document.querySelector("#inputPrestacionPrescripcion");
 let autocompletadoPrestacion = document.querySelector(".autocompletadoPrestaciones");
 let autocompletadoMedicamento = document.querySelector(".autocompletadoMedicamentos");
 let bodyInicio = document.querySelector(".bodyInicio");
+let botonPrescribir = document.querySelector("#botonPrescribir"); //Boton cargar prescripción
+botonPrescribir.disabled = true;
+
 axios('http://localhost:3000/prescribir?query=medicamentos')
 .then(res => {
     inputMedicamentos.addEventListener("input", (evento) => {
@@ -26,10 +29,16 @@ axios('http://localhost:3000/prescribir?query=medicamentos')
                     borrarAutocompletadoAnterior(autocompletadoMedicamento);
                     let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
                     idMedicamentoDetalle.value = mr.id;
+                    botonPrescribir.disabled = false;
                 })
             }
         }else if(palabra === ""){
-            borrarAutocompletadoAnterior(autocompletadoMedicamento)
+            borrarAutocompletadoAnterior(autocompletadoMedicamento);
+            let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
+            idMedicamentoDetalle.value = "";
+            if(inputPrestaciones.value === ""){
+                botonPrescribir.disabled = true;
+            }
         }
     })
     inputPrestaciones.addEventListener("input", (evento) => {
@@ -44,15 +53,21 @@ axios('http://localhost:3000/prescribir?query=medicamentos')
                 let pre = JSON.parse(p);
                 div.appendChild(crearPrestacion(pre));
                 autocompletadoPrestacion.appendChild(div);
-                div.addEventListener("click", (evento) => {
-                    inputPrestaciones.value = `${pre.nombre} ${pre.lado} ${pre.indicacion} ${pre.justificacion} ${pre.resultado}`;
+                div.addEventListener("click", () => {
+                    inputPrestaciones.value = `${pre.nombrePrestacion} ${pre.lado} ${pre.indicacion} ${pre.justificacion} ${pre.resultado}`;
                     borrarAutocompletadoAnterior(autocompletadoPrestacion)
                     let idPrestacion = document.getElementById("idPrestacion");
                     idPrestacion.value = pre.idPrestacion;
+                    botonPrescribir.disabled = false;
                 })
             }
         }else{
             borrarAutocompletadoAnterior(autocompletadoPrestacion);
+            let idPrestacion = document.getElementById("idPrestacion");
+            idPrestacion.value = "";
+            if(inputMedicamentos.value === ""){
+                botonPrescribir.disabled = true;
+            }
         }
     })
     bodyInicio.addEventListener("click", () => { //para borrar los autocompletados cuando toquen cualquier parte del body
@@ -75,7 +90,7 @@ const crearPrestacion = (prestacion) => {
     let liIndicacion = document.createElement("li");
     let liJustificacion = document.createElement("li");
     let liResultado = document.createElement("li");
-    liNombre.innerHTML = `${prestacion.nombre}`;
+    liNombre.innerHTML = `${prestacion.nombrePrestacion}`;
     liLado.innerHTML = `lado: ${prestacion.lado}`;
     liIndicacion.innerHTML = `indicación: ${prestacion.indicacion}`;
     liJustificacion.innerHTML = `justificación: ${prestacion.justificacion}`;
@@ -101,10 +116,10 @@ selectPacientes.addEventListener("change", (event) => {
         const prescripcionesAnteriores = res.data;
         pTitulo.className = "tituloPrescripcionesAnteriores";
         let pPresAnte = document.createElement("p");
-        pPresAnte.className = "pPrescripcionesAnteriores";
         if(prescripcionesAnteriores.length === 0){
             pPresAnte.innerHTML = "- No existen prescripciones anteriores.";
         }else{
+            pPresAnte.className = "pPrescripcionesAnteriores";
             pPresAnte.appendChild(listadoDePrescripcionesAnteriores(prescripcionesAnteriores));
             pTitulo.innerHTML = `Prescripciones anteriores paciente ${prescripcionesAnteriores[0].nombre}`;
             areaPrescripcionesAnteriores.appendChild(pTitulo);
@@ -116,6 +131,7 @@ selectPacientes.addEventListener("change", (event) => {
 
 const listadoDePrescripcionesAnteriores = (prescripcionesAnteriores) => {
     let div = document.createElement("div");
+    console.log(prescripcionesAnteriores)
     for(let pa of prescripcionesAnteriores){
         let ul = document.createElement("ul"); 
         let liDiagnostico = document.createElement("li"); //ITEM DIAGNOSTICO
@@ -128,7 +144,7 @@ const listadoDePrescripcionesAnteriores = (prescripcionesAnteriores) => {
         let liPrestacion = document.createElement("li"); // ITEM PRESTACION
         let medicamento = `Medicamento: ${pa.nombreGenerico} ${pa.cantidadConcentracion} ${pa.unidadMedidaCon} ${pa.forma} x${pa.cantidadPresentacion} ${pa.unidadMedidaPres}`
         liMedicamento.innerHTML = medicamento;
-        liPrestacion.innerHTML = `Prestacion: ${pa.nombre} ${pa.lado} ${pa.indicacion} ${pa.justificacion} ${pa.resultado}`;
+        liPrestacion.innerHTML = `Prestacion: ${pa.nombrePrestacion} ${pa.lado} ${pa.indicacion} ${pa.justificacion} ${pa.resultado}`;
         ul.appendChild(liDiagnostico);
         ul.appendChild(liFecha);
         ul.appendChild(liVigencia);
@@ -140,7 +156,55 @@ const listadoDePrescripcionesAnteriores = (prescripcionesAnteriores) => {
             ul.appendChild(liMedicamento);
             ul.appendChild(liPrestacion);
         }
+        if(pa.idPrestacion && !pa.resultado){ //nos fijamos si la prescripcion tiene prestacion y si es asi agregamos boton añadir resultado...
+            let divAniadirResultado = document.createElement("div"); //DIV QUE TENDRA BOTON Y TEXT AREA RESULTADO/OBSERVACION
+            divAniadirResultado.className = "divAniadirResultado";
+            crearDivAniadirResultado(divAniadirResultado, pa); //Funcion que crea boton añadir y guardar resultado. Y textArea 
+            ul.appendChild(divAniadirResultado);
+        }else if(pa.idPrestacion && pa.resultado){
+            let liResultado = document.createElement("li");
+            liResultado.innerHTML = `Resultado/Observación: ${pa.resultado}`;
+            ul.appendChild(liResultado)
+        }
         div.appendChild(ul);
     }
     return div;
 }
+
+const crearDivAniadirResultado = (divAniadirResultado, pa) => {
+    let botonAniadirResultado = document.createElement("button"); //BOTON AÑADIR RESULTADO/OBSERVACIÓN
+    botonAniadirResultado.className = "botonAniadirResultado"; 
+    botonAniadirResultado.innerHTML = "Añadir resultado";
+    //Escuchador de eventos para el boton añadir resultado/observación
+    botonAniadirResultado.addEventListener("click", () => {
+        //Escondemos el boton hasta que escriban la observacion en el textArea
+        botonAniadirResultado.style.display = "none"; 
+        let botonGuardarResultado = document.createElement("button");
+        botonGuardarResultado.innerHTML = "Guardar resultado";
+        botonGuardarResultado.className = "botonGuardarResultado";
+        botonGuardarResultado.addEventListener("click", () => {
+            if(textArea.value !== ""){            
+                axios.put("http://localhost:3000/prescribir/guardarResultado", {idPrestacion: pa.idPrestacion, resultado: textArea.value})
+                .then(res => console.log(res.data))
+                .catch(error => console.log(error))
+            }else{
+                textArea.style.border = "2px solid red";
+                setTimeout(() => {
+                    textArea.style.border = "1px solid rgb(118, 118, 118)";   
+                }, 1000)
+            }
+        })
+        let textArea = document.createElement("textarea");
+        textArea.className = "textAreaResultadoObservacion";
+        textArea.placeholder = "Resultado/observación de la prescripción..."
+        textArea.cols = 55;
+        textArea.rows = 3;
+        divAniadirResultado.appendChild(botonGuardarResultado);
+        divAniadirResultado.appendChild(textArea);
+    })
+    divAniadirResultado.appendChild(botonAniadirResultado);
+}
+
+botonPrescribir.addEventListener("click", () => {
+    console.log("Rawww") ///CONFIGURAR BIEN DE QUE ELIJA UN MEDICAMENTO, UNA PRESTACION O AMBAS
+})

@@ -1,7 +1,7 @@
 import { getAllDoctors } from "../models/medicos.js";
 import { getAllPatients } from "../models/pacientes.js";
 import { getMedicamento } from "../models/medicamentos.js";
-import { getPrestaciones } from "../models/prestaciones.js";
+import { getPrestaciones, insertResultadoEnPrestacionConId } from "../models/prestaciones.js";
 import { insertPrescripcion, getPrescripcionByIdPaciente } from "../models/prescripcion.js";
 
 const prescribirGet = async(req, res) => { //funcion que renderiza el form prescribir obteniendo los medicos y pacientes 
@@ -35,13 +35,13 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
 const prescribirPost = async (req, res) => {
     const prescripcion = req.body;
     console.log(prescripcion)
-    try {
-        const resultado = await insertPrescripcion(prescripcion);
-        res.status(200).json(`Prescripción cargada correctamente con el id: ${resultado[0].insertId}`)        
-    } catch (error) {
-        const mensajeDeError500 = `Error interno en el servidor: ${error}`
-        res.status(500).render("404", {error500:true, mensajeDeError500});
-    }
+    // try {
+    //     const resultado = await insertPrescripcion(prescripcion);
+    //     res.status(200).json(`Prescripción cargada correctamente con el id: ${resultado[0].insertId}`)        
+    // } catch (error) {
+    //     const mensajeDeError500 = `Error interno en el servidor: ${error}`
+    //     res.status(500).render("404", {error500:true, mensajeDeError500});
+    // }
 }
 
 const postIdPaciente = async (req, res) => {
@@ -55,4 +55,20 @@ const postIdPaciente = async (req, res) => {
     }
 }
 
-export {prescribirGet, prescribirPost, postIdPaciente};
+const postGuardarResultadoPrestacion = async (req, res) => {
+    const {idPrestacion, resultado} = req.body;
+    console.log(idPrestacion)
+    console.log(resultado)
+    try {
+        const result = await insertResultadoEnPrestacionConId(resultado, idPrestacion);
+        if(result[0].affectedRows > 0){
+            res.json({mensaje:"Resultado añadido correctamente"});
+        }else{
+            res.json({mensaje: "Error al cargar el resultado en la base de datos..."});
+        }
+    } catch (error) {
+        
+    }
+}
+
+export {prescribirGet, prescribirPost, postIdPaciente, postGuardarResultadoPrestacion};
