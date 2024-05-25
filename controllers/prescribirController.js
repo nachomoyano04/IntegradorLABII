@@ -34,6 +34,10 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
 
 const prescribirPost = async (req, res) => {
     const prescripcion = req.body;
+    const fechaDeHoy = new Date();
+    fechaDeHoy.setDate((fechaDeHoy.getDate()+parseInt(prescripcion.vigencia)));
+    const vigenciaActualizada = fechaDeHoy.toLocaleDateString("sv-SE");
+    prescripcion.vigencia = vigenciaActualizada;
     console.log(prescripcion)
     // try {
     //     const resultado = await insertPrescripcion(prescripcion);

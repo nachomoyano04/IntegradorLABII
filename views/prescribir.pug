@@ -11,10 +11,10 @@ block content
                     label Vigencia 
                     .divVigencia
                         label.labelDivVigencia(for="30dias") 30 días 
-                        input.inputFormRegistro(type="radio", name="vigencia", required, id="30dias") 
+                        input.radioDivVigencia(type="radio", name="vigencia", id="30dias", value="30", checked) 
                     .divVigencia
                         label.labelDivVigencia(for="60dias") 60 días 
-                        input.inputFormRegistro(type="radio", name="vigencia", required, id="60dias") 
+                        input.radioDivVigencia(type="radio", name="vigencia", id="60dias", value="60") 
                 .labels
                     label Medico
                     a.tooltip(href="/registrar/medico")
@@ -40,21 +40,29 @@ block content
                             -for(let pac of pacientes){
                                 option(value= pac.idPaciente) #{pac.nombre} #{pac.apellido}, DNI#{pac.documento}
                             -}
-                .labels
+                .labels#divMedicamentos
                     label Medicamento
                     .inputMedicamentoPrescribir
-                        input#inputMedicamentoPrescripcion(type="text", placeholder="opcional", autocomplete = "off")
-                        input(type="hidden", name="idMedicamentoDetalle", id="idMedicamentoDetalle")
-                        .autocompletadoMedicamentos
-                .labels
+                        .divAutocompletadoMedicamento
+                            input.classEnComunCSS#inputMedicamentoPrescripcion(type="text", placeholder="opcional", autocomplete = "off")
+                            input(type="hidden", name="idMedicamentoDetalle", id="idMedicamentoDetalle") 
+                            .autocompletadoMedicamentos
+                        button.tooltip#botonAgregarMedicamento(type="button")
+                            i.fa-solid.fa-circle-plus.botonAgregarMedicamento
+                            p.tooltiptext Agregar Medicamento
+                .labels#divPrestaciones
                     label Prestacion
                     .inputPrestacionPrescribir
-                        input#inputPrestacionPrescripcion(type="text", placeholder="opcional", autocomplete = "off")    
-                        input(type="hidden", name="idPrestacion", id="idPrestacion")
-                        .autocompletadoPrestaciones
+                        .divAutocompletadoPrestacion
+                            input.classEnComunCSS#inputPrestacionPrescripcion(type="text", placeholder="opcional", autocomplete = "off")    
+                            input(type="hidden", name="idPrestacion", id="idPrestacion")
+                            .autocompletadoPrestaciones
+                        button.tooltip#botonAgregarPrestacion(type="button")
+                            i.fa-solid.fa-circle-plus
+                                p.tooltiptext Agregar prestación
                 .divBotones
                     input.botones(type="submit", value="Prescribir", id="botonPrescribir")
             div#prescripcionesAnterioresPaciente
 
-    script(src="js/prescribirScript.js")
+    script(src="js/prescribir/prescribirScript.js", type="module")
     

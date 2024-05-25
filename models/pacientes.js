@@ -12,6 +12,7 @@ const getAllPatients = async() => { //funcion que obtiene todos los pacientes pa
 }
 
 const insertPatient = async (paciente) => {
+    console.log(paciente)
     const query = "INSERT INTO paciente SET ?";
     try {
         const resultado = await pool.query(query, paciente);

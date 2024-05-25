@@ -14,7 +14,11 @@
 }
 
 .labelDivVigencia{
-    font-size: 15px;  
+    width: 85px;
+}
+
+.radioDivVigencia{
+    width: 18px;
 }
 
 .autocompletadoMedicamentos, .autocompletadoPrestaciones{
@@ -35,7 +39,7 @@
 .autocompletadoMedicamentos div:hover, .autocompletadoPrestaciones div:hover {
     background-color: #e9e9e9;
 }
-#inputMedicamentoPrescripcion, #inputPrestacionPrescripcion{
+.classEnComunCSS{    
     width: 100%;
     padding: 5px;
     border-radius: 5px;   
@@ -43,6 +47,7 @@
 .inputMedicamentoPrescribir, .inputPrestacionPrescribir{
     width: 60%;
     position: relative;
+    display: flex;
 }
 .autocompletadoMedicamentos::-webkit-scrollbar{
     width: 0;
@@ -62,6 +67,18 @@
     background-color: #6a6a6a;
     color: #CCC;
     cursor: default;
+}
+
+/*SECCIÓN BOTON AGREGAR MEDICAMENTO*/
+
+#botonAgregarMedicamento, #botonAgregarPrestacion{      
+    border: none;
+    background-color: #CCC;
+    font-size: larger;
+}
+
+#divMedicamentos{
+    /*Display flex column*/
 }
 
 
