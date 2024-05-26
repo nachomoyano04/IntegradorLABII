@@ -28,7 +28,7 @@
     max-height: 200px;
     overflow-y: auto;
     z-index: 1000;
-    width: 100%;
+    /* width: 100%; */
     font-size: 15px;
 }
 .autocompletadoMedicamentos div, .autocompletadoPrestaciones div{
@@ -45,9 +45,7 @@
     border-radius: 5px;   
 }
 .inputMedicamentoPrescribir, .inputPrestacionPrescribir{
-    width: 60%;
-    position: relative;
-    display: flex;
+    width: 100%;
 }
 .autocompletadoMedicamentos::-webkit-scrollbar{
     width: 0;
@@ -77,10 +75,19 @@
     font-size: larger;
 }
 
-#divMedicamentos{
-    /*Display flex column*/
+#divMedicamentos, #divPrestaciones{
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin: 30px;
 }
 
+.divLabelYBtnAgregarMedicamento, .divLabelYBtnAgregarPrestacion{
+    display: flex;
+    justify-content: space-between; 
+}
 
 /* SECCION PRESCRIPCIONES ANTERIORES DE X PACIENTE*/
 
@@ -88,8 +95,9 @@
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    height: 555px;
+    height: auto;
     margin: 20px;
+    width: 100%;
 }
 
 .tituloPrescripcionesAnteriores{
@@ -103,10 +111,11 @@
     background-color: #CCC;
     font-size: 20px;
     border-radius: 15px;
-    width: 700px;
     flex-direction: column;
     overflow-y: auto;
-    height: 100%;
+    height: 575px;
+    width: 70%;
+    margin: 0px 10px 0px 10px;
 }
 
 .pPrescripcionesAnteriores{
@@ -131,8 +140,9 @@
     background-color: #CCC;
     font-size: 20px;
     border-radius: 15px;
-    margin: 0px 20px 20px 20px;
+    margin: 0px 10px 0px 10px;
     height: 100%;
+    width: 100%;
 }
 
 .textAreaResultadoObservacion{
@@ -145,3 +155,8 @@
     align-items: flex-start;
 }
 
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px; 
+}

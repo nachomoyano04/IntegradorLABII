@@ -1,4 +1,4 @@
-import { borrarAutocompletadoAnterior, listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, configurarBotonCrearPrestacion, agregarAutocompletadoPrestacion } from "./prescribirFunciones.js";
+import { borrarAutocompletadoAnterior, listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, configurarBotonCrearPrestacion, agregarAutocompletadoPrestacion, borrarAutocompletadoClickEverywhere } from "./prescribirFunciones.js";
 
 
 //SECCION AUTOCOMPLETADOS DE MEDICAMENTOS Y PRESTACIONES
@@ -8,7 +8,6 @@ let autocompletadoMedicamento = document.querySelector(".autocompletadoMedicamen
 let inputPrestaciones = document.querySelector("#inputPrestacionPrescripcion");
 let autocompletadoPrestacion = document.querySelector(".autocompletadoPrestaciones");
 
-let bodyInicio = document.querySelector(".bodyInicio");
 let botonPrescribir = document.querySelector("#botonPrescribir"); //Boton cargar prescripción
 botonPrescribir.disabled = true;
 
@@ -19,6 +18,7 @@ axios('http://localhost:3000/prescribir?query=medicamentos')
         let medicamentos = res.data.medicamentos;
         agregarAutocompletadoMedicamento(palabra, medicamentos, autocompletadoMedicamento, inputMedicamentos);
     })
+    borrarAutocompletadoClickEverywhere();
     configurarBotonCrearMedicamento(res.data.medicamentos);
 
     inputPrestaciones.addEventListener("input", (evento) => {
@@ -27,11 +27,6 @@ axios('http://localhost:3000/prescribir?query=medicamentos')
         agregarAutocompletadoPrestacion(palabra, prestaciones, autocompletadoPrestacion, inputPrestaciones)
     })
     configurarBotonCrearPrestacion(res.data.prestaciones);
-
-    bodyInicio.addEventListener("click", () => { //para borrar los autocompletados cuando toquen cualquier parte del body
-        borrarAutocompletadoAnterior(autocompletadoMedicamento);
-        borrarAutocompletadoAnterior(autocompletadoPrestacion);
-    })
 })
 .catch(error => console.log(error));
 
@@ -60,6 +55,3 @@ selectPacientes.addEventListener("change", (event) => {
     })
     .catch(error => console.log(`Error al buscar prescripciones anteriores: ${error}`));
 })
-
-
-//FUNCIONES DE LOS AUTOCOMPLETADOS

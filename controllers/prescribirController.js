@@ -38,14 +38,20 @@ const prescribirPost = async (req, res) => {
     fechaDeHoy.setDate((fechaDeHoy.getDate()+parseInt(prescripcion.vigencia)));
     const vigenciaActualizada = fechaDeHoy.toLocaleDateString("sv-SE");
     prescripcion.vigencia = vigenciaActualizada;
-    console.log(prescripcion)
-    // try {
-    //     const resultado = await insertPrescripcion(prescripcion);
-    //     res.status(200).json(`Prescripción cargada correctamente con el id: ${resultado[0].insertId}`)        
-    // } catch (error) {
-    //     const mensajeDeError500 = `Error interno en el servidor: ${error}`
-    //     res.status(500).render("404", {error500:true, mensajeDeError500});
-    // }
+    if(typeof prescripcion.idMedicamentoDetalle === "object"){
+        console.log(`Muchos medicamentos:`)
+        console.log(prescripcion)
+        //LOGICA PARA INSERTAR MUCHOS MEDICAMENTOS A UNA SOLA PRESCRIPCION
+    }else{
+        console.log(`Un solo medicamento: ${prescripcion}`);
+        // try {
+        //     const resultado = await insertPrescripcion(prescripcion);
+        //     res.status(200).json(`Prescripción cargada correctamente con el id: ${resultado[0].insertId}`)        
+        // } catch (error) {
+        //     const mensajeDeError500 = `Error interno en el servidor: ${error}`
+        //     res.status(500).render("404", {error500:true, mensajeDeError500});
+        // }
+    }
 }
 
 const postIdPaciente = async (req, res) => {

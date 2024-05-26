@@ -40,29 +40,33 @@ block content
                             -for(let pac of pacientes){
                                 option(value= pac.idPaciente) #{pac.nombre} #{pac.apellido}, DNI#{pac.documento}
                             -}
-                .labels#divMedicamentos
-                    label Medicamento
-                    .inputMedicamentoPrescribir
-                        .divAutocompletadoMedicamento
-                            input.classEnComunCSS#inputMedicamentoPrescripcion(type="text", placeholder="opcional", autocomplete = "off")
-                            input(type="hidden", name="idMedicamentoDetalle", id="idMedicamentoDetalle") 
-                            .autocompletadoMedicamentos
-                        button.tooltip#botonAgregarMedicamento(type="button")
-                            i.fa-solid.fa-circle-plus.botonAgregarMedicamento
-                            p.tooltiptext Agregar Medicamento
-                .labels#divPrestaciones
-                    label Prestacion
-                    .inputPrestacionPrescribir
-                        .divAutocompletadoPrestacion
-                            input.classEnComunCSS#inputPrestacionPrescripcion(type="text", placeholder="opcional", autocomplete = "off")    
-                            input(type="hidden", name="idPrestacion", id="idPrestacion")
-                            .autocompletadoPrestaciones
-                        button.tooltip#botonAgregarPrestacion(type="button")
-                            i.fa-solid.fa-circle-plus
-                                p.tooltiptext Agregar prestación
+                .grid-container
+                    .labels#divMedicamentos
+                        .divLabelYBtnAgregarMedicamento
+                            label Medicamento
+                            button.tooltip#botonAgregarMedicamento(type="button")
+                                i.fa-solid.fa-circle-plus.botonAgregarMedicamento
+                                p.tooltiptext Agregar Medicamento
+                        .inputMedicamentoPrescribir
+                            .divAutocompletadoMedicamento
+                                input.classEnComunCSS#inputMedicamentoPrescripcion(type="text", placeholder="opcional", autocomplete = "off")
+                                input(type="hidden", name="idMedicamentoDetalle", id="idMedicamentoDetalle") 
+                                .autocompletadoMedicamentos
+
+                    .labels#divPrestaciones
+                        .divLabelYBtnAgregarPrestacion
+                            label Prestacion
+                            button.tooltip#botonAgregarPrestacion(type="button")
+                                i.fa-solid.fa-circle-plus
+                                    p.tooltiptext Agregar prestación
+                        .inputPrestacionPrescribir
+                            .divAutocompletadoPrestacion
+                                input.classEnComunCSS#inputPrestacionPrescripcion(type="text", placeholder="opcional", autocomplete = "off")    
+                                input(type="hidden", name="idPrestacion", id="idPrestacion")
+                                .autocompletadoPrestaciones
+
                 .divBotones
                     input.botones(type="submit", value="Prescribir", id="botonPrescribir")
             div#prescripcionesAnterioresPaciente
 
     script(src="js/prescribir/prescribirScript.js", type="module")
-    

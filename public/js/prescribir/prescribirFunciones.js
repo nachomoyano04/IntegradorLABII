@@ -28,7 +28,6 @@ const crearPrestacionParaAutocompletado = (prestacion) => {
 //-------------------------------SECCIÓN LISTAR PRESCRIPCIONES ANTERIORES-------------------------------//
 const listadoDePrescripcionesAnteriores = (prescripcionesAnteriores) => {
     let div = document.createElement("div");
-    console.log(prescripcionesAnteriores)
     for(let pa of prescripcionesAnteriores){
         let ul = document.createElement("ul"); 
         let liDiagnostico = document.createElement("li"); //ITEM DIAGNOSTICO
@@ -104,37 +103,58 @@ const crearDivAniadirResultado = (divAniadirResultado, pa) => {
 
 //-------------------------------SECCIÓN FUNCIONES DEL AUTOCOMPLETADO MEDICAMENTO-------------------------------//
 
+const borrarAutocompletadoClickEverywhere = () => {
+    let bodyInicio = document.querySelector(".bodyInicio");
+    let autocompletadoMedicamentos = document.querySelectorAll(".autocompletadoMedicamentos");
+    let autocompletadoPrestaciones = document.querySelectorAll(".autocompletadoPrestaciones");
+    autocompletadoMedicamentos.forEach(elemento => {
+        bodyInicio.addEventListener("click", () => {
+            borrarAutocompletadoAnterior(elemento);
+        })
+    })
+    autocompletadoPrestaciones.forEach(elemento => {
+        bodyInicio.addEventListener("click", () => {
+            borrarAutocompletadoAnterior(elemento);
+        })
+    })
+}
+
+
 let contMedicamentos = 1;
 const configurarBotonCrearMedicamento = (medicamentos) => {
     let botonAgregarMedicamento = document.querySelector("#botonAgregarMedicamento");
     botonAgregarMedicamento.addEventListener("click", () => {
         agregarNuevoMedicamento(medicamentos, contMedicamentos);
         contMedicamentos++;
+        borrarAutocompletadoClickEverywhere();
     })
 }
 const agregarNuevoMedicamento = (medicamentos, contador) => {
-    let divMedicamentos = document.querySelector("#divMedicamentos");
-    const label = document.createElement("label"); label.innerHTML = "Medicamento";
-    const divInput = document.createElement("div");divInput.className = "inputMedicamentoPrescribir"; 
-    const medicamento = `
-                             <div class="divAutocompletadoMedicamento">
-                                 <input class="classEnComunCSS" id="inputMedicamentoPrescripcion${contador}" type="text" placeholder="opcional" autocomplete = "off">
-                                 <input type="hidden" name="idMedicamentoDetalle" id="idMedicamentoDetalle${contador}">
-                                 <div class="autocompletadoMedicamentos"></div>
-                             </div>`;
-    divInput.innerHTML = medicamento;
-    divMedicamentos.appendChild(label);    
-    divMedicamentos.appendChild(divInput);
-    let elemento = document.querySelector(`#inputMedicamentoPrescripcion${contador}`);
-    let autocompletadoMedicamentos = document.querySelectorAll(".autocompletadoMedicamentos");
-    agregarEscuchadoresDeEventosAMedicamentos(medicamentos, autocompletadoMedicamentos[contador], elemento, contador)
+    if(contador < 5){
+        let divMedicamentos = document.querySelector("#divMedicamentos");
+        const label = document.createElement("label"); label.innerHTML = `Medicamento ${contador+1}`;
+        const divInput = document.createElement("div");divInput.className = "inputMedicamentoPrescribir"; 
+        const medicamento = `
+                                 <div class="divAutocompletadoMedicamento">
+                                     <input class="classEnComunCSS" id="inputMedicamentoPrescripcion${contador}" type="text" placeholder="opcional" autocomplete = "off">
+                                     <input type="hidden" name="idMedicamentoDetalle" id="idMedicamentoDetalle${contador}">
+                                     <div class="autocompletadoMedicamentos"></div>
+                                 </div>`;
+        divInput.innerHTML = medicamento;
+        divMedicamentos.appendChild(label);    
+        divMedicamentos.appendChild(divInput);
+        let elemento = document.querySelector(`#inputMedicamentoPrescripcion${contador}`);
+        let autocompletadoMedicamentos = document.querySelectorAll(".autocompletadoMedicamentos");
+        agregarEscuchadoresDeEventosAMedicamentos(medicamentos, autocompletadoMedicamentos[contador], elemento, contador)
+    }else{
+        alert("No pueden haber más de 5 medicamentos")
+    }
 }
 
 const agregarEscuchadoresDeEventosAMedicamentos = (medicamentos, autocompletadoMedicamento, elemento, contador) => {
     elemento.addEventListener("input", (event) => {
-        let palabra = event.target.value;
-        let inputMedicamentos = document.querySelector(`#inputMedicamentoPrescripcion${contador}`);        
-        agregarAutocompletadoMedicamento(palabra, medicamentos, autocompletadoMedicamento, inputMedicamentos, contador);
+        let palabra = event.target.value;        
+        agregarAutocompletadoMedicamento(palabra, medicamentos, autocompletadoMedicamento, elemento, contador);
     })
 }
 
@@ -191,32 +211,34 @@ const configurarBotonCrearPrestacion = (prestaciones) => {
     botonAgregarPrestacion.addEventListener("click", () => {
         agregarNuevaPrestacion(prestaciones, contPrestaciones);
         contPrestaciones++;
+        borrarAutocompletadoClickEverywhere();
     })
 }
 
 const agregarNuevaPrestacion = (prestaciones, contador) => {
-    let divPrestaciones = document.querySelector("#divPrestaciones");
-    const label = document.createElement("label"); label.innerHTML = "Prestacion";
-    const divInput = document.createElement("div"); divInput.className = "inputPrestacionPrescribir";
-    const prestacion = `<div class="divAutocompletadoPrestacion">
-                            <input class="classEnComunCSS" id="inputPrestacionPrescripcion${contador}" type="text" placeholder="opcional" autocomplete="off">
-                            <input type="hidden" name="idPrestacion" id="idPrestacion${contador}">
-                            <div class="autocompletadoPrestaciones"></div>
-                        </div>`;
-    divInput.innerHTML = prestacion;
-    divPrestaciones.appendChild(label);
-    divPrestaciones.appendChild(divInput);
-    let elemento = document.querySelector(`#inputPrestacionPrescripcion${contador}`);
-    let autocompletadoPrestaciones = document.querySelectorAll(".autocompletadoPrestaciones");
-    console.log(elemento);
-    console.log(autocompletadoPrestaciones);
-    agregarEscuchadoresDeEventosAPrestaciones(prestaciones, autocompletadoPrestaciones[contador], elemento, contador);
+    if(contador < 5){
+        let divPrestaciones = document.querySelector("#divPrestaciones");
+        const label = document.createElement("label"); label.innerHTML = `Prestación ${contador+1}`;
+        const divInput = document.createElement("div"); divInput.className = "inputPrestacionPrescribir";
+        const prestacion = `<div class="divAutocompletadoPrestacion">
+                                <input class="classEnComunCSS" id="inputPrestacionPrescripcion${contador}" type="text" placeholder="opcional" autocomplete="off">
+                                <input type="hidden" name="idPrestacion" id="idPrestacion${contador}">
+                                <div class="autocompletadoPrestaciones"></div>
+                            </div>`;
+        divInput.innerHTML = prestacion;
+        divPrestaciones.appendChild(label);
+        divPrestaciones.appendChild(divInput);
+        let elemento = document.querySelector(`#inputPrestacionPrescripcion${contador}`);
+        let autocompletadoPrestaciones = document.querySelectorAll(".autocompletadoPrestaciones");
+        agregarEscuchadoresDeEventosAPrestaciones(prestaciones, autocompletadoPrestaciones[contador], elemento, contador);
+    }else{
+        alert("No pueden haber más de 5 prestaciones")
+    }
 }
 
 const agregarEscuchadoresDeEventosAPrestaciones = (prestaciones, autocompletadoPrestaciones, elemento, contador) => {
     elemento.addEventListener("input", (event) => {
-        let palabra = event.target.value;
-        // let inputPrestaciones = document.querySelector(`#inputPrestacionPrescripcion${contador}`);        
+        let palabra = event.target.value; 
         agregarAutocompletadoPrestacion(palabra, prestaciones, autocompletadoPrestaciones, elemento, contador);
     })
 }
@@ -251,7 +273,6 @@ const agregarAutocompletadoPrestacion = (palabra, prestaciones, autocompletadoPr
             let inputMedicamentosYPrestaciones = document.querySelectorAll(".classEnComunCSS");
             let inputMedicamentosYPrestacionesVacios = true;
             inputMedicamentosYPrestaciones.forEach(elemento => {
-                console.log(elemento.value)
                 if(elemento.value !== ""){
                     inputMedicamentosYPrestacionesVacios = false;
                 }
@@ -263,4 +284,4 @@ const agregarAutocompletadoPrestacion = (palabra, prestaciones, autocompletadoPr
 }
 
 
-export {borrarAutocompletadoAnterior, listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, agregarAutocompletadoPrestacion, configurarBotonCrearPrestacion};
+export {borrarAutocompletadoAnterior, listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, agregarAutocompletadoPrestacion, configurarBotonCrearPrestacion, borrarAutocompletadoClickEverywhere};
