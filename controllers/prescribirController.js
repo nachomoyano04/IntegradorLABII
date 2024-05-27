@@ -55,9 +55,11 @@ const prescribirPost = async (req, res) => {
 }
 
 const postIdPaciente = async (req, res) => {
+    // console.log(req.params)
     const idPaciente = req.params.idPaciente;
     try {
         const prescripciones = await getPrescripcionByIdPaciente(idPaciente);
+        console.log(prescripciones) 
         res.send(prescripciones);
     } catch (error) {
         const mensajeDeError500 = `Error interno en el servidor: ${error}`

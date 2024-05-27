@@ -123,28 +123,59 @@ const borrarAutocompletadoClickEverywhere = () => {
 let contMedicamentos = 1;
 const configurarBotonCrearMedicamento = (medicamentos) => {
     let botonAgregarMedicamento = document.querySelector("#botonAgregarMedicamento");
+    let inputMedicamentoPrescripcion = document.querySelector("#inputMedicamentoPrescripcion");
+    let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
     botonAgregarMedicamento.addEventListener("click", () => {
-        agregarNuevoMedicamento(medicamentos, contMedicamentos);
-        contMedicamentos++;
-        borrarAutocompletadoClickEverywhere();
+        // setInterval(() => {
+        //     console.log(contMedicamentos);
+        // }, 2000);
+        if(idMedicamentoDetalle.value !== ""){ //nos fijamos antes de crear otro medicamento, que el primero este lleno
+            agregarNuevoMedicamento(medicamentos, contMedicamentos);
+            contMedicamentos++;
+            borrarAutocompletadoClickEverywhere();
+        }else{
+            inputMedicamentoPrescripcion.style.border = "2px solid red";
+            inputMedicamentoPrescripcion.placeholder = "Seleccione un medicamento";
+            setTimeout(() => {
+                inputMedicamentoPrescripcion.style.border = "1px solid black";
+                inputMedicamentoPrescripcion.placeholder = "opcional";
+            }, 1000)
+        }
     })
 }
+
 const agregarNuevoMedicamento = (medicamentos, contador) => {
     if(contador < 5){
         let divMedicamentos = document.querySelector("#divMedicamentos");
         const label = document.createElement("label"); label.innerHTML = `Medicamento ${contador+1}`;
-        const divInput = document.createElement("div");divInput.className = "inputMedicamentoPrescribir"; 
+        const divInput = document.createElement("div");divInput.className = "inputMedicamentoPrescribir";
+        divInput.id=`m${contador}`; //le ponemos un id para poder identificar el medicamento a eliminar 
         const medicamento = `
-                                 <div class="divAutocompletadoMedicamento">
-                                     <input class="classEnComunCSS" id="inputMedicamentoPrescripcion${contador}" type="text" placeholder="opcional" autocomplete = "off">
-                                     <input type="hidden" name="idMedicamentoDetalle" id="idMedicamentoDetalle${contador}">
-                                     <div class="autocompletadoMedicamentos"></div>
-                                 </div>`;
+                                <div class="divAutocompletadoMedicamento">
+                                    <div class="inputYBotonEliminarMedicamento">
+                                        <input class="classEnComunCSS" id="inputMedicamentoPrescripcion${contador}" type="text" placeholder="opcional" autocomplete = "off">
+                                        <button class="tooltip eliminarMedicamento" type="button">
+                                            <i class="fa-solid fa-trash-can" style="color: #f50000;"></i>
+                                            <p class="tooltiptext">Eliminar medicamento</p>
+                                        </button> 
+                                    </div>
+                                    <input type="hidden" name="idMedicamentoDetalle" id="idMedicamentoDetalle${contador}">
+                                    <div class="autocompletadoMedicamentos"></div>
+                                </div>`;
         divInput.innerHTML = medicamento;
         divMedicamentos.appendChild(label);    
         divMedicamentos.appendChild(divInput);
         let elemento = document.querySelector(`#inputMedicamentoPrescripcion${contador}`);
         let autocompletadoMedicamentos = document.querySelectorAll(".autocompletadoMedicamentos");
+            //Evento que borra el medicamento
+        let botonEliminarMedicamento = document.querySelectorAll(".eliminarMedicamento")[contador-1]; 
+        botonEliminarMedicamento.addEventListener("click", () => { 
+            let divAEliminar = document.querySelector(`#m${contador}`);
+            let label = divAEliminar.previousElementSibling; //recuperamos el label que anuncia el numero de Medicamento
+            divAEliminar.remove();
+            label.remove(); 
+            contMedicamentos--; //como borramos un medicamento bajamos el contador
+        })
         agregarEscuchadoresDeEventosAMedicamentos(medicamentos, autocompletadoMedicamentos[contador], elemento, contador)
     }else{
         alert("No pueden haber más de 5 medicamentos")
@@ -180,6 +211,44 @@ const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoM
                 }
                 idMedicamentoDetalle.value = mr.id;
                 botonPrescribir.disabled = false;
+                let divMedicamentos = document.querySelector("#divMedicamentos");
+                if(!(divJustificacion.hasChildNodes())){
+                    let divJustificacion = document.querySelector("#divJustificacion");
+                    let inputs = `
+                            <div class="divDosis">
+                                <label for="dosis">Dósis</label> 
+                                <input type="text" id="dosis" name="dosis" placeholder="Ej. Una cápsula, 2 pastillas" required>
+                            </div>
+                            <div class="divIntervalo">
+                                <label for="intervalo">Intervalo</label> 
+                                <input type="number" id="intervalo" name="intervalo" placeholder="Intervalo de tiempo" required>
+                            </div>
+                            <div class="divDuracion">
+                                <label for="duracion">Duración</label>  
+                                <input type="text" id="duracion" name="duracion" placeholder="Ej. 7 días" required>
+                            </div>`;
+                    divJustificacion.innerHTML = inputs;
+                    divMedicamentos.appendChild(divJustificacion);
+                }else if(contador){
+                    let divJustificacion = document.createElement("div");
+                    let inputMedicamentoPrescribir = document.querySelectorAll(".inputMedicamentoPrescribir");
+                    divJustificacion.className="divJustificacion";divJustificacion.id=`divJustificacion${contador}`;
+                    let inputs = `
+                            <div class="divDosis">
+                                <label for="dosis${contador}">Dósis</label> 
+                                <input type="text" id="dosis${contador}" name="dosis${contador}" placeholder="Ej. Una cápsula, 2 pastillas" required>
+                            </div>
+                            <div class="divIntervalo">
+                                <label for="intervalo${contador}">Intervalo</label> 
+                                <input type="number" id="intervalo${contador}" name="intervalo${contador}" placeholder="Intervalo de tiempo" required>
+                            </div>
+                            <div class="divDuracion">
+                                <label for="duracion${contador}">Duración</label>  
+                                <input type="text" id="duracion${contador}" name="duracion${contador}" placeholder="Ej. 7 días" required>
+                            </div>`;
+                    divJustificacion.innerHTML = inputs;
+                    inputMedicamentoPrescribir[contador].appendChild(divJustificacion);
+                }
             })
         }
     }else if(palabra === ""){

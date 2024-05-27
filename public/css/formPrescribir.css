@@ -160,3 +160,22 @@
     grid-template-columns: 1fr 1fr;
     gap: 20px; 
 }
+
+/* Parte de justificacion en cada medicamento */
+
+.divJustificacion{
+    display: flex;
+    gap: 30px;
+}
+
+/* PARTE BOTON ELIMINAR MEDICAMENTO */
+.inputYBotonEliminarMedicamento{
+    display: flex;
+    gap: 10px;
+}
+.eliminarMedicamento{
+    background-color: #CCC;
+    border: none;
+    cursor: pointer;
+    font-size: larger;
+}
