@@ -27,7 +27,6 @@ const getPrestaciones = async () => {
 }
 
 const insertPrestacion = async (prestacion) => {
-    // const {nombre, lado, indicacion, justificacion, resultado} = prestacion;
     const query = "INSERT INTO prestacion SET ?";
     try{
         const resultado = await pool.query(query, prestacion);
@@ -37,16 +36,4 @@ const insertPrestacion = async (prestacion) => {
     }
 }
 
-const insertResultadoEnPrestacionConId = async(resultado, idPrestacion) => {
-    const query = "UPDATE prestacion SET resultado = ? WHERE idPrestacion = ?";
-    try {
-        const result = await pool.query(query, [resultado, idPrestacion])
-        return result;
-    } catch (error) {
-        throw error;
-    }
-}
-
-
-
-export {/*searchIdPrestacion, */getPrestaciones, insertPrestacion, insertResultadoEnPrestacionConId};
+export {/*searchIdPrestacion, */getPrestaciones, insertPrestacion};
