@@ -314,8 +314,9 @@ const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoM
                 }
                 idMedicamentoDetalle.value = mr.id; //AÑADIMOS EL ID AL INPUT HIDDEN QUE MANDA LA INFO EN EL POST
                 botonPrescribir.disabled = false; //deshabilitamos el boton prescribir
-                let divMedicamentos = document.querySelector("#divMedicamentos");
-                //AGREGAMOS CAMPOS DOS, INTERVALO Y JUSTIFICACIÓN CUANDO SELECCIONAN UN MEDICAMENTO
+
+                //AGREGAMOS CAMPOS DOS, INTERVALO Y DURACIÓN CUANDO SELECCIONAN UN MEDICAMENTO
+                // agregarCamposAMedicamentoSeleccionado(contador); IMPLEMENTARRRRRRRR............................
                 let divJustificacion = document.querySelector("#divJustificacion");
                 if(!(divJustificacion.hasChildNodes())){
                     let inputs = `
@@ -332,7 +333,6 @@ const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoM
                                 <input type="text" id="duracion" name="duracion" placeholder="Ej. 7 días" required>
                             </div>`;
                     divJustificacion.innerHTML = inputs;
-                    divMedicamentos.appendChild(divJustificacion);
                 }else if(contador){
                     let divJustificacion = document.createElement("div");
                     let inputMedicamentoPrescribir = document.querySelectorAll(".inputMedicamentoPrescribir");
@@ -381,23 +381,29 @@ const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoM
         }
 
         borrarAutocompletadoAnterior(autocompletadoMedicamento);
+
         let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
         let divJustificacion = document.querySelector("#divJustificacion");
-        if(contador){ //////// chequear esto porque hay un error cuando borramos todo en el principal habiendo hijos y queremos seleccionar uno del autocompletado...
+        if(contador){ 
             idMedicamentoDetalle = document.querySelector(`#idMedicamentoDetalle${contador}`);
             let divJustificacionContador = document.querySelector(`#divJustificacion${contador}`)
             if(divJustificacionContador){
                 divJustificacionContador.remove();
             }
+        }else{
+            borrarAutocompletadoAnterior(divJustificacion);
         }
+
         //borramos el id del medicamento de nuestro arreglo de ids ya seleccionados
         let indice = idsDeMedicamentos.indexOf(parseInt(idMedicamentoDetalle.value));
         if(indice > -1){
             idsDeMedicamentos.splice(indice, 1);
         }
 
-        borrarAutocompletadoAnterior(divJustificacion);
+        //seteamos el valor del idMedicamentoDetalle a vacío nuevamente...
         idMedicamentoDetalle.value = "";
+        
+        //Nos fijamos: Si estan todos los inputs vacíos, entonces deshabilitamos el botón prescribir. 
         let inputMedicamentos = document.querySelectorAll(".classEnComunCSS");
         let inputMedicamentosYPrestacionesVacio = true; //LOGICA QUE CONTROLA Q TODOS LOS INPUT DE MEDICAMENTO ESTEN VACIOS
         inputMedicamentos.forEach(e => {
