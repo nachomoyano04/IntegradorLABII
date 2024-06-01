@@ -69,19 +69,18 @@
 
 /*SECCIÓN BOTON AGREGAR MEDICAMENTO*/
 
-#botonAgregarMedicamento, #botonAgregarPrestacion{      
-    border: none;
-    background-color: #CCC;
-    font-size: larger;
-}
+
 
 #divMedicamentos, #divPrestaciones{
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     gap: 20px;
     align-items: flex-start;
     justify-content: flex-start;
-    margin: 20px 30px;
+    margin: 10px;
+    padding: 15px 5px;
+    background-color: #7e8295;
 }
 
 .divLabelYBtnAgregarMedicamento, .divLabelYBtnAgregarPrestacion{
@@ -150,9 +149,20 @@
 }
 
 .divAniadirResultado{
-    display: flex;
+    /* display: flex;
     flex-direction: column-reverse;
-    align-items: flex-start;
+    align-items: flex-start; */
+    /* margin-right: 10px; */
+}
+
+.divAniadirResultado button{
+    margin: 5px 5px 0px 0px;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+}
+.divAniadirResultado button:hover{
+    cursor: pointer;
 }
 
 .grid-container {
@@ -180,9 +190,14 @@
     display: flex;
     gap: 10px;
 }
-.eliminarMedicamento, .eliminarPrestacion, .editarMedicamento, .editarPrestacion{
-    background-color: #CCC;
+.eliminarMedicamento, .eliminarPrestacion, .editarMedicamento, .editarPrestacion, #botonAgregarMedicamento, #botonAgregarPrestacion{
+    /* background-color: none; */
     border: none;
     cursor: pointer;
+    background-color: #7e8295;
     font-size: larger;
+}
+
+.divResultadoPrestacion li{
+    list-style-type: armenian;
 }

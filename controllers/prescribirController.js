@@ -6,6 +6,7 @@ import { insertPrescripcion, getPrescripcionByIdPaciente } from "../models/presc
 import { insertPrescripcionMedicamentoDetalle } from "../models/prescripcionMedicamentoDetalle.js";
 import { insertPrescripcionPrestacion } from "../models/prescripcionPrestacion.js";
 import { updateResultadoPrestacion } from "../models/prescripcionPrestacion.js";
+import pool from "../models/database.js";
 
 const prescribirGet = async(req, res) => { //funcion que renderiza el form prescribir obteniendo los medicos y pacientes 
     let queryMedicamento = req.query.query;
@@ -36,112 +37,40 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
 }   
 
 const prescribirPost = async (req, res) => {
-    const prescripcion = req.body;
-    const {idMedicamentoDetalle, dosis, duracion, intervalo} = prescripcion;
-    let medicamento = prescripcion.idMedicamentoDetalle;
-    let prestacion = prescripcion.idPrestacion;
-    let nMedicamentos0Prestaciones = typeof medicamento==="object" && !prestacion;
-    let nMedicamentos1Prestacion = typeof medicamento==="object" && typeof prestacion==="string";  
-    let nMedicamentosNPrestaciones = typeof medicamento==="object" && typeof prestacion==="object";
-    let unMedicamento0Prestaciones = typeof medicamento==="string" && !prestacion;
-    let nPrestaciones0Medicamento = typeof prestacion==="object" && !medicamento;
-    let nPrestaciones1Medicamento = typeof medicamento==="string" && typeof prestacion==="object";
-    let unaPrestacion1Medicamento = typeof medicamento==="string" && typeof prestacion==="string";
-    if(nMedicamentos0Prestaciones){
-        //LOGICA PARA INSERTAR MUCHOS MEDICAMENTOS A UNA SOLA PRESCRIPCION
-        try {
-            const idPrescripcion = await insertPrescripcion(prescripcion);
-            for(let m of medicamento){
-                let idMedicamentoDetalle = parseInt(m);
-                const prescripcion_medicamentodetalle = {idPrescripcion, idMedicamentoDetalle, dosis, duracion, intervalo};
-                const resultado = await insertPrescripcionMedicamentoDetalle(prescripcion_medicamentodetalle);
-                console.log(`prescripcion_medicamentodetalle añadido correctamente con el id: ${resultado}`);
+    let {diagnostico, vigencia, idMedico, idPaciente, idMedicamentoDetalle, dosis, intervalo, duracion, idPrestacion} = req.body;
+    console.log(req.body);
+    //convertimos a objeto los idMedicamentoDetalle e idPrestacion para que sea mas facil las inserciones (si existen)
+    if(typeof idMedicamentoDetalle !== "object" && idMedicamentoDetalle){
+        idMedicamentoDetalle = [idMedicamentoDetalle];
+        dosis = [dosis];
+        intervalo = [intervalo];
+        duracion = [duracion];
+    }
+    if(typeof idPrestacion !== "object" && idPrestacion){
+        idPrestacion = [idPrestacion];
+    }
+    const prescripcion = {diagnostico, vigencia, idMedico, idPaciente};
+    const connection = await pool.getConnection();
+    try{
+        await connection.beginTransaction();
+        const idPrescripcion = await insertPrescripcion(prescripcion);
+        if(idMedicamentoDetalle){
+            for(let i = 0; i < idMedicamentoDetalle.length; i++){
+                await insertPrescripcionMedicamentoDetalle(idPrescripcion, idMedicamentoDetalle[i], dosis[i], duracion[i], intervalo[i]);
             }
-            res.status(200).json("Muchos medicamentos y ninguna prescripcion añadidos correctamente");
-        } catch (error) {
-            res.status(500).render("404", {error500:true, mensajeDeError500: error});        
         }
-    }else if(nMedicamentos1Prestacion){
-        //LOGICA PARA INSERTAR MUCHOS MEDICAMENTOS Y UNA PRESTACION A UNA SOLA PRESCRIPCION
-        try {
-            const idPrescripcion = await insertPrescripcion(prescripcion);
-            for(let m of medicamento){
-                let idMedicamentoDetalle = parseInt(m);
-                const prescripcion_medicamentodetalle = {idPrescripcion, idMedicamentoDetalle, dosis, duracion, intervalo};
-                const resultado = await insertPrescripcionMedicamentoDetalle(prescripcion_medicamentodetalle);
-                console.log(`prescripcion_medicamentodetalle añadido correctamente con el id: ${resultado}`);
+        if(idPrestacion){
+            for(let ip of idPrestacion){
+                await insertPrescripcionPrestacion(idPrescripcion, ip);
             }
-            const resultadoPrestacion = await insertPrescripcionPrestacion(idPrescripcion, prestacion);
-            res.status(200).json("Muchos medicamentos y ninguna prescripcion añadidos correctamente");
-        } catch (error) {
-            res.status(500).render("404", {error500:true, mensajeDeError500: error});          
         }
-    }else if(nMedicamentosNPrestaciones){
-        //LOGICA PARA INSERTAR MUCHOS MEDICAMENTOS Y MUCHAS PRESTACIONES A UNA SOLA PRESCRIPCION
-        try {
-            const idPrescripcion = await insertPrescripcion(prescripcion);
-            for(let m of medicamento){
-                let idMedicamentoDetalle = parseInt(m);
-                const prescripcion_medicamentodetalle = {idPrescripcion, idMedicamentoDetalle, dosis, duracion, intervalo};
-                const resultado = await insertPrescripcionMedicamentoDetalle(prescripcion_medicamentodetalle);
-                console.log(`prescripcion_medicamentodetalle añadido correctamente con el id: ${resultado}`);
-            }
-            for(let p of prestacion){
-                let idPrestacion = parseInt(p);
-                const resultadoPrestacion = await insertPrescripcionPrestacion(idPrescripcion, idPrestacion);
-            }
-            res.status(200).json("Muchos medicamentos y ninguna prescripcion añadidos correctamente");
-        } catch (error) {
-            res.status(500).render("404", {error500:true, mensajeDeError500: error});        
-        }
-    }else if(nPrestaciones0Medicamento){
-        //LOGICA PARA INSERTAR MUCHAS PRESTACIONES A UNA SOLA PRESCRIPCION
-        try {
-            const idPrescripcion = await insertPrescripcion(prescripcion);
-            for(let p of prestacion){
-                let idPrestacion = parseInt(p);
-                const resultadoPrestacion = await insertPrescripcionPrestacion(idPrescripcion, idPrestacion);
-            }
-            res.status(200).json("Muchos medicamentos y ninguna prescripcion añadidos correctamente");
-        } catch (error) {
-            res.status(500).render("404", {error500:true, mensajeDeError500: error});           
-        }
-    }else if(nPrestaciones1Medicamento){
-        //LOGICA PARA INSERTAR MUCHAS PRESTACIONES Y UN MEDICAMENTO A UNA SOLA PRESCRIPCION
-        try {
-            const idPrescripcion = await insertPrescripcion(prescripcion);
-            const prescripcion_medicamentodetalle = {idPrescripcion, medicamento, dosis, duracion, intervalo};
-            const resultado = await insertPrescripcionMedicamentoDetalle(prescripcion_medicamentodetalle);
-            console.log(`prescripcion_medicamentodetalle añadido correctamente con el id: ${resultado}`);
-            for(let p of prestacion){
-                let idPrestacion = parseInt(p);
-                const resultadoPrestacion = await insertPrescripcionPrestacion(idPrescripcion, idPrestacion);
-            }
-            res.status(200).json("Muchos medicamentos y ninguna prescripcion añadidos correctamente");
-        } catch (error) {
-            res.status(500).render("404", {error500:true, mensajeDeError500: error});           
-        }
-    }else if(unMedicamento0Prestaciones){
-        //LOGICA PARA INSERTAR UN MEDICAMENTO A UNA SOLA PRESCRIPCION
-        try {
-            const idPrescripcion = await insertPrescripcion(prescripcion);
-            const prescripcion_medicamentodetalle = {idPrescripcion, medicamento, dosis, duracion, intervalo};
-            const resultado = await insertPrescripcionMedicamentoDetalle(prescripcion_medicamentodetalle);
-            console.log(`prescripcion_medicamentodetalle añadido correctamente con el id: ${resultado}`);
-            res.status(200).json("Muchos medicamentos y ninguna prescripcion añadidos correctamente");
-        } catch (error) {
-            res.status(500).render("404", {error500:true, mensajeDeError500: error});            
-        }
-    }else if(unaPrestacion1Medicamento){
-        //LOGICA PARA INSERTAR UNA PRESTACION Y UN MEDICAMENTO A UNA SOLA PRESCRIPCION
-        try {
-            const idPrescripcion = await insertPrescripcion(prescripcion);
-            const prescripcion_medicamentodetalle = {idPrescripcion, medicamento, dosis, duracion, intervalo};
-            const resultadoMD = await insertPrescripcionMedicamentoDetalle(prescripcion_medicamentodetalle);
-            const resultadoPP = await insertPrescripcionPrestacion(idPrescripcion, prestacion);
-        } catch (error) {
-            res.status(500).render("404", {error500:true, mensajeDeError500: error});
-        }
+        await connection.commit();
+        res.status(200).json({mensaje: "Se realizó la prescripción correctamente..."})
+    }catch(error){
+        await connection.rollback();
+        res.status(500).render("404", {error500:true ,mensajeDeError500:error})
+    }finally{
+        connection.release();
     }
 }
 
@@ -159,14 +88,12 @@ const postIdPaciente = async (req, res) => {
 
 const postGuardarResultadoPrestacion = async (req, res) => {
     const {idPrestacion, resultado, idPrescripcion} = req.body;
-    console.log(idPrestacion)
-    console.log(resultado)
     try {
         const result = await updateResultadoPrestacion(resultado, idPrestacion, idPrescripcion);
         if(result[0].affectedRows > 0){
-            res.json({mensaje:"Resultado añadido correctamente"});
+            res.json({mensaje:"Resultado añadido correctamente", aniadido:true, resultado});
         }else{
-            res.json({mensaje: "Error al cargar el resultado en la base de datos..."});
+            res.json({mensaje: "Error al cargar el resultado en la base de datos...", aniadido:false});
         }
     } catch (error) {
         

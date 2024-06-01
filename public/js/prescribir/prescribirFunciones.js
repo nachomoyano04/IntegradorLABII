@@ -5,16 +5,14 @@ const borrarAutocompletadoAnterior = (elemento) => {
         elemento.removeChild(elemento.firstChild);
     }
 }
-const mensajeLlenarEspacioMedicamentoYPrestaciones = (elemento, mensajeError) => {
-    elemento.style.border = "1px solid red";
-    elemento.style.color = "red";
-    elemento.value = "";
+const mensajeLlenarEspacioMedicamentoYPrestaciones = (elemento, mensajeError, color) => {
+    elemento.style.border = `3px solid ${color}`;
     elemento.placeholder = mensajeError;
     setTimeout(() => {
         elemento.style.border = "1px solid black";
         elemento.style.color = "black";
         elemento.placeholder = "";
-    },1500)
+    },1000)
 }
 const borrarAutocompletadoClickEverywhere = () => {
     let bodyInicio = document.querySelector(".bodyInicio");
@@ -66,120 +64,161 @@ const listadoDePrescripcionesAnteriores = (prescripcionesAnteriores) => {
         ul.appendChild(liDiagnostico);
         ul.appendChild(liFecha);
         ul.appendChild(liVigencia);
-        if(pa.idMedicamentoDetalle){
-            if(typeof pa.nombreGenerico === "object"){
-                for(let i = 0; i < pa.nombreGenerico.length; i++){ //recorremos los medicamentos
-                    let liMedicamento = document.createElement("li"); // ITEM MEDICAMENTO
-                    let medicamento = `Medicamento ${i+1}: ${pa.nombreGenerico[i]} ${pa.cantidadConcentracion[i]} ${pa.unidadMedidaCon[i]} ${pa.forma[i]} x${pa.cantidadPresentacion[i]} ${pa.unidadMedidaPres[i]}`;
-                    liMedicamento.innerHTML = medicamento;
-                    ul.appendChild(liMedicamento);
-                }
-            }else{
+        if(pa.medicamentos.nombreGenerico.length > 0){
+            for(let i = 0; i < pa.medicamentos.nombreGenerico.length; i++){
                 let liMedicamento = document.createElement("li"); // ITEM MEDICAMENTO
-                let medicamento = `Medicamento: ${pa.nombreGenerico} ${pa.cantidadConcentracion} ${pa.unidadMedidaCon} ${pa.forma} x${pa.cantidadPresentacion} ${pa.unidadMedidaPres}`;
+                let medicamento = `Medicamento ${i+1}: ${pa.medicamentos.nombreGenerico[i]} ${pa.medicamentos.cantidadConcentracion[i]} ${pa.medicamentos.unidadMedidaCon[i]} ${pa.medicamentos.forma[i]} x${pa.medicamentos.cantidadPresentacion[i]} ${pa.medicamentos.unidadMedidaPres[i]}`;
                 liMedicamento.innerHTML = medicamento;
                 ul.appendChild(liMedicamento);
             }
         }
-        if(pa.idPrestacion){
-            if(typeof pa.nombrePrestacion === "object"){
-                for(let i = 0; i < pa.nombrePrestacion.length; i++){
-                    let liPrestacion = document.createElement("li"); // ITEM PRESTACION
-                    liPrestacion.innerHTML = `Prestacion ${i+1}: ${pa.nombrePrestacion[i]} ${pa.lado[i]} ${pa.indicacion[i]} ${pa.justificacion[i]}`;
+        if(pa.prestaciones.nombrePrestacion.length > 0){
+            for(let i = 0; i < pa.prestaciones.nombrePrestacion.length; i++){
+                let liPrestacion = document.createElement("li"); // ITEM PRESTACION
+                    liPrestacion.innerHTML = `Prestacion ${i+1}: ${pa.prestaciones.nombrePrestacion[i]} ${pa.prestaciones.lado[i]} ${pa.prestaciones.indicacion[i]} ${pa.prestaciones.justificacion[i]}`;
                     ul.appendChild(liPrestacion);
-                    if(pa.resultadoPrestacion[i] === null){
+                    let divResultadoPrestacion = document.createElement("div");divResultadoPrestacion.className ="divResultadoPrestacion";
+                    if(pa.prestaciones.resultadoPrestacion[i] === null){
                         let divAniadirResultado = document.createElement("div"); //DIV QUE TENDRA BOTON Y TEXT AREA RESULTADO/OBSERVACION
                         divAniadirResultado.className = "divAniadirResultado";
-                        crearDivAniadirResultado(divAniadirResultado, pa.idPrescripcion, pa.idPrestacion[i]); //Funcion que crea boton añadir y guardar resultado. Y textArea 
-                        ul.appendChild(divAniadirResultado);
+                        crearDivAniadirResultado(divAniadirResultado, pa.idPrescripcion, pa.prestaciones.idPrestacion[i], divResultadoPrestacion); //Funcion que crea boton añadir y guardar resultado. Y textArea 
+                        divResultadoPrestacion.appendChild(divAniadirResultado);
                     }else{
                         let liResultado = document.createElement("li");
-                        liResultado.innerHTML = `Resultado/Observación: ${pa.resultadoPrestacion[i]}`;
-                        ul.appendChild(liResultado)
+                        liResultado.innerHTML = `Resultado/Observación: ${pa.prestaciones.resultadoPrestacion[i]}`;
+                        divResultadoPrestacion.appendChild(liResultado)
                     }
-                }
-            }else{
-                let liPrestacion = document.createElement("li"); // ITEM PRESTACION
-                liPrestacion.innerHTML = `Prestacion: ${pa.nombrePrestacion} ${pa.lado} ${pa.indicacion} ${pa.justificacion}`;
-                ul.appendChild(liPrestacion);
-                if(pa.resultadoPrestacion === null){
-                    let divAniadirResultado = document.createElement("div"); //DIV QUE TENDRA BOTON Y TEXT AREA RESULTADO/OBSERVACION
-                    divAniadirResultado.className = "divAniadirResultado";
-                    crearDivAniadirResultado(divAniadirResultado, pa.idPrescripcion, pa.idPrestacion); //Funcion que crea boton añadir y guardar resultado. Y textArea 
-                    ul.appendChild(divAniadirResultado);    
-                }else{
-                    let liResultado = document.createElement("li");
-                    liResultado.innerHTML = `Resultado/Observación: ${pa.resultadoPrestacion}`;
-                    ul.appendChild(liResultado);
+                    ul.appendChild(divResultadoPrestacion);
                 }
             }
-        }
         div.appendChild(ul);
     }
     return div;
 }
 
 let acomodarPrescripciontesAnteriores = (prescripcionesAnteriores) => {
-    let idPrescripciones = [];
-    for(let p of prescripcionesAnteriores){
-        if(!(idPrescripciones.includes(p.idPrescripcion))){
-            idPrescripciones.push(p.idPrescripcion);
+    let medicamentos = prescripcionesAnteriores[0];
+    let prestaciones = prescripcionesAnteriores[1];
+    const prescripciones = [];
+    if(medicamentos){
+        for(let m of medicamentos){
+            let yaExiste = prescripciones.some(e => e.idPrescripcion === m.idPrescripcion);
+            if(yaExiste){
+                let prescripcion = prescripciones.find(e => e.idPrescripcion === m.idPrescripcion);
+                prescripcion.medicamentos.nombreGenerico.push(m.nombreGenerico);
+                prescripcion.medicamentos.nombreComercial.push(m.nombreComercial);
+                prescripcion.medicamentos.cantidadConcentracion.push(m.cantidadConcentracion);
+                prescripcion.medicamentos.unidadMedidaCon.push(m.unidadMedidaCon);
+                prescripcion.medicamentos.forma.push(m.forma);
+                prescripcion.medicamentos.cantidadPresentacion.push(m.cantidadPresentacion);
+                prescripcion.medicamentos.unidadMedidaPres.push(m.unidadMedidaPres);
+            }else{
+                let objeto = {
+                    idPrescripcion:m.idPrescripcion,
+                    diagnostico: m.diagnostico,
+                    fecha:m.fecha,
+                    vigencia:m.vigencia,
+                    medicamentos:{nombreGenerico: [m.nombreGenerico],
+                                  nombreComercial: [m.nombreComercial], 
+                                  cantidadConcentracion: [m.cantidadConcentracion],
+                                  unidadMedidaCon: [m.unidadMedidaCon],
+                                  forma: [m.forma],
+                                  cantidadPresentacion: [m.cantidadConcentracion],
+                                  unidadMedidaPres: [m.unidadMedidaPres]},
+                    prestaciones:{nombrePrestacion: [],
+                                   lado:[],
+                                   indicacion:[],
+                                   justificacion:[],
+                                   resultadoPrestacion:[],
+                                   idPrestacion:[]}
+                }
+                prescripciones.push(objeto);
+            }
         }
     }
-    const prescripcionesActualizado = prescripcionesAnteriores.reduce((acc,el) => {
-        let e = acc.find(obj => obj.idPrescripcion === el.idPrescripcion);
-        if(!e){
-            acc.push(el);
-        }else{
-            if(el.idPrestacion){
-                e.idPrestacion = Array.isArray(e.idPrestacion)?e.idPrestacion:[e.idPrestacion];e.idPrestacion.push(el.idPrestacion);
-                e.nombrePrestacion = Array.isArray(e.nombrePrestacion)?e.nombrePrestacion:[e.nombrePrestacion];e.nombrePrestacion.push(el.nombrePrestacion);
-                e.lado = Array.isArray(e.lado)?e.lado:[e.lado];e.lado.push(el.lado);
-                e.indicacion = Array.isArray(e.indicacion)?e.indicacion:[e.indicacion];e.indicacion.push(el.indicacion);
-                e.justificacion = Array.isArray(e.justificacion)?e.justificacion:[e.justificacion];e.justificacion.push(el.justificacion);
-                e.resultadoPrestacion = Array.isArray(e.resultadoPrestacion)?e.resultadoPrestacion:[e.resultadoPrestacion];e.resultadoPrestacion.push(el.resultadoPrestacion);
-            }
-            if(el.idMedicamentoDetalle){
-                e.idMedicamentoDetalle = Array.isArray(e.idMedicamentoDetalle)?e.idMedicamentoDetalle:[e.idMedicamentoDetalle];e.idMedicamentoDetalle.push(el.idMedicamentoDetalle);
-                e.dosis = Array.isArray(e.dosis)?e.dosis:[e.dosis];e.dosis.push(el.dosis);
-                e.duracion = Array.isArray(e.duracion)?e.duracion:[e.duracion];e.duracion.push(el.duracion);
-                e.intervalo = Array.isArray(e.intervalo)?e.intervalo:[e.intervalo];e.intervalo.push(el.intervalo);
-                e.nombreGenerico = Array.isArray(e.nombreGenerico)?e.nombreGenerico:[e.nombreGenerico];e.nombreGenerico.push(el.nombreGenerico);
-                e.nombreComercial = Array.isArray(e.nombreComercial)?e.nombreComercial:[e.nombreComercial];e.nombreComercial.push(el.nombreComercial);
-                e.cantidadConcentracion = Array.isArray(e.cantidadConcentracion)?e.cantidadConcentracion:[e.cantidadConcentracion];e.cantidadConcentracion.push(el.cantidadConcentracion);
-                e.unidadMedidaCon = Array.isArray(e.unidadMedidaCon)?e.unidadMedidaCon:[e.unidadMedidaCon];e.unidadMedidaCon.push(el.unidadMedidaCon);
-                e.forma = Array.isArray(e.forma)?e.forma:[e.forma];e.forma.push(el.forma);
-                e.cantidadPresentacion = Array.isArray(e.cantidadPresentacion)?e.cantidadPresentacion:[e.cantidadPresentacion];e.cantidadPresentacion.push(el.cantidadPresentacion);
-                e.unidadMedidaPres = Array.isArray(e.unidadMedidaPres)?e.unidadMedidaPres:[e.unidadMedidaPres];e.unidadMedidaPres.push(el.unidadMedidaPres);
-            }
+    if(prestaciones){
+        for(let p of prestaciones){
+            let yaExiste = prescripciones.some(e => e.idPrescripcion === p.idPrescripcion);
+            if(yaExiste){
+                let prescripcion = prescripciones.find(e => e.idPrescripcion === p.idPrescripcion);
+                prescripcion.prestaciones.nombrePrestacion.push(p.nombrePrestacion);
+                prescripcion.prestaciones.lado.push(p.lado);
+                prescripcion.prestaciones.indicacion.push(p.indicacion);
+                prescripcion.prestaciones.justificacion.push(p.justificacion);
+                prescripcion.prestaciones.resultadoPrestacion.push(p.resultadoPrestacion);
+                prescripcion.prestaciones.idPrestacion.push(p.idPrestacion);
+            }else{
+                let objeto = {
+                    idPrescripcion:p.idPrescripcion,
+                    diagnostico: p.diagnostico,
+                    fecha:p.fecha,
+                    vigencia:p.vigencia,
+                    medicamentos:{nombreGenerico: [],
+                        nombreComercial: [], 
+                        cantidadConcentracion: [],
+                        unidadMedidaCon: [],
+                        forma: [],
+                        cantidadPresentacion: [],
+                        unidadMedidaPres: []},
+                        prestaciones:{nombrePrestacion: [p.nombrePrestacion],
+                            lado:[p.lado],
+                            indicacion:[p.indicacion],
+                            justificacion:[p.justificacion],
+                            resultadoPrestacion: [p.resultadoPrestacion],
+                            idPrestacion: [p.idPrestacion]}
+                        }
+                        prescripciones.push(objeto);
+                    }
         }
-        return acc;
-    }, []);
-    return prescripcionesActualizado;   
+    }
+    return prescripciones;   
 }
 
-const crearDivAniadirResultado = (divAniadirResultado, idPrescripcion, idPrestacion) => {
+const crearDivAniadirResultado = (divAniadirResultado, idPrescripcion, idPrestacion, divResultadoPrestacion) => {
     let botonAniadirResultado = document.createElement("button"); //BOTON AÑADIR RESULTADO/OBSERVACIÓN
     botonAniadirResultado.className = "botonAniadirResultado"; 
     botonAniadirResultado.innerHTML = "Añadir resultado";
     //Escuchador de eventos para el boton añadir resultado/observación
     botonAniadirResultado.addEventListener("click", () => {
-        //Escondemos el boton añadir resultado y creamos el boton guardar resultado
+        //Escondemos el boton añadir resultado y creamos el boton guardar resultado y cancelar
         botonAniadirResultado.style.display = "none"; 
-        let botonGuardarResultado = document.createElement("button");
+        let botonGuardarResultado = document.createElement("button"); botonGuardarResultado.type= "button";
         botonGuardarResultado.innerHTML = "Guardar resultado";
         botonGuardarResultado.className = "botonGuardarResultado";
+        let botonCancelar = document.createElement("button");botonCancelar.type = "button";
+        botonCancelar.innerHTML = "Cancelar";
+        botonCancelar.className = "cancelarGuardarResultado";
         let textArea = document.createElement("textarea");
         textArea.className = "textAreaResultadoObservacion";
         textArea.placeholder = "Resultado/observación de la prescripción..."
-        textArea.cols = 55;
+        textArea.cols = 53;
         textArea.rows = 3;
-        divAniadirResultado.appendChild(botonGuardarResultado);
         divAniadirResultado.appendChild(textArea);
+        divAniadirResultado.appendChild(botonGuardarResultado);
+        divAniadirResultado.appendChild(botonCancelar);
         botonGuardarResultado.addEventListener("click", () => {
             if(textArea.value !== ""){            
                 axios.put("http://localhost:3000/prescribir/guardarResultado", {idPrestacion, resultado: textArea.value, idPrescripcion})
-                .then(res => console.log(res.data))
+                .then(res => {
+                    // Si se ha añadido correctamente eliminamos los botones, mostramos un mensaje en el text area
+                    //  y al segundo llamamos a la funcion para crear el item del resultado...
+                    if(res.data.aniadido){ 
+                        botonGuardarResultado.remove();
+                        botonCancelar.remove();
+                        textArea.style.backgroundColor = "lightblue";
+                        textArea.value= "RESULTADO AÑADIDO CORRECTAMENTE";
+                        setTimeout(() => {
+                            borrarDivResultadoEInsertarLiResultado(divAniadirResultado, divResultadoPrestacion, res.data.resultado);
+                        }, 1000)
+                    }else{ //si no mostramos un mensaje de error en el text area y reiniciamos el boton añadir resultado
+                        textArea.value = "ERROR AL GUARDAR EL RESULTADO, INTENTELO DE NUEVO...";
+                        textArea.style.backgroundColor = "lightcoral";
+                        textArea.setTimeout(() => {
+                            textArea.innerHTML = "";
+                            eliminarBotonesGuardarResultado(botonGuardarResultado, botonCancelar, textArea, botonAniadirResultado);
+                        }, 1000);
+                    }
+                })
                 .catch(error => console.log(error))
             }else{
                 textArea.style.border = "2px solid red";
@@ -187,9 +226,27 @@ const crearDivAniadirResultado = (divAniadirResultado, idPrescripcion, idPrestac
                     textArea.style.border = "1px solid rgb(118, 118, 118)";   
                 }, 1000)
             }
+        });
+        botonCancelar.addEventListener("click", () => {//Eliminamos los elementos creados y le cambiamos el display al botonAñadir
+            eliminarBotonesGuardarResultado(botonGuardarResultado, botonCancelar, textArea, botonAniadirResultado);
         })
     })
     divAniadirResultado.appendChild(botonAniadirResultado);
+}
+
+const eliminarBotonesGuardarResultado = (boton1, boton2, textArea, botonAMostrar) => {
+    boton1.remove();
+    textArea.remove();
+    boton2.remove();
+    botonAMostrar.style.display = "inline-block";
+}
+
+const borrarDivResultadoEInsertarLiResultado = (divAniadirResultado, divResultadoPrestacion, resultado) => {
+    //removemos el divAniadirResultado y creamos el li con el resultado cargado...
+    divAniadirResultado.remove();
+    let liResultado = document.createElement("li");
+    liResultado.innerHTML = `Resultado/Observación: ${resultado}`;
+    divResultadoPrestacion.appendChild(liResultado);
 }
 
 //-------------------------------SECCIÓN FUNCIONES DEL AUTOCOMPLETADO MEDICAMENTO-------------------------------//
@@ -205,7 +262,7 @@ const configurarBotonCrearMedicamento = (medicamentos) => {
             // contMedicamentos++;
             borrarAutocompletadoClickEverywhere();
         }else{
-            mensajeLlenarEspacioMedicamentoYPrestaciones(inputMedicamentoPrescripcion, "SELECCIONE UN MEDICAMENTO ANTES DE AÑADIR OTRO");
+            mensajeLlenarEspacioMedicamentoYPrestaciones(inputMedicamentoPrescripcion, "SELECCIONE UN MEDICAMENTO ANTES DE AÑADIR OTRO", "red");
         }
     })
 }
@@ -248,7 +305,6 @@ const agregarNuevoMedicamento = (medicamentos/*, contMedicamentos*/) => {
             let botonEliminarMedicamento = divInput.querySelector(".eliminarMedicamento");
             botonEliminarMedicamento.addEventListener("click", () => { 
                 //borramos el id del medicamento de nuestro arreglo de ids ya seleccionados
-                console.log(contador);
                 let idMedicamentoDetalle = document.querySelector(`#idMedicamentoDetalle${contador}`);
                 let indice = idsDeMedicamentos.indexOf(parseInt(idMedicamentoDetalle.value));
                 if(indice > -1){
@@ -315,51 +371,8 @@ const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoM
                 idMedicamentoDetalle.value = mr.id; //AÑADIMOS EL ID AL INPUT HIDDEN QUE MANDA LA INFO EN EL POST
                 botonPrescribir.disabled = false; //deshabilitamos el boton prescribir
 
-                //AGREGAMOS CAMPOS DOS, INTERVALO Y DURACIÓN CUANDO SELECCIONAN UN MEDICAMENTO
-                // agregarCamposAMedicamentoSeleccionado(contador); IMPLEMENTARRRRRRRR............................
-                let divJustificacion = document.querySelector("#divJustificacion");
-                if(!(divJustificacion.hasChildNodes())){
-                    let inputs = `
-                            <div class="divDosis">
-                                <label for="dosis">Dósis</label> 
-                                <input type="text" id="dosis" name="dosis" placeholder="Ej. Una cápsula, 2 pastillas" required>
-                            </div>
-                            <div class="divIntervalo">
-                                <label for="intervalo">Intervalo</label> 
-                                <input type="number" id="intervalo" name="intervalo" placeholder="Intervalo de tiempo" required>
-                            </div>
-                            <div class="divDuracion">
-                                <label for="duracion">Duración</label>  
-                                <input type="text" id="duracion" name="duracion" placeholder="Ej. 7 días" required>
-                            </div>`;
-                    divJustificacion.innerHTML = inputs;
-                }else if(contador){
-                    let divJustificacion = document.createElement("div");
-                    let inputMedicamentoPrescribir = document.querySelectorAll(".inputMedicamentoPrescribir");
-                    let input = []
-                    for(let imp of inputMedicamentoPrescribir){
-                        if(parseInt(imp.id.slice(1)) === contador){
-                            input = imp;
-                            break;
-                        }
-                    }
-                    divJustificacion.className="divJustificacion";divJustificacion.id=`divJustificacion${contador}`;
-                    let inputs = `
-                            <div class="divDosis">
-                                <label for="dosis${contador}">Dósis ${contador+1}</label> 
-                                <input type="text" id="dosis${contador}" name="dosis${contador}" placeholder="Ej. Una cápsula, 2 pastillas" required>
-                            </div>
-                            <div class="divIntervalo">
-                                <label for="intervalo${contador}">Intervalo ${contador+1}</label> 
-                                <input type="number" id="intervalo${contador}" name="intervalo${contador}" placeholder="Intervalo de tiempo" required>
-                            </div>
-                            <div class="divDuracion">
-                                <label for="duracion${contador}">Duración ${contador+1}</label>  
-                                <input type="text" id="duracion${contador}" name="duracion${contador}" placeholder="Ej. 7 días" required>
-                            </div>`;
-                    divJustificacion.innerHTML = inputs;
-                    input.appendChild(divJustificacion);
-                }
+                agregarCamposAMedicamentoSeleccionado(contador); //IMPLEMENTARRRRRRRR............................
+                
                 //AGREGAMOS EL BOTON EDITAR INPUT MEDICAMENTO
                 let divParaAgregarBoton = document.querySelectorAll(".inputYBotonEliminarMedicamento")
                 if(contador){
@@ -419,23 +432,88 @@ const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoM
 
 //Función que permite editar un input de medicamento una vez que es seleccionado uno de estos...
 const agregarBotonEditarInput = (inputMedicamentos, divParaAgregarBoton, mensaje, nombreDeClase, contador) => {
-    let button = document.createElement("button"); button.type="button"; button.className = `tooltip ${nombreDeClase}`;
-    if(contador){
-        button.id = `botonEditarInput${contador}`
-    }else{
-        button.id = "botonEditarInput";
+    let contenidoDeDivParaAgregarBoton = divParaAgregarBoton.children;
+    let tieneBotonEditar = false;
+    for(let i = 0; i < contenidoDeDivParaAgregarBoton.length; i++){
+        if(contenidoDeDivParaAgregarBoton[i].className.includes(nombreDeClase)){
+            tieneBotonEditar = true;
+            break;
+        } 
     }
-    let icono = document.createElement("i"); icono.className="fa-solid fa-pen-to-square"; icono.style.color= "#2c3e50";
-    let p = document.createElement("p"); p.className="tooltiptext"; p.innerHTML = mensaje;
-    button.appendChild(icono);button.appendChild(p); //agregamos el icono de fontawesome y el texto de informacion al boton
-    divParaAgregarBoton.appendChild(button); //agregamos el boton al divDeBotones
-    button.addEventListener("click", () => {
-        // mensajeLlenarEspacioMedicamentoYPrestaciones(inputMedicamentos, "Puede editar el elemento");
-        inputMedicamentos.readOnly = false;
-    })
+    //nos aseguramos que no haya un boton editar ya
+    if(!tieneBotonEditar){
+        let button = document.createElement("button"); button.type="button"; button.className = `tooltip ${nombreDeClase}`;
+        if(contador){
+            button.id = `botonEditarInput${contador}`
+        }else{
+            button.id = "botonEditarInput";
+        }
+        let icono = document.createElement("i"); icono.className="fa-solid fa-pen-to-square"; icono.style.color= "#2c3e50";
+        let p = document.createElement("p"); p.className="tooltiptext"; p.innerHTML = mensaje;
+        button.appendChild(icono);button.appendChild(p); //agregamos el icono de fontawesome y el texto de informacion al boton
+        divParaAgregarBoton.appendChild(button); //agregamos el boton al divDeBotones
+        button.addEventListener("click", () => {
+            mensajeLlenarEspacioMedicamentoYPrestaciones(inputMedicamentos, "Puede editar el elemento", "green");
+            inputMedicamentos.readOnly = false;
+        })
+    }
 }
 
-
+const agregarCamposAMedicamentoSeleccionado = (contador) => {
+//AGREGAMOS CAMPOS DOS, INTERVALO Y DURACIÓN CUANDO SELECCIONAN UN MEDICAMENTO
+    let divJustificacion = document.querySelector("#divJustificacion");
+    if(!(divJustificacion.hasChildNodes())){
+        let inputs = `
+                <div class="divDosis">
+                    <label for="dosis">Dósis</label> 
+                    <input type="text" id="dosis" name="dosis" placeholder="Ej. Una cápsula, 2 pastillas" required>
+                </div>
+                <div class="divIntervalo">
+                    <label for="intervalo">Intervalo</label> 
+                    <input type="number" id="intervalo" name="intervalo" placeholder="Intervalo de tiempo" required>
+                </div>
+                <div class="divDuracion">
+                    <label for="duracion">Duración</label>  
+                    <input type="text" id="duracion" name="duracion" placeholder="Ej. 7 días" required>
+                </div>`;
+        divJustificacion.innerHTML = inputs;
+    }else if(contador){
+        let divJustificacion = document.createElement("div");
+        let inputMedicamentoPrescribir = document.querySelectorAll(".inputMedicamentoPrescribir");
+        let input = []
+        for(let imp of inputMedicamentoPrescribir){
+            if(parseInt(imp.id.slice(1)) === contador){
+                input = imp;
+                break;
+            }
+        }
+        divJustificacion.className="divJustificacion";divJustificacion.id=`divJustificacion${contador}`;
+        let inputs = `
+                <div class="divDosis">
+                    <label for="dosis${contador}">Dósis ${contador+1}</label> 
+                    <input type="text" id="dosis${contador}" name="dosis" placeholder="Ej. Una cápsula, 2 pastillas" required>
+                </div>
+                <div class="divIntervalo">
+                    <label for="intervalo${contador}">Intervalo ${contador+1}</label> 
+                    <input type="number" id="intervalo${contador}" name="intervalo" placeholder="Intervalo de tiempo" required>
+                </div>
+                <div class="divDuracion">
+                    <label for="duracion${contador}">Duración ${contador+1}</label>  
+                    <input type="text" id="duracion${contador}" name="duracion" placeholder="Ej. 7 días" required>
+                </div>`;
+        divJustificacion.innerHTML = inputs;
+        let tieneDivJustificacion = false;
+        for(let ic of input.children){
+            if(ic.id === `divJustificacion${contador}`){    
+                tieneDivJustificacion = true;
+                break;
+            }
+        }
+        if(!tieneDivJustificacion){ // chequeamos de que no haya un divJustificacion ya creado...
+            input.appendChild(divJustificacion);
+        }
+    }
+}
 
 //-------------------------------SECCIÓN FUNCIONES DEL AUTOCOMPLETADO PRESTACIÓN-------------------------------//
 
@@ -449,7 +527,7 @@ const configurarBotonCrearPrestacion = (prestaciones) => {
             // contPrestaciones++;
             borrarAutocompletadoClickEverywhere();
         }else{
-            mensajeLlenarEspacioMedicamentoYPrestaciones(inputPrestacionPrescripcion, "SELECCIONE UNA PRESTACIÓN ANTES DE AÑADIR OTRA");
+            mensajeLlenarEspacioMedicamentoYPrestaciones(inputPrestacionPrescripcion, "SELECCIONE UNA PRESTACIÓN ANTES DE AÑADIR OTRA", "red");
         }
     })
 }

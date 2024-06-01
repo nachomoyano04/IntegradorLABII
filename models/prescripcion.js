@@ -18,24 +18,26 @@ const insertPrescripcion = async (prescripcion) => {
 }
 
 const getPrescripcionByIdPaciente = async(idPaciente) => {
-    const query = `SELECT
-        *
-    FROM
-    prescripcion
-LEFT JOIN prescripcion_medicamentodetalle USING(idPrescripcion)
-LEFT JOIN medicamentodetalle ON(prescripcion_medicamentodetalle.idMedicamentoDetalle = medicamentodetalle.id)
-LEFT JOIN medicamento ON (medicamentodetalle.idMedicamento = medicamento.idMedicamento)
-LEFT JOIN concentracion ON (medicamentodetalle.idConcentracion = concentracion.idConcentracion)
-LEFT JOIN formafarmaceutica ON (medicamentodetalle.idFormaFarmaceutica = formafarmaceutica.idFormaFarmaceutica)
-LEFT JOIN presentacion ON (medicamentodetalle.idPresentacion = presentacion.idPresentacion)
-LEFT JOIN prescripcion_prestacion USING(idPrescripcion)
-LEFT JOIN prestacion ON(prescripcion_prestacion.idPrestacion = prestacion.idPrestacion)
-WHERE
-    prescripcion.idPaciente = ? AND(prescripcion_medicamentodetalle.id IS NOT NULL OR prescripcion_prestacion.id IS NOT NULL);`;
+    const queryMedicamentos = ` SELECT *
+                                FROM prescripcion 
+                                    JOIN prescripcion_medicamentodetalle pmd ON(prescripcion.idPrescripcion = pmd.idPrescripcion)
+                                    JOIN medicamentodetalle md ON (md.id = pmd.idMedicamentoDetalle)
+                                    JOIN medicamento m ON (md.idMedicamento = m.idMedicamento)
+                                    JOIN concentracion c ON (md.idConcentracion = c.idConcentracion)
+                                    JOIN formafarmaceutica ff ON (md.idFormaFarmaceutica = ff.idFormaFarmaceutica)
+                                    JOIN presentacion pre ON (md.idPresentacion = pre.idPresentacion)
+                                WHERE idPaciente = ?`;
+    const queryPrestaciones = `SELECT *
+                                FROM prescripcion
+                                    JOIN prescripcion_prestacion pp ON (prescripcion.idPrescripcion = pp.idPrescripcion)
+                                    JOIN prestacion pre ON (pp.idPrestacion = pre.idPrestacion)
+                                WHERE idPaciente = ?;`;
     try {
-        const resultado = await pool.query(query, [idPaciente])
-        return resultado[0];
+        const medicamentos = await pool.query(queryMedicamentos, [idPaciente]);
+        const prestaciones = await pool.query(queryPrestaciones, [idPaciente]);
+        return [medicamentos[0], prestaciones[0]];
     } catch (error) {
+        console.log(error);
         throw error;
     }
 }

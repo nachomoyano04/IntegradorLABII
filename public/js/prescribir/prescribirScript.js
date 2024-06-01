@@ -36,6 +36,8 @@ let selectPacientes = document.querySelector("#selectPacientes");
 //Lógica para que cuando cambien de paciente aparezcan las prescripciones anteriores de dicho paciente
 selectPacientes.addEventListener("change", (event) => {
     let idPaciente = event.target.value;
+    let nombrePaciente = document.getElementById("selectPacientes");
+    nombrePaciente = nombrePaciente.options[nombrePaciente.options.selectedIndex].textContent.split(",")[0];
     axios(`http://localhost:3000/prescribir/${idPaciente}`)
     .then(res => {
         borrarAutocompletadoAnterior(areaPrescripcionesAnteriores);
@@ -43,14 +45,14 @@ selectPacientes.addEventListener("change", (event) => {
         const prescripcionesAnteriores = res.data;
         pTitulo.className = "tituloPrescripcionesAnteriores";
         let pPresAnte = document.createElement("p");
+        pTitulo.innerHTML ="Prescripciones anteriores "+nombrePaciente;
         if(prescripcionesAnteriores.length === 0){
-            pPresAnte.innerHTML = "- No existen prescripciones anteriores.";
+            pPresAnte.innerHTML = "No existen prescripciones anteriores.";
         }else{
             pPresAnte.className = "pPrescripcionesAnteriores";
             pPresAnte.appendChild(listadoDePrescripcionesAnteriores(prescripcionesAnteriores));
-            pTitulo.innerHTML = `Prescripciones anteriores paciente ${prescripcionesAnteriores[0].nombre}`;
-            areaPrescripcionesAnteriores.appendChild(pTitulo);
         }
+        areaPrescripcionesAnteriores.appendChild(pTitulo);
         areaPrescripcionesAnteriores.appendChild(pPresAnte);
     })
     .catch(error => console.log(`Error al buscar prescripciones anteriores: ${error}`));
