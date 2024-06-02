@@ -38,39 +38,38 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
 
 const prescribirPost = async (req, res) => {
     let {diagnostico, vigencia, idMedico, idPaciente, idMedicamentoDetalle, dosis, intervalo, duracion, idPrestacion} = req.body;
-    console.log(req.body);
     //convertimos a objeto los idMedicamentoDetalle e idPrestacion para que sea mas facil las inserciones (si existen)
-    if(typeof idMedicamentoDetalle !== "object" && idMedicamentoDetalle){
-        idMedicamentoDetalle = [idMedicamentoDetalle];
-        dosis = [dosis];
-        intervalo = [intervalo];
-        duracion = [duracion];
-    }
-    if(typeof idPrestacion !== "object" && idPrestacion){
-        idPrestacion = [idPrestacion];
-    }
-    const prescripcion = {diagnostico, vigencia, idMedico, idPaciente};
-    const connection = await pool.getConnection();
+    // const connection = await pool.getConnection();
     try{
-        await connection.beginTransaction();
-        const idPrescripcion = await insertPrescripcion(prescripcion);
-        if(idMedicamentoDetalle){
-            for(let i = 0; i < idMedicamentoDetalle.length; i++){
-                await insertPrescripcionMedicamentoDetalle(idPrescripcion, idMedicamentoDetalle[i], dosis[i], duracion[i], intervalo[i]);
-            }
-        }
-        if(idPrestacion){
-            for(let ip of idPrestacion){
-                await insertPrescripcionPrestacion(idPrescripcion, ip);
-            }
-        }
-        await connection.commit();
+        // if(typeof idMedicamentoDetalle !== "object" && idMedicamentoDetalle){
+        //     idMedicamentoDetalle = [idMedicamentoDetalle];
+        //     dosis = [dosis];
+        //     intervalo = [intervalo];
+        //     duracion = [duracion];
+        // }
+        // if(typeof idPrestacion !== "object" && idPrestacion){
+        //     idPrestacion = [idPrestacion];
+        // }
+        // const prescripcion = {diagnostico, vigencia, idMedico, idPaciente};
+        // await connection.beginTransaction();
+        // const idPrescripcion = await insertPrescripcion(prescripcion);
+        // if(idMedicamentoDetalle){
+        //     for(let i = 0; i < idMedicamentoDetalle.length; i++){
+        //         await insertPrescripcionMedicamentoDetalle(idPrescripcion, idMedicamentoDetalle[i], dosis[i], duracion[i], intervalo[i]);
+        //     }
+        // }
+        // if(idPrestacion){
+        //     for(let ip of idPrestacion){
+        //         await insertPrescripcionPrestacion(idPrescripcion, ip);
+        //     }
+        // }
+        // await connection.commit();
         res.status(200).json({mensaje: "Se realizó la prescripción correctamente..."})
     }catch(error){
-        await connection.rollback();
-        res.status(500).render("404", {error500:true ,mensajeDeError500:error})
+        // await connection.rollback();
+        res.status(500).render("404", {error500:true ,mensajeDeError500:"Errooooooooooor"})
     }finally{
-        connection.release();
+        // connection.release();
     }
 }
 

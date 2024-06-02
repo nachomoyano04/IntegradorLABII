@@ -6,12 +6,13 @@ const borrarAutocompletadoAnterior = (elemento) => {
     }
 }
 const mensajeLlenarEspacioMedicamentoYPrestaciones = (elemento, mensajeError, color) => {
-    elemento.style.border = `3px solid ${color}`;
-    elemento.placeholder = mensajeError;
+    elemento.style.border = `3px solid ${color||"red"}`;
+    let placeholder = elemento.placeholder;
+    elemento.placeholder = mensajeError || placeholder;
     setTimeout(() => {
         elemento.style.border = "1px solid black";
         elemento.style.color = "black";
-        elemento.placeholder = "";
+        elemento.placeholder = placeholder;
     },1000)
 }
 const borrarAutocompletadoClickEverywhere = () => {
@@ -37,7 +38,6 @@ const crearPrestacionParaAutocompletado = (prestacion) => {
     let liLado = document.createElement("li");
     let liIndicacion = document.createElement("li");
     let liJustificacion = document.createElement("li");
-    let liResultado = document.createElement("li");
     liNombre.innerHTML = `${prestacion.nombrePrestacion}`;
     liLado.innerHTML = `lado: ${prestacion.lado}`;
     liIndicacion.innerHTML = `indicación: ${prestacion.indicacion}`;
@@ -285,7 +285,7 @@ const agregarNuevoMedicamento = (medicamentos/*, contMedicamentos*/) => {
                                             <p class="tooltiptext">Eliminar medicamento</p>
                                         </button> 
                                     </div>
-                                    <input type="hidden" name="idMedicamentoDetalle" id="idMedicamentoDetalle${contador}">
+                                    <input class="idMedicamentoDetalleHidden" type="hidden" name="idMedicamentoDetalle" id="idMedicamentoDetalle${contador}">
                                     <div class="autocompletadoMedicamentos"></div>
                                 </div>`;
         divInput.innerHTML = medicamento;
@@ -306,7 +306,7 @@ const agregarNuevoMedicamento = (medicamentos/*, contMedicamentos*/) => {
             botonEliminarMedicamento.addEventListener("click", () => { 
                 //borramos el id del medicamento de nuestro arreglo de ids ya seleccionados
                 let idMedicamentoDetalle = document.querySelector(`#idMedicamentoDetalle${contador}`);
-                let indice = idsDeMedicamentos.indexOf(parseInt(idMedicamentoDetalle.value));
+                let indice = idsDeMedicamentos.indexOf(idsDeMedicamentos.find(e => e.id === parseInt(idMedicamentoDetalle.value)));
                 if(indice > -1){
                     idsDeMedicamentos.splice(indice, 1);
                 }
@@ -348,11 +348,20 @@ const agregarEscuchadoresDeEventosAMedicamentos = (medicamentos, autocompletadoM
 let idsDeMedicamentos = [];
 const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoMedicamento, inputMedicamentos, contador) => {
     if(palabra !== ""){
+        let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
+        if(contador){
+            idMedicamentoDetalle = document.querySelector(`#idMedicamentoDetalle${contador}`);
+        }
+        //nos fijamos de que si el contenido del input no coincide con algun medicamento eliminamos el id del medicamento
+        if(!idsDeMedicamentos.find(e => e.nombre === palabra) && idMedicamentoDetalle.value){
+            idMedicamentoDetalle.value = "";
+        }
+
         borrarAutocompletadoAnterior(autocompletadoMedicamento);
         let medicamentoRecomendado = medicamentos.filter(e => {
             const medicamentoString = e.nombreGenerico.concat(" ", e.cantidadConcentracion, " ",e.unidadMedidaCon, " ", e.forma, " x", e.cantidadPresentacion , " ", e.unidadMedidaPres);
             const comparacion = medicamentoString.toLowerCase().includes(palabra.toLowerCase())
-            return comparacion && !idsDeMedicamentos.includes(e.id); // mostramos los recomendados y que no hayan sido elegidos antes...
+            return comparacion && !idsDeMedicamentos.some(i => i.id === e.id); // mostramos los recomendados y que no hayan sido elegidos antes...
         });
         for(let mr of medicamentoRecomendado){
             let div = document.createElement("div");
@@ -362,14 +371,10 @@ const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoM
             div.addEventListener("click", () => {
                 inputMedicamentos.value = contenido;
                 inputMedicamentos.readOnly = true; //Limitamos a que no se pueda editar el input una vez seleccionado el medicamento...
-                idsDeMedicamentos.push(mr.id);
+                idsDeMedicamentos.push({id:mr.id, nombre:contenido});
                 borrarAutocompletadoAnterior(autocompletadoMedicamento);
-                let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
-                if(contador){
-                    idMedicamentoDetalle = document.querySelector(`#idMedicamentoDetalle${contador}`);
-                }
                 idMedicamentoDetalle.value = mr.id; //AÑADIMOS EL ID AL INPUT HIDDEN QUE MANDA LA INFO EN EL POST
-                botonPrescribir.disabled = false; //deshabilitamos el boton prescribir
+                // botonPrescribir.disabled = false; //deshabilitamos el boton prescribir
 
                 agregarCamposAMedicamentoSeleccionado(contador); //IMPLEMENTARRRRRRRR............................
                 
@@ -408,7 +413,7 @@ const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoM
         }
 
         //borramos el id del medicamento de nuestro arreglo de ids ya seleccionados
-        let indice = idsDeMedicamentos.indexOf(parseInt(idMedicamentoDetalle.value));
+        let indice = idsDeMedicamentos.indexOf(idsDeMedicamentos.find(e => e.id === parseInt(idMedicamentoDetalle.value)));
         if(indice > -1){
             idsDeMedicamentos.splice(indice, 1);
         }
@@ -417,16 +422,16 @@ const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoM
         idMedicamentoDetalle.value = "";
         
         //Nos fijamos: Si estan todos los inputs vacíos, entonces deshabilitamos el botón prescribir. 
-        let inputMedicamentos = document.querySelectorAll(".classEnComunCSS");
-        let inputMedicamentosYPrestacionesVacio = true; //LOGICA QUE CONTROLA Q TODOS LOS INPUT DE MEDICAMENTO ESTEN VACIOS
-        inputMedicamentos.forEach(e => {
-            if(e.value !== ""){
-                inputMedicamentosYPrestacionesVacio = false;
-            }
-        })
-        if(inputMedicamentosYPrestacionesVacio){
-            botonPrescribir.disabled = true;
-        }
+        // let inputMedicamentos = document.querySelectorAll(".classEnComunCSS");
+        // let inputMedicamentosYPrestacionesVacio = true; //LOGICA QUE CONTROLA Q TODOS LOS INPUT DE MEDICAMENTO ESTEN VACIOS
+        // inputMedicamentos.forEach(e => {
+        //     if(e.value !== ""){
+        //         inputMedicamentosYPrestacionesVacio = false;
+        //     }
+        // })
+        // if(inputMedicamentosYPrestacionesVacio){
+        //     botonPrescribir.disabled = true;
+        // }
     }
 }
 
@@ -466,15 +471,15 @@ const agregarCamposAMedicamentoSeleccionado = (contador) => {
         let inputs = `
                 <div class="divDosis">
                     <label for="dosis">Dósis</label> 
-                    <input type="text" id="dosis" name="dosis" placeholder="Ej. Una cápsula, 2 pastillas" required>
+                    <input class="dosis" type="text" id="dosis" name="dosis" placeholder="Ej. Una cápsula, 2 pastillas" required>
                 </div>
                 <div class="divIntervalo">
                     <label for="intervalo">Intervalo</label> 
-                    <input type="number" id="intervalo" name="intervalo" placeholder="Intervalo de tiempo" required>
+                    <input class="intervalo" type="number" id="intervalo" name="intervalo" placeholder="Intervalo de tiempo" required>
                 </div>
                 <div class="divDuracion">
                     <label for="duracion">Duración</label>  
-                    <input type="text" id="duracion" name="duracion" placeholder="Ej. 7 días" required>
+                    <input class="duracion" type="text" id="duracion" name="duracion" placeholder="Ej. 7 días" required>
                 </div>`;
         divJustificacion.innerHTML = inputs;
     }else if(contador){
@@ -491,15 +496,15 @@ const agregarCamposAMedicamentoSeleccionado = (contador) => {
         let inputs = `
                 <div class="divDosis">
                     <label for="dosis${contador}">Dósis ${contador+1}</label> 
-                    <input type="text" id="dosis${contador}" name="dosis" placeholder="Ej. Una cápsula, 2 pastillas" required>
+                    <input class="dosis" type="text" id="dosis${contador}" name="dosis" placeholder="Ej. Una cápsula, 2 pastillas" required>
                 </div>
                 <div class="divIntervalo">
                     <label for="intervalo${contador}">Intervalo ${contador+1}</label> 
-                    <input type="number" id="intervalo${contador}" name="intervalo" placeholder="Intervalo de tiempo" required>
+                    <input class="intervalo" type="number" id="intervalo${contador}" name="intervalo" placeholder="Intervalo de tiempo" required>
                 </div>
                 <div class="divDuracion">
                     <label for="duracion${contador}">Duración ${contador+1}</label>  
-                    <input type="text" id="duracion${contador}" name="duracion" placeholder="Ej. 7 días" required>
+                    <input class="duracion" type="text" id="duracion${contador}" name="duracion" placeholder="Ej. 7 días" required>
                 </div>`;
         divJustificacion.innerHTML = inputs;
         let tieneDivJustificacion = false;
@@ -549,7 +554,7 @@ const agregarNuevaPrestacion = (prestaciones/*, contPrestaciones*/) => {
                                         <p class="tooltiptext">Eliminar prestación</p>
                                     </button>
                                 </div>
-                                <input type="hidden" name="idPrestacion" id="idPrestacion${contador}">
+                                <input class="idPrestacionHidden" type="hidden" name="idPrestacion" id="idPrestacion${contador}">
                                 <div class="autocompletadoPrestaciones"></div>
                             </div>`;
         divInput.innerHTML = prestacion;
@@ -563,7 +568,7 @@ const agregarNuevaPrestacion = (prestaciones/*, contPrestaciones*/) => {
             botonEliminarPrestacion.addEventListener("click", () => {
                 //sacamos el id de la prestacion del arreglo
                 let idPrestacion = document.querySelector(`#idPrestacion${contador}`); 
-                let indice = idsDePrestaciones.indexOf(parseInt(idPrestacion.value));
+                let indice = idsDePrestaciones.indexOf(idsDePrestaciones.find(e => e.id === parseInt(idPrestacion.value)));
                 if(indice > -1){
                     idsDePrestaciones.splice(indice, 1);
                 }
@@ -611,10 +616,19 @@ const agregarAutocompletadoPrestacion = (palabra, prestaciones, autocompletadoPr
     let prestacionesEnString = prestaciones.map(e => JSON.stringify(e));
         borrarAutocompletadoAnterior(autocompletadoPrestacion);
         if(palabra !== ""){
+            let idPrestacion = document.getElementById("idPrestacion");
+            if(contador){
+                idPrestacion = document.getElementById(`idPrestacion${contador}`)
+            }
+            // Nos aseguramos de que si borra un caracter nuevo o elimina uno y ya hay un elemento seleccionado, se elimine el value del input hidden
+            if(!idsDePrestaciones.find(e => e.nombre === palabra) && idPrestacion.value){
+                idPrestacion.value = "";
+            }
+
             let prestaciones = prestacionesEnString.filter(e => {
                 let idPrestacion = JSON.parse(e).idPrestacion;
                 //nos aseguramos de que ademas que coincida que no esté en otro medicamento ya
-                return e.toLowerCase().includes(palabra.toLowerCase()) && !idsDePrestaciones.includes(idPrestacion);
+                return e.toLowerCase().includes(palabra.toLowerCase()) && !idsDePrestaciones.some(i => i.id === idPrestacion);
             });
             for(let p of prestaciones){
                 let div = document.createElement("div");
@@ -622,16 +636,12 @@ const agregarAutocompletadoPrestacion = (palabra, prestaciones, autocompletadoPr
                 div.appendChild(crearPrestacionParaAutocompletado(pre));
                 autocompletadoPrestacion.appendChild(div);
                 div.addEventListener("click", () => {
-                    idsDePrestaciones.push(pre.idPrestacion); //agregamos al arreglo de ya seleccionados
-                    inputPrestaciones.value = `${pre.nombrePrestacion} ${pre.lado} ${pre.indicacion} ${pre.justificacion}`;
+                    let contenido = `${pre.nombrePrestacion} ${pre.lado} ${pre.indicacion} ${pre.justificacion}`;
+                    inputPrestaciones.value = contenido;
+                    idsDePrestaciones.push({id:pre.idPrestacion, nombre: contenido}); //agregamos al arreglo de ya seleccionados
                     inputPrestaciones.readOnly = true; //configuramos de que si selecciono una prestación no pueda editar el input...
                     borrarAutocompletadoAnterior(autocompletadoPrestacion)
-                    let idPrestacion = document.getElementById("idPrestacion");
-                    if(contador){
-                        idPrestacion = document.getElementById(`idPrestacion${contador}`)
-                    }
                     idPrestacion.value = pre.idPrestacion;
-                    botonPrescribir.disabled = false;
 
                     //Agregamos el boton editar prestación dependiendo si es la primera prestación o las demás...
                     let divParaAgregarBoton = document.querySelectorAll(".inputYBotonEliminarPrestacion");
@@ -659,24 +669,23 @@ const agregarAutocompletadoPrestacion = (palabra, prestaciones, autocompletadoPr
                 idPrestacion = document.getElementById(`idPrestacion${contador}`);
             }
             //sacamos el id de la prestacion del arreglo
-            let indice = idsDePrestaciones.indexOf(parseInt(idPrestacion.value));
+            let indice = idsDePrestaciones.indexOf(idsDePrestaciones.find(e => e.id === parseInt(idPrestacion.value)));
             if(indice > -1){
                 idsDePrestaciones.splice(indice, 1);
             }
 
             idPrestacion.value = "";
-            let inputMedicamentosYPrestaciones = document.querySelectorAll(".classEnComunCSS");
-            let inputMedicamentosYPrestacionesVacios = true;
-            inputMedicamentosYPrestaciones.forEach(elemento => {
-                if(elemento.value !== ""){
-                    inputMedicamentosYPrestacionesVacios = false;
-                }
-            })
-            if(inputMedicamentosYPrestacionesVacios){
-                botonPrescribir.disabled = true;
-            }
+            // let inputMedicamentosYPrestaciones = document.querySelectorAll(".classEnComunCSS");
+            // let inputMedicamentosYPrestacionesVacios = true;
+            // inputMedicamentosYPrestaciones.forEach(elemento => {
+            //     if(elemento.value !== ""){
+            //         inputMedicamentosYPrestacionesVacios = false;
+            //     }
+            // })
+            // if(inputMedicamentosYPrestacionesVacios){
+            //     botonPrescribir.disabled = true;
+            // }
         }
 }
 
-
-export {borrarAutocompletadoAnterior, listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, agregarAutocompletadoPrestacion, configurarBotonCrearPrestacion, borrarAutocompletadoClickEverywhere};
+export {borrarAutocompletadoAnterior, listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, agregarAutocompletadoPrestacion, configurarBotonCrearPrestacion, borrarAutocompletadoClickEverywhere,mensajeLlenarEspacioMedicamentoYPrestaciones};

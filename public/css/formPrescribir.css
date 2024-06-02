@@ -1,7 +1,7 @@
 .formDiagnostico{
     display: flex;
     flex-direction: column;
-    margin: 30px;
+    margin: 20px 30px;
 }
 
 .textAreaDiagnostico{
@@ -95,7 +95,7 @@
     flex-direction: row;
     align-items: flex-start;
     height: auto;
-    margin: 20px;
+    margin: 0px 20px 20px 20px;
     width: 100%;
 }
 
@@ -112,7 +112,7 @@
     border-radius: 15px;
     flex-direction: column;
     overflow-y: auto;
-    height: 575px;
+    height: 605px;
     width: 70%;
     margin: 0px 10px 0px 10px;
 }
@@ -199,5 +199,23 @@
 }
 
 .divResultadoPrestacion li{
-    list-style-type: armenian;
+    list-style-type: none;
+}
+
+.mensajeDePrescripcionCargadaConExito{
+    background-color: black;
+    color: wheat;
+    font-size: 30px;
+    border: 2px solid green;
+    padding: 20px;
+    top: 0;
+    position: fixed;
+    margin-top: 200px;
+    margin-right: auto;
+    margin-left: auto;
+    width: auto;
+    text-align: center;
+    left: 0;
+    display: inline-table;
+    right: 0;
 }

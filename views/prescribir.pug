@@ -20,7 +20,7 @@ block content
                     a.tooltip(href="/registrar/medico")
                         i.fa-solid.fa-user-plus
                             p.tooltiptext Registrar nuevo médico
-                    select.inputFormRegistro(name="idMedico", required)
+                    select.inputFormRegistro(name="idMedico", required, id="selectMedicos")
                         option(disabled, selected, hidden, value="") Seleccione un médico
                         //mostramos los nombres de los médicos
                         -if(medicos)
@@ -50,7 +50,7 @@ block content
                         .inputMedicamentoPrescribir
                             .divAutocompletadoMedicamento
                                 input.classEnComunCSS#inputMedicamentoPrescripcion(type="text", placeholder="Ingrese el medicamento", autocomplete = "off")
-                                input(type="hidden", name="idMedicamentoDetalle", id="idMedicamentoDetalle") 
+                                input.idMedicamentoDetalleHidden(type="hidden", name="idMedicamentoDetalle", id="idMedicamentoDetalle") 
                                 .autocompletadoMedicamentos
                             #divJustificacion.divJustificacion
                     .labels#divPrestaciones
@@ -62,7 +62,7 @@ block content
                         .inputPrestacionPrescribir
                             .divAutocompletadoPrestacion
                                 input.classEnComunCSS#inputPrestacionPrescripcion(type="text", placeholder="Ingrese la prestación", autocomplete = "off")    
-                                input(type="hidden", name="idPrestacion", id="idPrestacion")
+                                input.idPrestacionHidden(type="hidden", name="idPrestacion", id="idPrestacion")
                                 .autocompletadoPrestaciones
 
                 .divBotones

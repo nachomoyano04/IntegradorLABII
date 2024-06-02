@@ -2,8 +2,7 @@
 .divBotones{
     display: flex;
     flex-direction: row-reverse;
-    margin: 30px;   
-
+    margin: 12px 20px;
 }
 .botones{
     border-style: none;
@@ -36,13 +35,15 @@
 }
 .labels{
     display: flex;
-    margin: 30px;
+    margin: 20px 30px;
     align-items: center;
     justify-content: space-between;
 }
 
 .tituloH1{
     color: aliceblue;
+    margin: 10px;
+    font-size: 35px;
 }
 
 .tooltip {
