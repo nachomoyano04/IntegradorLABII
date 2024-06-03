@@ -1,25 +1,35 @@
-import { buscarUsersByUsuarioYPassword } from "../models/login.js";
+import { buscarUsersByUsuarioYPassword, buscarRolesByUsuario } from "../models/login.js";
+import bcrypt from "bcrypt";
 
 const loginGet = (req, res) => {
-    res.render("login",{title:""});
+    res.render("login",{});
 }
 
 const loginPost = async (req, res) => {
     const usuario = req.body.usuario;
     const password = req.body.password;
-    // const usuario = "admin";
-    // const password = "12345";
+    const passwordHasheada = await bcrypt.hash(password, 8);
+    // console.log(passwordHasheada);
+    // console.log(await bcrypt.compare(password, passwordHasheada));
     if(usuario && password){
-        let existeUsuarioYPassword = await buscarUsersByUsuarioYPassword(usuario, password);
-        if(existeUsuarioYPassword[0].length > 0){
-            res.send(existeUsuarioYPassword[0]);
+        let resultados = await buscarUsersByUsuarioYPassword(usuario, passwordHasheada);
+        if(resultados[0].length > 0){
+            let idUsuario = resultados[0][0].idUsuario;
+            let resultadoRol = await buscarRolesByUsuario(idUsuario); // buscamos el rol/roles que tiene el paciente
+            console.log(resultadoRol);
+            req.session.loggedin = true;
+            req.session.user = usuario;
+            req.session.idRol = resultadoRol;
+            // res.send(existeUsuarioYPassword[0]);
+                // res.redirect("/");
             //Llevar a pagina de inicio y dar mensaje de bienvenida
         }else{
-            console.log("raw")
-            res.render("login", {mensaje: "Usuario y/o password incorrectas"})        
+            console.log("USUARIO Y/O CONTRASEÑA INCORRECTOS")
+            res.render("login", {})        
         }
     }else{
-        res.render("login", {error: true})        
+        console.log("Debe completar los campos usuario y contraseña")
+        res.render("login", {})        
         // res.json({mensaje: "Debe completar los campos usuario y contraseña"});
     }
 }

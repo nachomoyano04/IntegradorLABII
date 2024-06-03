@@ -4,12 +4,16 @@ import { insertPatient } from "../models/pacientes.js";
 import { getObrasSocialPlanByIDs } from "../models/obraSocial_plan.js";
 
 const registroPacienteGet = async (req, res) => {
-    try {
-        const obraSocial = await getObrasSociales();
-        res.render("registrarPaciente", {obraSocial});
-    } catch (error) {
-        const mensajeDeError500 = `Error interno en el servidor: ${error}`
-        res.status(500).render("404", {error500:true, mensajeDeError500});
+    if(req.session.loggedin && req.session.idRol === 1){
+        try {
+            const obraSocial = await getObrasSociales();
+            res.render("registrarPaciente", {obraSocial});
+        } catch (error) {
+            const mensajeDeError500 = `Error interno en el servidor: ${error}`
+            res.status(500).render("404", {error500:true, mensajeDeError500});
+        }
+    }else{
+        res.send("No tienes permiso de administrador...");
     }
 }
 

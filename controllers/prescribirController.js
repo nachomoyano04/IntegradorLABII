@@ -9,67 +9,71 @@ import { updateResultadoPrestacion } from "../models/prescripcionPrestacion.js";
 import pool from "../models/database.js";
 
 const prescribirGet = async(req, res) => { //funcion que renderiza el form prescribir obteniendo los medicos y pacientes 
-    let queryMedicamento = req.query.query;
-    if(queryMedicamento === "medicamentos"){
-        try {            
-            let medicamentos = await getMedicamento();
-            let prestaciones = await getPrestaciones();
-            if(medicamentos[0].length > 0){
-                return res.status(200).send({medicamentos: medicamentos[0], prestaciones: prestaciones[0]})
+    if(req.session.loggedin && req.session.idRol === 2){
+        let queryMedicamento = req.query.query;
+        if(queryMedicamento === "medicamentos"){
+            try {            
+                let medicamentos = await getMedicamento();
+                let prestaciones = await getPrestaciones();
+                if(medicamentos[0].length > 0){
+                    return res.status(200).send({medicamentos: medicamentos[0], prestaciones: prestaciones[0]})
+                }
+                return res.status(200).send("");
+            } catch (error) {
+                const mensajeDeError500 = `Error interno en el servidor: ${error}`
+                res.status(500).render("404", {error500:true, mensajeDeError500});
             }
-            return res.status(200).send("");
-        } catch (error) {
-            const mensajeDeError500 = `Error interno en el servidor: ${error}`
-            res.status(500).render("404", {error500:true, mensajeDeError500});
+        }else{
+            try {
+                let medicos = await getAllDoctors();
+                let pacientes = await getAllPatients();
+                medicos = medicos[0];
+                pacientes = pacientes[0];
+                res.render("prescribir", {medicos, pacientes});
+            } catch (error) {
+                const mensajeDeError500 = `Error interno en el servidor: ${error}`
+                res.status(500).render("404", {error500:true, mensajeDeError500});
+            }
         }
     }else{
-        try {
-            let medicos = await getAllDoctors();
-            let pacientes = await getAllPatients();
-            medicos = medicos[0];
-            pacientes = pacientes[0];
-            res.render("prescribir", {medicos, pacientes});
-        } catch (error) {
-            const mensajeDeError500 = `Error interno en el servidor: ${error}`
-            res.status(500).render("404", {error500:true, mensajeDeError500});
-        }
+        res.send("no eres un profesional, no puedes prescribir...")
     }
 }   
 
 const prescribirPost = async (req, res) => {
     let {diagnostico, vigencia, idMedico, idPaciente, idMedicamentoDetalle, dosis, intervalo, duracion, idPrestacion} = req.body;
     //convertimos a objeto los idMedicamentoDetalle e idPrestacion para que sea mas facil las inserciones (si existen)
-    // const connection = await pool.getConnection();
+    const connection = await pool.getConnection();
     try{
-        // if(typeof idMedicamentoDetalle !== "object" && idMedicamentoDetalle){
-        //     idMedicamentoDetalle = [idMedicamentoDetalle];
-        //     dosis = [dosis];
-        //     intervalo = [intervalo];
-        //     duracion = [duracion];
-        // }
-        // if(typeof idPrestacion !== "object" && idPrestacion){
-        //     idPrestacion = [idPrestacion];
-        // }
-        // const prescripcion = {diagnostico, vigencia, idMedico, idPaciente};
-        // await connection.beginTransaction();
-        // const idPrescripcion = await insertPrescripcion(prescripcion);
-        // if(idMedicamentoDetalle){
-        //     for(let i = 0; i < idMedicamentoDetalle.length; i++){
-        //         await insertPrescripcionMedicamentoDetalle(idPrescripcion, idMedicamentoDetalle[i], dosis[i], duracion[i], intervalo[i]);
-        //     }
-        // }
-        // if(idPrestacion){
-        //     for(let ip of idPrestacion){
-        //         await insertPrescripcionPrestacion(idPrescripcion, ip);
-        //     }
-        // }
-        // await connection.commit();
+        if(typeof idMedicamentoDetalle !== "object" && idMedicamentoDetalle){
+            idMedicamentoDetalle = [idMedicamentoDetalle];
+            dosis = [dosis];
+            intervalo = [intervalo];
+            duracion = [duracion];
+        }
+        if(typeof idPrestacion !== "object" && idPrestacion){
+            idPrestacion = [idPrestacion];
+        }
+        const prescripcion = {diagnostico, vigencia, idMedico, idPaciente};
+        await connection.beginTransaction();
+        const idPrescripcion = await insertPrescripcion(prescripcion);
+        if(idMedicamentoDetalle){
+            for(let i = 0; i < idMedicamentoDetalle.length; i++){
+                await insertPrescripcionMedicamentoDetalle(idPrescripcion, idMedicamentoDetalle[i], dosis[i], duracion[i], intervalo[i]);
+            }
+        }
+        if(idPrestacion){
+            for(let ip of idPrestacion){
+                await insertPrescripcionPrestacion(idPrescripcion, ip);
+            }
+        }
+        await connection.commit();
         res.status(200).json({mensaje: "Se realizó la prescripción correctamente..."})
     }catch(error){
-        // await connection.rollback();
+        await connection.rollback();
         res.status(500).render("404", {error500:true ,mensajeDeError500:"Errooooooooooor"})
     }finally{
-        // connection.release();
+        connection.release();
     }
 }
 

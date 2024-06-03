@@ -11,11 +11,20 @@ html
     body.bodyInicio
         .form
             h1.title Registrar
-            form.formLogin(action="/", method="POST")
+            form.formLogin(action="/registrarUser", method="POST")
                 label.label(for="inputUsuario") Usuario:
                 input.input(type="text", name="usuario", placeholder="Usuario", required, id="inputUsuario")
                 label.label(for="inputPassword") Password:
                 input.input(type="password", name="password", placeholder="Password", required, id="inputPassword")
+                label.label(for="inputRol") Roles:
+                .inputCheckBox
+                    -if(roles){
+                        -for(let r of roles){
+                            .checkbox
+                                input(type="checkbox", name="idRol", value=r.id)
+                                label #{r.nombreRol}
+                        -}
+                    -}
                 input.btnRegistrarUser(type="submit", value="Registrar Usuario")
                 a(href="/").btnCancelarRegistrarUser
                     p.cancelarRegistrarUser Cancelar
