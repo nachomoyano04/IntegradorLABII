@@ -46,7 +46,7 @@ selectPacientes.addEventListener("change", (event) => {
         pTitulo.className = "tituloPrescripcionesAnteriores";
         let pPresAnte = document.createElement("p");
         pTitulo.innerHTML ="Prescripciones anteriores "+nombrePaciente;
-        if(prescripcionesAnteriores.length === 0){
+        if(prescripcionesAnteriores[0].length === 0 && prescripcionesAnteriores[1].length === 0){
             pPresAnte.innerHTML = "No existen prescripciones anteriores.";
         }else{
             pPresAnte.className = "pPrescripcionesAnteriores";

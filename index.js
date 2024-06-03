@@ -6,6 +6,8 @@ import routerMedico from "./routes/registroMedico.js"
 import routerPaciente from "./routes/registroPaciente.js";
 import routerPrescribir from "./routes/prescribir.js"
 import router404 from "./routes/404.js";
+import routerLogin from "./routes/autenticacion.js";
+import routerRegistrarUser from "./routes/registrarUser.js";
 
 const app = express();
 const PORT = 3000;
@@ -22,6 +24,8 @@ app.use("/", routerInicio);
 app.use("/registrar/medico", routerMedico)
 app.use("/registrar/paciente", routerPaciente);
 app.use("/prescribir", routerPrescribir)
+app.use("/login", routerLogin);
+app.use("/registrarUser", routerRegistrarUser);
 
 app.get("*", router404);
 
