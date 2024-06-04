@@ -37,14 +37,19 @@
             font-size: 40px;
         }
 
-        .inicioNavBar, .registrosNavBar{
+        .inicioNavBar, .registrosNavBar, .logout{
             font-size: 25px;
         }
 
-        .labdosNavBar, .inicioNavBar, .registrosNavBar{
+        .labdosNavBar, .inicioNavBar, .registrosNavBar, .logout{
             text-decoration: none;
+            padding: 6px 5px;
             color: black;
         }
+        .inicioNavBar:hover, .registrosNavBar:hover, .logout:hover{
+            background-color: #587ca0;
+        }
+
 /*FOOTER*/
         .footer{
             background-color: #CCC;

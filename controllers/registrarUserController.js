@@ -2,20 +2,36 @@ import bcrypt from "bcrypt";
 import { buscarUsersByUsuario, insertarUsuario, insertarUsuarioRol, getRoles } from "../models/login.js";
 import pool from "../models/database.js";
 const getRegistrarUser = async(req, res) => {
-    // if(req.session.loggedin && req.session.idRol === 1){
-        const roles = await getRoles();
-        res.render("registrarUser",{roles});
-    // }else{
-        // res.send("No tiene permisos de administrador...")
-    // }
+    try {
+        if(req.session.loggedin){
+            let roles = req.session.rol;
+            let tienePermiso = false;
+            for(let i = 0; i < roles.length; i++){
+                if(roles[i].idRol === 1){
+                    tienePermiso = true;
+                    break;
+                }
+            }
+            if(tienePermiso){
+                const roles = await getRoles();
+                res.render("registrarUser",{roles});
+            }
+        }else{
+            res.send("Debe iniciar sesión");
+        }
+    } catch (error) {
+        res.render("404", {error500: true, mensajeDeError500: error});
+    }
 }
 
 const postRegistrarUser = async (req, res) => {
+    console.log(req.body);
     const usuario = req.body.usuario;
     const password = req.body.password;
     const passwordHasheada = await bcrypt.hash(password, 8);
     let roles = req.body.idRol;
     roles = Array.isArray(roles)?roles:[roles];
+    console.log(roles);
     const connection = await pool.getConnection();
     if(roles[0]!== undefined){
         try {
@@ -24,9 +40,11 @@ const postRegistrarUser = async (req, res) => {
                 //Insertamos el usuario y el rol en modo transacción
                 connection.beginTransaction();
                 const resultado = await insertarUsuario(usuario, passwordHasheada);
+                console.log(resultado);
                 const idUsuario = resultado[0].insertId;
                 for(let i = 0; i < roles.length; i++){ //insertamos un usuario_rol por cada rol que va a tener el usuario
                     await insertarUsuarioRol(idUsuario, roles[i]);
+                    console.log(`insertando usuario: ${idUsuario} y rol: ${roles[i]} en la tabla usuario_rol`);
                 }
                 await connection.commit();
                 if(resultado[0].affectedRows > 0){

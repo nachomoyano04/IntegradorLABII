@@ -20,10 +20,10 @@ const buscarUsersByUsuario = async (usuario) => {
     }
 }
  
-const insertarUsuario = async (usuario, password, rol) => {
-    const query = "INSERT INTO usuario (nombreUsuario, password) VALUES (?,?,?)";
+const insertarUsuario = async (usuario, password) => {
+    const query = "INSERT INTO usuario (nombreUsuario, password) VALUES (?,?)";
     try {
-        const resultado = await pool.query(query, [usuario, password, rol]);
+        const resultado = await pool.query(query, [usuario, password]);
         return resultado;
     } catch (error) {
         throw error;

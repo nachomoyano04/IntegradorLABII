@@ -1,0 +1,36 @@
+.divsRegistrarMedico{
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #000;
+    height: 100%; /* Define la altura del contenedor */
+}
+
+.divFormRegistrarMedico{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 10px 20px;
+    border: 1px solid #ccc;
+    /* width: auto; */
+    align-items: center;
+    /* justify-content: center; */
+}
+
+.formulariosRegistrarMedico{
+    background-color: #CCC;
+    font-size: 20px;
+    border-radius: 15px;
+    height: 100%;
+    width: 95%;
+    margin: 0px 0px 15px 0px;
+}
+
+.h1RegistrarMedico{
+    color: aliceblue;
+    margin: 10px;
+    font-size: x-large;
+}
+
+.labelEinputBuscarProfesionales{
+    margin: 10px 20px;
+}

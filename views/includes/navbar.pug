@@ -1,6 +1,8 @@
 .divNavBar
-    a.labdosNavBar(href="/") Labdos 
+    a.labdosNavBar(href="/") Labdos
+    if usuario 
+        a#nombreProfesional #{usuario}
     .divNavBarInicioYRegistros
-        a.inicioNavBar(href="/") Inicio 
-        a.registrosNavBar(href="/registrar/medico") Registros
-    
+        a.inicioNavBar(href="/") Inicio
+        //- a.registrosNavBar(href="/registrar/medico") Registros
+        a.logout(href="/logout") Logout

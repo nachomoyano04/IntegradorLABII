@@ -8,12 +8,51 @@ html
         link(rel="preconnect", href="https://fonts.gstatic.com" crossorigin)
         link(href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap", rel="stylesheet")
         link(rel="icon", type="image/png" href="/images/iconoPaginaMedicina.png")
+        script(src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js")
     body.bodyInicio
         .form
             h1.title Login
             form.formLogin(action="/login", method="POST")
-                input.input(type="text", name="usuario", placeholder="Usuario", id="inputLoginUsuario")
-                input.input(type="password", name="password", placeholder="Password", id="inputLoginPassword")
-                input.btnLoguin(type="submit", value="Ingresar")
+                input.input(type="text", name="usuario", placeholder="Usuario", id="inputLoginUsuario", required)
+                input.input(type="password", name="password", placeholder="Password", id="inputLoginPassword", required)
+                input.btnLoguin(type="button", value="Ingresar")
         .footer 
             include includes/footer.pug
+        script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11") //- alertas sweet alerts
+        script.
+            document.querySelector(".btnLoguin").addEventListener("click", () => {
+                let inputUsuario = document.querySelector("#inputLoginUsuario");
+                let inputPassword = document.querySelector("#inputLoginPassword");
+                if(inputUsuario.value === "" || inputPassword.value === ""){
+                    Swal.fire({
+                    icon: "error",
+                    title: "Debe llenar campos usuario y password...",
+                    heightAuto: false
+                    });
+                }else{
+                    axios.post("http://localhost:3000/login", {usuario: inputUsuario.value, password: inputPassword.value})
+                    .then(res => {
+                        if(res.data.error){
+                            Swal.fire({
+                                icon: "error",
+                                title: res.data.mensaje,
+                                heightAuto: false,
+                            });
+                        }else{
+                            Swal.fire({
+                                icon: "success",
+                                title: res.data.mensaje,
+                                heightAuto: false,
+                                timer:1500,
+                            }).then(() => {
+                                window.location = "http://localhost:3000";
+                            })
+                        }
+                        console.log(res.data);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
+
+                }
+            })

@@ -9,34 +9,39 @@ import { updateResultadoPrestacion } from "../models/prescripcionPrestacion.js";
 import pool from "../models/database.js";
 
 const prescribirGet = async(req, res) => { //funcion que renderiza el form prescribir obteniendo los medicos y pacientes 
-    if(req.session.loggedin && req.session.idRol === 2){
-        let queryMedicamento = req.query.query;
-        if(queryMedicamento === "medicamentos"){
-            try {            
-                let medicamentos = await getMedicamento();
-                let prestaciones = await getPrestaciones();
-                if(medicamentos[0].length > 0){
-                    return res.status(200).send({medicamentos: medicamentos[0], prestaciones: prestaciones[0]})
+    try {
+        if(req.session.loggedin){
+            let roles = req.session.rol;
+            let tienePermiso = false;
+            for(let i = 0; i < roles.length; i++){
+                if(roles[i].idRol === 2){
+                    tienePermiso = true;
+                    break;
                 }
-                return res.status(200).send("");
-            } catch (error) {
-                const mensajeDeError500 = `Error interno en el servidor: ${error}`
-                res.status(500).render("404", {error500:true, mensajeDeError500});
+            }
+            if(tienePermiso){
+                let queryMedicamento = req.query.query;
+                if(queryMedicamento === "medicamentos"){
+                    let medicamentos = await getMedicamento();
+                    let prestaciones = await getPrestaciones();
+                    if(medicamentos[0].length > 0){
+                        return res.status(200).send({medicamentos: medicamentos[0], prestaciones: prestaciones[0]})
+                    }
+                    return res.status(200).send("");
+                }else{
+                    let medicos = await getAllDoctors();
+                    let pacientes = await getAllPatients();
+                    medicos = medicos[0];
+                    pacientes = pacientes[0];
+                    res.render("prescribir", {medicos, pacientes});
+                }
             }
         }else{
-            try {
-                let medicos = await getAllDoctors();
-                let pacientes = await getAllPatients();
-                medicos = medicos[0];
-                pacientes = pacientes[0];
-                res.render("prescribir", {medicos, pacientes});
-            } catch (error) {
-                const mensajeDeError500 = `Error interno en el servidor: ${error}`
-                res.status(500).render("404", {error500:true, mensajeDeError500});
-            }
+            res.send("Debe iniciar sesión");
         }
-    }else{
-        res.send("no eres un profesional, no puedes prescribir...")
+    } catch (error) {
+        const mensajeDeError500 = `Error interno en el servidor: ${error}`
+        res.status(500).render("404", {error500:true, mensajeDeError500});
     }
 }   
 

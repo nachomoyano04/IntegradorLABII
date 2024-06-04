@@ -1,47 +1,58 @@
 extends inicio.pug
 block content
-    .divform
-        h1.tituloH1 Registrar Médico
-        form.formulario(action="/registrar/medico", method="POST")
-            .labels 
-                label(for="nombre") Nombre 
-                input.inputFormRegistro(type="text", required, name="nombre", id="nombre", autocomplete="off") 
-            .labels 
-                label(for="apellido") Apellido 
-                input.inputFormRegistro(type="text", required, name="apellido",  id="apellido", autocomplete="off")
-            .labels 
-                label(for="documento") Documento 
-                input.inputFormRegistro(type="number", required, name="documento",  id="documento", autocomplete="off")
-            .labels 
-                label(for="idProfesion") Profesion 
-                select.inputFormRegistro(name="idProfesion", id="idProfesion")
-                    option(value="", selected, disabled, hidden) Seleccione una profesión
-                    -if(profesiones){
-                        -for(let p of profesiones){
-                            option(value= p.id) #{p.nombre} 
+    script(type="module", src="/js/crudMedicos.js")
+    .divsRegistrarMedico
+        .divformRegistrarMedico
+            h1.h1RegistrarMedico Registrar Médico
+            form.formulariosRegistrarMedico(action="/registrar/medico", method="POST")
+                .labels 
+                    label(for="nombre") Nombre 
+                    input.inputFormRegistro(type="text", required, name="nombre", id="nombre", autocomplete="off") 
+                .labels 
+                    label(for="apellido") Apellido 
+                    input.inputFormRegistro(type="text", required, name="apellido",  id="apellido", autocomplete="off")
+                .labels 
+                    label(for="documento") Documento 
+                    input.inputFormRegistro(type="number", required, name="documento",  id="documento", autocomplete="off")
+                .labels 
+                    label(for="idProfesion") Profesion 
+                    select.inputFormRegistro(name="idProfesion", id="idProfesion")
+                        option(value="", selected, disabled, hidden) Seleccione una profesión
+                        -if(profesiones){
+                            -for(let p of profesiones){
+                                option(value= p.id) #{p.nombre} 
+                            -}
+                        -}else{
+                            option(value="") No existen profesiones disponibles
                         -}
-                    -}else{
-                        option(value="") No existen profesiones disponibles
-                    -}
-            .labels
-                label(for="idEspecialidad") Especialidad 
-                select.inputFormRegistro(name="idEspecialidad", id="idEspecialidad")
-                    option(value="", disabled, selected, hidden) Seleccione una especialidad 
-                    -if(especialidades){
-                        -for(let e of especialidades){
-                            option(value= e.id) #{e.nombre}
+                .labels
+                    label(for="idEspecialidad") Especialidad 
+                    select.inputFormRegistro(name="idEspecialidad", id="idEspecialidad")
+                        option(value="", disabled, selected, hidden) Seleccione una especialidad 
+                        -if(especialidades){
+                            -for(let e of especialidades){
+                                option(value= e.id) #{e.nombre}
+                            -}
+                        -}else{
+                            option(value="") No existen especialidades disponibles 
                         -}
-                    -}else{
-                        option(value="") No existen especialidades disponibles 
-                    -}
-            .labels
-                label(for="domicilio") Domicilio 
-                input.inputFormRegistro(type="text", required, name="domicilio", placeholder="calle/altura/ciudad/provincia",  id="domicilio", autocomplete="off") 
-            .labels
-                label(for="matricula") Matricula 
-                input.inputFormRegistro(type="text", required, name="matricula",  id="matricula", autocomplete="off")
-            .labels 
-                label(for="idRefeps") REFEPS 
-                input.inputFormRegistro(type="number", required, name="idRefeps", id="idRefeps", autocomplete="off") 
-            .divBotones
-                input.botones(type="submit", value="Registrar")
+                .labels
+                    label(for="domicilio") Domicilio 
+                    input.inputFormRegistro(type="text", required, name="domicilio", placeholder="calle/altura/ciudad/provincia",  id="domicilio", autocomplete="off") 
+                .labels
+                    label(for="matricula") Matricula 
+                    input.inputFormRegistro(type="text", required, name="matricula",  id="matricula", autocomplete="off")
+                .labels 
+                    label(for="idRefeps") REFEPS 
+                    input.inputFormRegistro(type="number", required, name="idRefeps", id="idRefeps", autocomplete="off") 
+                .divBotones
+                    input.botones(type="submit", value="Registrar")
+        .divformRegistrarMedico
+            h1.h1RegistrarMedico Buscar Profesionales Por DNI o REFEPS
+            .formulariosRegistrarMedico 
+                .labelEinputBuscarProfesionales
+                    label(for="inputBuscarProfesionalesByDNI") Ingrese el DNI
+                    input(type="text", list="profesionales", id="inputBuscarProfesionalesByDNI")
+                    datalist(id="profesionales")
+                .profesionales 
+                

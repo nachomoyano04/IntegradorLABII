@@ -17,11 +17,44 @@ html
         .navBar
             include includes/navbar.pug
         block content
-        -if(inicio){
-            .divCardBotones 
-                a.cardBotones(href="/registrar/medico") Registrar Medico 
-                a.cardBotones(href="/registrar/paciente") Registrar Paciente 
-                a.cardBotones(href="/prescribir") Prescribir
+        -if(esInicio){
+            -if(inicio && administrador && profesional){
+                .divCardBotones 
+                    a.cardBotones(href="/registrar/medico") Registrar Medico 
+                    a.cardBotones(href="/registrar/paciente") Registrar Paciente 
+                    a.cardBotones(href="/prescribir") Prescribir
+            -}else if(inicio && profesional){
+                .divCardBotones 
+                    //- a.cardBotones(href="/registrar/medico") Registrar Medico 
+                    a.cardBotones(href="/registrar/paciente") Registrar Paciente 
+                    a.cardBotones(href="/prescribir") Prescribir
+            -}else if(inicio && administrador){
+                .divCardBotones 
+                    a.cardBotones(href="/registrar/medico") Registrar Medico 
+                    a.cardBotones(href="/registrar/paciente") Registrar Paciente 
+                    //- a.cardBotones(href="/prescribir") Prescribir
+            -}else if(!inicio){
+                script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11") //- alertas sweet alerts
+                script. 
+                    //- if(usuario){
+                    Swal.fire({
+                        icon: "warning",
+                        title: "#{mensaje}",
+                        heightAuto: false,
+                        confirmButtonText: "Loguearme"
+                    }).then(() => {
+                        window.location.href = "/login";
+                    })
+                    //- -}
+            -}
         -}
+        script.
+            //hacemos esto para que si quiere volver para atras hacemos la peticion get nuevamente a la pagina inicio
+            // por que si no el cartel de loguearme no aparecería nuevamente...
+            window.addEventListener('pageshow', function(event){
+                if(event.persisted){
+                    window.location.reload();
+                }
+            });
         .footer
             include includes/footer.pug

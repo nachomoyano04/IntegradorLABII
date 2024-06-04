@@ -1,36 +1,36 @@
-import { buscarUsersByUsuarioYPassword, buscarRolesByUsuario } from "../models/login.js";
+import { buscarRolesByUsuario, buscarUsersByUsuario } from "../models/login.js";
 import bcrypt from "bcrypt";
 
 const loginGet = (req, res) => {
-    res.render("login",{});
+    if(req.session.loggedin){ // si ya esta logueado redirigimos a la pagina de inicio
+        res.redirect("/");
+    }else{
+        res.render("login",{});
+    }
 }
 
 const loginPost = async (req, res) => {
     const usuario = req.body.usuario;
     const password = req.body.password;
-    const passwordHasheada = await bcrypt.hash(password, 8);
-    // console.log(passwordHasheada);
-    // console.log(await bcrypt.compare(password, passwordHasheada));
+    console.log(usuario, password);
     if(usuario && password){
-        let resultados = await buscarUsersByUsuarioYPassword(usuario, passwordHasheada);
-        if(resultados[0].length > 0){
-            let idUsuario = resultados[0][0].idUsuario;
-            let resultadoRol = await buscarRolesByUsuario(idUsuario); // buscamos el rol/roles que tiene el paciente
-            console.log(resultadoRol);
-            req.session.loggedin = true;
-            req.session.user = usuario;
-            req.session.idRol = resultadoRol;
-            // res.send(existeUsuarioYPassword[0]);
-                // res.redirect("/");
-            //Llevar a pagina de inicio y dar mensaje de bienvenida
+        let usuarioBD = await buscarUsersByUsuario(usuario);
+        if(usuarioBD.length > 0){
+            if(await bcrypt.compare(password, usuarioBD[0].password)){
+                console.log("Usuario logueado correctamente...");
+                req.session.loggedin = true;
+                req.session.usuario = usuario;
+                const roles = await buscarRolesByUsuario(usuarioBD[0].idUsuario);
+                req.session.rol = roles;
+                res.send({error:false, mensaje: "¡USUARIO LOGUEADO CORRECTAMENTE!"})
+            }else{
+                res.send({error: true, mensaje: "Usuario y/o contraseña incorrectos..."})
+            }
         }else{
-            console.log("USUARIO Y/O CONTRASEÑA INCORRECTOS")
-            res.render("login", {})        
+            res.send({error: true, mensaje: "Usuario y/o contraseña incorrectos..."})
         }
     }else{
-        console.log("Debe completar los campos usuario y contraseña")
-        res.render("login", {})        
-        // res.json({mensaje: "Debe completar los campos usuario y contraseña"});
+        res.send({error: true, mensaje: "Debe completar los campos usuario y contraseña"});
     }
 }
 
