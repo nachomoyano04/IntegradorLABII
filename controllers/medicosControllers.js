@@ -1,6 +1,8 @@
 import { insertDoctor, getAllDoctors } from "../models/medicos.js";
 import { getEspecialidades } from "../models/especialidades.js";
 import { getProfesiones } from "../models/profesiones.js";
+import { insertarUsuario } from "../models/login.js";
+import pool from "../models/database.js";
 
 const registroMedicoGet = async (req, res) => {
     try {
@@ -35,21 +37,30 @@ const registroMedicoGet = async (req, res) => {
 
 const insertarDoctorPost = async (req, res) => {
     const medico = req.body;
+    const {usuario, password} = req.body;
+    // const connection = pool.getConnection();
     try{
-        const resultado = await insertDoctor(medico);
-        res.redirect("/");
+        // (await connection).beginTransaction();    
+        // const resultado = await insertarUsuario(usuario, password);
+        // const resultado2 = await insertDoctor(medico);
+        // (await connection).commit();
+        console.log(req.body);
+        res.send({ok:true});
     }catch(error){
+        // (await connection).rollback();
         const mensajeDeError500 = `Error interno en el servidor: ${error}`
-        res.status(500).render("404", {error500:true, mensajeDeError500});
+        res.render("404", {error500:true, mensajeDeError500});
+    }finally{
+        // (await connection).release();
     }
 }
 
 const getProfesionales = async(req, res) => {
     try {
         const profesionales = await getAllDoctors();
-        return profesionales[0];
+        res.json(profesionales[0]); 
     } catch (error) {
-        res.status(500).render("404", {error500:true, mensajeDeError500: error});
+        res.render("404", {error500:true, mensajeDeError500: error});
     }
 }
 

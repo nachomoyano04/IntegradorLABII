@@ -16,13 +16,22 @@
     /* justify-content: center; */
 }
 
-.formulariosRegistrarMedico{
+.formulariosRegistrarMedico, .formularioBuscarProfesionales{
     background-color: #CCC;
     font-size: 20px;
     border-radius: 15px;
     height: 100%;
     width: 95%;
     margin: 0px 0px 15px 0px;
+}
+
+.formularioBuscarProfesionales{
+    display: flex;
+    flex-direction: column;
+}
+
+.divLabelsInputs{
+    display: flex;
 }
 
 .h1RegistrarMedico{

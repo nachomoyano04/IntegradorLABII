@@ -37,22 +37,31 @@ block content
                             option(value="") No existen especialidades disponibles 
                         -}
                 .labels
-                    label(for="domicilio") Domicilio 
+                    label(for="domicilio") Domicilio
                     input.inputFormRegistro(type="text", required, name="domicilio", placeholder="calle/altura/ciudad/provincia",  id="domicilio", autocomplete="off") 
                 .labels
-                    label(for="matricula") Matricula 
+                    label(for="matricula") Matricula
                     input.inputFormRegistro(type="text", required, name="matricula",  id="matricula", autocomplete="off")
                 .labels 
                     label(for="idRefeps") REFEPS 
-                    input.inputFormRegistro(type="number", required, name="idRefeps", id="idRefeps", autocomplete="off") 
+                    input.inputFormRegistro(type="number", required, name="idRefeps", id="idRefeps", autocomplete="off")
+                .labels
+                    label(for="usuario") Usuario
+                    input.input(type="text", readonly, name="usuario", required, id="usuario")  
+                .labels
+                    label(for="password") Password 
+                    input.input(type="text", readonly, name="password", required, id="password")  
                 .divBotones
-                    input.botones(type="submit", value="Registrar")
+                    input.botones(type="button", value="Registrar", id="botonRegistrarMedico")
         .divformRegistrarMedico
             h1.h1RegistrarMedico Buscar Profesionales Por DNI o REFEPS
-            .formulariosRegistrarMedico 
-                .labelEinputBuscarProfesionales
-                    label(for="inputBuscarProfesionalesByDNI") Ingrese el DNI
-                    input(type="text", list="profesionales", id="inputBuscarProfesionalesByDNI")
-                    datalist(id="profesionales")
-                .profesionales 
-                
+            .formularioBuscarProfesionales 
+                .divLabelsInputs
+                    .labelEinputBuscarProfesionales
+                        label(for="inputBuscarProfesionalesByDNI") Ingrese el DNI
+                        input(type="number", id="inputBuscarProfesionalesByDNI")
+                    .labelEinputBuscarProfesionales
+                        label(for="inputBuscarProfesionalesByREFEPS") Ingrese el REFEPS
+                        input(type="number", id="inputBuscarProfesionalesByREFEPS")
+                .profesionales
+                    ul.listaMedicos
