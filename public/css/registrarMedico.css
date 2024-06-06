@@ -43,3 +43,49 @@
 .labelEinputBuscarProfesionales{
     margin: 10px 20px;
 }
+
+/* SECCION SELECT ESPECIALIDADES */
+.selectEspecialidad{
+    position: relative;
+}
+
+.secionEspecialidad{
+    width: 60%;
+}
+.selectEspecialidad select{
+    width: 100%;    
+    /* width: 60%; */
+    border: 1px solid #9a9a9a;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.labelsEspecialidad{
+    display: flex;
+    margin: 20px 30px;
+    /* align-items: center; */
+    justify-content: space-between;
+}
+
+.overSelect{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+.checkBoxEspecialidad{
+    display: none;
+    border: 1px solid black;
+    background-color: white;
+}
+.checkBoxEspecialidad label{
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    font-size: medium;
+}
+
+.checkBoxEspecialidad label:hover{
+    background-color: #ccc;
+}

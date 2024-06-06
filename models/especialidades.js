@@ -10,6 +10,16 @@ const getEspecialidades =  async () => {
     }
 }
 
+const insertMedicoEspecialidad = async (idMedico, idEspecialidad) => {
+    const query = "INSERT INTO medico_especialidad (idMedico, idEspecialidad) VALUES (?,?)";
+    try {
+        const resultado = await pool.query(query, [idMedico, idEspecialidad]);
+        return resultado;
+    } catch (error) {
+        throw error;
+    }
+}
+
 // const getEspecialidadById
 
-export {getEspecialidades}
+export {getEspecialidades, insertMedicoEspecialidad}

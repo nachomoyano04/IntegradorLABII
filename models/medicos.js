@@ -9,10 +9,11 @@ const getAllDoctors = async() => { //funcion que obtiene todos los medicos para 
     }
 }
 
-const insertDoctor = async(medico) => {
-    const query = "INSERT INTO medico SET ?";
+const insertDoctor = async(nombre,apellido,documento,idProfesion,domicilio,matricula,idRefeps,idUsuario) => {
+    const query = "INSERT INTO medico (nombre,apellido,documento,idProfesion,domicilio,matricula,idRefeps,idUsuario) VALUES (?,?,?,?,?,?,?,?)";
     try {
-        const resultado = await pool.query(query, medico); 
+        const resultado = await pool.query(query, [nombre,apellido,documento,idProfesion,domicilio,matricula,idRefeps,idUsuario]); 
+        console.log(resultado)
         return resultado;
     }catch(error){
         console.log(`Error: ${error.message}`);

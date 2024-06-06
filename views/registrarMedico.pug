@@ -1,6 +1,7 @@
 extends inicio.pug
 block content
     script(type="module", src="/js/crudMedicos.js")
+    script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
     .divsRegistrarMedico
         .divformRegistrarMedico
             h1.h1RegistrarMedico Registrar Médico
@@ -13,7 +14,7 @@ block content
                     input.inputFormRegistro(type="text", required, name="apellido",  id="apellido", autocomplete="off")
                 .labels 
                     label(for="documento") Documento 
-                    input.inputFormRegistro(type="number", required, name="documento",  id="documento", autocomplete="off")
+                    input.inputFormRegistro(type="text", required, name="documento",  id="documento", autocomplete="off")
                 .labels 
                     label(for="idProfesion") Profesion 
                     select.inputFormRegistro(name="idProfesion", id="idProfesion")
@@ -25,16 +26,23 @@ block content
                         -}else{
                             option(value="") No existen profesiones disponibles
                         -}
-                .labels
-                    label(for="idEspecialidad") Especialidad 
-                    select.inputFormRegistro(name="idEspecialidad", id="idEspecialidad")
-                        option(value="", disabled, selected, hidden) Seleccione una especialidad 
-                        -if(especialidades){
-                            -for(let e of especialidades){
-                                option(value= e.id) #{e.nombre}
-                            -}
-                        -}else{
-                            option(value="") No existen especialidades disponibles 
+                .labelsEspecialidad
+                    label Especialidad
+                    .secionEspecialidad
+                        .selectEspecialidad
+                            select.selectEsp(name="especialidad") 
+                                -if(!especialidades){
+                                    option(disabled, hidden, selected) No existen especialidades
+                                -}else{
+                                    option(disabled, hidden, selected) Seleccione una opción 
+                                -}
+                            .overSelect
+                        .checkBoxEspecialidad
+                            -if(especialidades){
+                                -for(let e of especialidades){
+                                    label(for= e.id) #{e.nombre}
+                                        input.especialidades(type="checkbox", value= e.id, id= e.id, name="especialidades") 
+                                -}
                         -}
                 .labels
                     label(for="domicilio") Domicilio
@@ -44,7 +52,7 @@ block content
                     input.inputFormRegistro(type="text", required, name="matricula",  id="matricula", autocomplete="off")
                 .labels 
                     label(for="idRefeps") REFEPS 
-                    input.inputFormRegistro(type="number", required, name="idRefeps", id="idRefeps", autocomplete="off")
+                    input.inputFormRegistro(type="text", required, name="idRefeps", id="idRefeps", autocomplete="off")
                 .labels
                     label(for="usuario") Usuario
                     input.input(type="text", readonly, name="usuario", required, id="usuario")  

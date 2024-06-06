@@ -1,5 +1,5 @@
 import { insertDoctor, getAllDoctors } from "../models/medicos.js";
-import { getEspecialidades } from "../models/especialidades.js";
+import { getEspecialidades, insertMedicoEspecialidad } from "../models/especialidades.js";
 import { getProfesiones } from "../models/profesiones.js";
 import { insertarUsuario } from "../models/login.js";
 import pool from "../models/database.js";
@@ -18,7 +18,7 @@ const registroMedicoGet = async (req, res) => {
             if(tienePermiso){
                     const especialidades = await getEspecialidades(); 
                     const profesiones = await getProfesiones();
-                    res.render("registrarMedico",{especialidades, profesiones})
+                    res.render("registrarMedico", {especialidades, profesiones})
             }else{
                 res.send("No tienes permisos de administrador...");
             }
@@ -36,22 +36,30 @@ const registroMedicoGet = async (req, res) => {
 }
 
 const insertarDoctorPost = async (req, res) => {
-    const medico = req.body;
+    const {nombre, apellido, documento, idProfesion, domicilio, matricula, idRefeps, especialidad} = req.body;
     const {usuario, password} = req.body;
-    // const connection = pool.getConnection();
+    console.log(req.body);
+    const connection = pool.getConnection();
     try{
-        // (await connection).beginTransaction();    
-        // const resultado = await insertarUsuario(usuario, password);
-        // const resultado2 = await insertDoctor(medico);
-        // (await connection).commit();
-        console.log(req.body);
+        (await connection).beginTransaction();    
+        const resultado = await insertarUsuario(usuario, password);
+        console.log(resultado);
+        let idUsuario = resultado[0].insertId;
+        const resultado2 = await insertDoctor(nombre,apellido,documento,idProfesion,domicilio,matricula,idRefeps, idUsuario);
+        let idMedico = resultado2[0].insertId;
+        console.log(resultado); ///verigicarrrrrrrrrrrrrrrrrr
+        for(let e of especialidad){
+            await insertMedicoEspecialidad(idMedico, e); 
+        }
+        (await connection).commit();
         res.send({ok:true});
     }catch(error){
-        // (await connection).rollback();
-        const mensajeDeError500 = `Error interno en el servidor: ${error}`
-        res.render("404", {error500:true, mensajeDeError500});
+        (await connection).rollback();
+        const mensajeDeError500 = `Error interno en el servidor: ${error}`;
+        // res.render("404", {error500:true, mensajeDeError500});
+        res.send({ok:false});
     }finally{
-        // (await connection).release();
+        (await connection).release();
     }
 }
 

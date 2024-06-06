@@ -14,6 +14,7 @@ const buscarUsersByUsuario = async (usuario) => {
     const query = "SELECT * FROM usuario WHERE nombreUsuario = ?";
     try {
         const resultado = await pool.query(query, [usuario]);
+        console.log(resultado[0]);
         return resultado[0];
     } catch (error) {
         throw error;

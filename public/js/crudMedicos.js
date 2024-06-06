@@ -48,15 +48,62 @@ const borrarListaAnterior = (elemento) => { // borra todos los hijos de x elemen
     }
 }
 
+//------------------------------- SECCION VERIFICACION CAMPOS ------------------------------//
+let inputNombre = document.querySelector("#nombre");
+let inputApellido = document.querySelector("#apellido");
+let inputRefeps = document.querySelector("#idRefeps");
+let inputDni = document.querySelector("#documento");
+let inputMatricula = document.querySelector("#matricula");
+let inputDomicilio = document.querySelector("#domicilio");
+
+const verificarSoloString = (evento) => { //verificamos que solo ingresen letras para nombre y apellido...
+    const letrasValidas = evento.target.value.replace(/[^a-zA-Z\s]/g, "");
+    if(evento.target.value !== letrasValidas){
+        evento.target.value = letrasValidas;
+    }
+    if(evento.target.value.length > 40){
+        evento.target.value = evento.target.value.slice(0,40);
+    }
+}
+
+const verificarSoloNumero = (evento) => { 
+    const numerosValidos = evento.target.value.replace(/[^0-9]/g, "");
+    if(evento.target.value !== numerosValidos){ //verificamos que sólo ingresen numeros en los campos dni e idRefeps
+        evento.target.value = numerosValidos;
+    }
+    if(evento.target.value.length > 8){ //verificamos que sólo ingresen 8 numeros
+        evento.target.value = evento.target.value.slice(0,8);
+    }   
+}
+
+const verificarSoloLetrasYNumeros = (evento) => { 
+    const letrasValidas = evento.target.value.replace(/[^0-9a-zA-Z\s]/g, "");
+    if(evento.target.value !== letrasValidas){
+        evento.target.value = letrasValidas;
+    }
+}
+
+inputNombre.addEventListener("input", verificarSoloString);
+inputApellido.addEventListener("input", verificarSoloString);
+inputRefeps.addEventListener("input", verificarSoloNumero);
+inputDni.addEventListener("input", verificarSoloNumero);
+inputDomicilio.addEventListener("input", verificarSoloLetrasYNumeros);
+
+inputMatricula.addEventListener("input", (evento) => {
+    const letrasValidas = evento.target.value.replace(/[^0-9a-zA-Z]/g, "");//vericamos que en matricula solo haya letras y numeros
+    if(evento.target.value !== letrasValidas){
+        evento.target.value = letrasValidas;
+    }
+    if(evento.target.value.length > 10){ //verificamos longitud matricula
+        evento.target.value = evento.target.value.slice(0,10);
+    }
+})
+
 
 //------------------------------- SECCION USUARIO Y PASSWORD -------------------------------//
-let inputDocumento = document.querySelector("#documento");
 let inputUsuario = document.querySelector("#usuario");
 let inputPassword = document.querySelector("#password");
-inputDocumento.addEventListener("input", (evento) => { //mientras ingresa su documento llenamos los campos usuario y password...
-    if(evento.target.value.length > 8){
-        inputDocumento.value = inputDocumento.value.slice(0, 8);
-    }
+inputDni.addEventListener("input", (evento) => { //mientras ingresa su documento llenamos los campos usuario y password...
     inputUsuario.value = evento.target.value;
     inputPassword.value = evento.target.value;
 })
@@ -68,29 +115,49 @@ let nombre = document.querySelector("#nombre");
 let apellido = document.querySelector("#apellido");
 let documento = document.querySelector("#documento");
 let profesion = document.querySelector("#idProfesion");
-let especialidad = document.querySelector("#idEspecialidad");
+let especialidades = document.querySelectorAll(".especialidades"); 
+let idEspecialidad = []; //donde guardaremos todas las especialidades seleccioanadas...
 let domicilio = document.querySelector("#domicilio");
 let matricula = document.querySelector("#matricula");
 let refeps = document.querySelector("#idRefeps");
-// let usuario = document.querySelector("#usuario");
-// let password = document.querySelector("#password");
 botonRegistrarMedico.addEventListener("click", () => {
+    let hayEspecialidades = false;
+    especialidades.forEach(e => {
+        if(e.checked){
+            hayEspecialidades = true;
+            idEspecialidad.push(e.value);
+        }
+    });
     let sePuedeRegistrar = true;
-    if(!nombre.value || nombre.value.includes){ // verificar cada campo que no ingresen boludeces
-        bordeRojo(nombre); 
-        sePuedeRegistrar = false;
-    };
-    if(!apellido.value){bordeRojo(apellido), sePuedeRegistrar = false};
-    if(!documento.value){bordeRojo(documento), sePuedeRegistrar = false};
-    if(!profesion.value){bordeRojo(profesion), sePuedeRegistrar = false};
-    if(!especialidad.value){bordeRojo(especialidad), sePuedeRegistrar = false};
-    if(!domicilio.value){bordeRojo(domicilio), sePuedeRegistrar = false};
-    if(!matricula.value){bordeRojo(matricula), sePuedeRegistrar = false};
-    if(!refeps.value){bordeRojo(refeps), sePuedeRegistrar = false};
+    if(!hayEspecialidades){ bordeRojo(document.querySelector(".selectEsp")); sePuedeRegistrar = false}
+    if(!nombre.value){ bordeRojo(nombre);sePuedeRegistrar = false;};
+    if(!apellido.value){bordeRojo(apellido); sePuedeRegistrar = false};
+    if(!documento.value){bordeRojo(documento); sePuedeRegistrar = false};
+    if(!profesion.value){bordeRojo(profesion); sePuedeRegistrar = false};
+    if(!domicilio.value){bordeRojo(domicilio); sePuedeRegistrar = false};
+    if(!matricula.value){bordeRojo(matricula); sePuedeRegistrar = false};
+    if(!refeps.value){bordeRojo(refeps); sePuedeRegistrar = false};
     if(sePuedeRegistrar){
-        console.log("se puede registrar!!!!");
+        let registro = {nombre:nombre.value, apellido:apellido.value, documento:documento.value, profesion: profesion.value, especialidad:idEspecialidad,domicilio:domicilio.value,matricula:matricula.value,refeps:refeps.value};
+        axios.post("/registrar/medico", registro)
+        .then(res => {
+            if(res.data.ok){
+                Swal.fire({
+                    icon: "success",
+                    title: "Médico Registrado Correctamente",
+                    timer: 1500
+                }).then(()=>{
+                    window.location.href = "/";
+                })
+            }else{
+                Swal.fire({
+                    icon: "error",
+                    title: "Ocurrión un error al registrar al profesional"
+                });
+            }
+        })
+        .catch(error => console.log(error));
     }
-    console.log(nombre.value,apellido.value,documento.value,profesion.value,especialidad.value,domicilio.value,matricula.value,refeps.value,usuario.value,password.value);
 })
 
 const bordeRojo = (elemento) => {
@@ -99,6 +166,19 @@ const bordeRojo = (elemento) => {
         elemento.style.border = "1px solid #9a9a9a";
     }, 1500);
 }
-// axios.post("/registrar/medico", {
-    
-// });
+
+//------------------------------- SECCION SELECT ESPECIALIDADES -------------------------------//
+let checkBoxEspecialidad = document.querySelector(".checkBoxEspecialidad");
+let selectEspecialidad = document.querySelector(".selectEspecialidad");
+let estaExpandida = false;
+selectEspecialidad.addEventListener("click", () => {
+    if(!estaExpandida){
+        checkBoxEspecialidad.style.display = "block";
+        checkBoxEspecialidad.style.position = "absolute";
+        checkBoxEspecialidad.style.width = "230px";
+        estaExpandida = true;
+    }else{
+        checkBoxEspecialidad.style.display = "none";
+        estaExpandida = false;
+    }
+})
