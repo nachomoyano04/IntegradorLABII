@@ -2,26 +2,53 @@
     display: flex;
     justify-content: space-between;
     border: 1px solid #000;
-    height: 100%; /* Define la altura del contenedor */
+    /* height: 100%; Define la altura del contenedor */
+}
+
+.listaMedicos{
+    font-size: 20px;
+}
+
+.listaMedicos p{
+    background-color: #7baddf;
+    padding: 10px;
+}
+
+.listaMedicos li{
+    display: flex;
+}
+
+.listaMedicos .tooltip{
+    background-color: #ccc;
+    border: none;
+    font-size: 20px;
 }
 
 .divFormRegistrarMedico{
-    flex: 1;
     display: flex;
     flex-direction: column;
-    margin: 10px 20px;
+    /* margin: 10px 20px; */
     border: 1px solid #ccc;
     /* width: auto; */
     align-items: center;
     /* justify-content: center; */
 }
 
+#registroMedico{
+    flex: 0 0 40%;
+}
+
+#busquedaMedico{
+    flex: 0 0 60%;
+}
+
+
 .formulariosRegistrarMedico, .formularioBuscarProfesionales{
     background-color: #CCC;
     font-size: 20px;
     border-radius: 15px;
     height: 100%;
-    width: 95%;
+    width: 98%;
     margin: 0px 0px 15px 0px;
 }
 

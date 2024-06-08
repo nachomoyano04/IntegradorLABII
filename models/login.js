@@ -14,7 +14,6 @@ const buscarUsersByUsuario = async (usuario) => {
     const query = "SELECT * FROM usuario WHERE nombreUsuario = ?";
     try {
         const resultado = await pool.query(query, [usuario]);
-        console.log(resultado[0]);
         return resultado[0];
     } catch (error) {
         throw error;
@@ -61,4 +60,22 @@ const buscarRolesByUsuario = async(idUsuario) => {
     }
 }
 
-export {buscarUsersByUsuarioYPassword, buscarUsersByUsuario, insertarUsuario, insertarUsuarioRol, getRoles, buscarRolesByUsuario};
+const getUsuarioByIdUsuario = async (idUsuario) => {
+    try {
+        const usuario = await pool.query("SELECT * FROM usuario WHERE idUsuario = ?", [idUsuario]);
+        return usuario[0][0];
+    } catch (error) {
+        throw error;
+    }
+}
+
+const updateUsuario = async (documento, passwordHasheada, idUsuario) => {
+    try {
+        const resultadoUU = await pool.query("UPDATE usuario SET nombreUsuario=?, password=? WHERE idUsuario = ?",[documento, passwordHasheada, idUsuario]);
+        return resultadoUU[0];
+    } catch (error) {
+        throw error;
+    }
+}
+
+export {buscarUsersByUsuarioYPassword, buscarUsersByUsuario, insertarUsuario, insertarUsuarioRol, getRoles, buscarRolesByUsuario, getUsuarioByIdUsuario, updateUsuario};

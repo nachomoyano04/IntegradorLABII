@@ -1,5 +1,4 @@
 const inicioGet = async(req, res) => {
-    console.log(req.session);
     if(req.session.loggedin){ // agregar tambien la condicion de rol
         const inicio = true;
         let roles = req.session.rol;

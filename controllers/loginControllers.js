@@ -12,12 +12,10 @@ const loginGet = (req, res) => {
 const loginPost = async (req, res) => {
     const usuario = req.body.usuario;
     const password = req.body.password;
-    console.log(usuario, password);
     if(usuario && password){
         let usuarioBD = await buscarUsersByUsuario(usuario);
         if(usuarioBD.length > 0){
             if(await bcrypt.compare(password, usuarioBD[0].password)){
-                console.log("Usuario logueado correctamente...");
                 req.session.loggedin = true;
                 req.session.usuario = usuario;
                 const roles = await buscarRolesByUsuario(usuarioBD[0].idUsuario);

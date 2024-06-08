@@ -1,20 +1,22 @@
 //------------------------------- SECCIÓN MEDICOS REGISTRADOS -------------------------------//   
 let profesionales = document.querySelector(".profesionales");
-let inputDNI = document.querySelector("#inputBuscarProfesionalesByDNI");
-let inputREFEPS = document.querySelector("#inputBuscarProfesionalesByREFEPS");
+let inputBuscarProfesionalesByDNI = document.querySelector("#inputBuscarProfesionalesByDNI");
+let inputBuscarProfesionalesByREFEPS = document.querySelector("#inputBuscarProfesionalesByREFEPS");
 let listaMedicos = document.querySelector(".listaMedicos");
 axios("http://localhost:3000/registrar/medico/profesionales")
 .then(res => {
     let medicos = res.data;
-    console.log(res.data)
     if(medicos.length > 0){
-        medicos.forEach(e => {
+        medicos.forEach(med => {
             let li = document.createElement("li");
-            li.innerHTML = e;
+            let p = document.createElement("p");
+            p.innerHTML = `${med.nombre} ${med.apellido}, DNI: ${med.documento}, Matricula: ${med.matricula}, REFEPS: ${med.idRefeps}`;
+            li.appendChild(p);
+            agregarBotonesEditarYBorrar(li, med.documento, medicos);
             listaMedicos.appendChild(li);
         })
-        inputDNI.addEventListener("input", buscarPorElemento);
-        inputREFEPS.addEventListener("input", buscarPorElemento);
+        inputBuscarProfesionalesByDNI.addEventListener("input", buscarPorElemento(medicos, "documento"));
+        inputBuscarProfesionalesByREFEPS.addEventListener("input", buscarPorElemento(medicos, "idRefeps"));
     }else{
         let li = document.createElement("li");
         li.innerHTML = "No existen médicos";
@@ -23,16 +25,26 @@ axios("http://localhost:3000/registrar/medico/profesionales")
 })
 .catch(error => console.log(error));
 
-const buscarPorElemento = (evento, elemento) => {
+const buscarPorElemento = (medicos, contenido) => {
+    return (evento) => {
         let contenidoInput = evento.target.value; // ingreso en el input
         //filtramos en la lista de medicos los que empiezan con ese contenidoInput
-        const listado = medicos.filter(e => e.elemento.startsWith(contenidoInput));  
+        let listado = [];
+        if(contenido === "documento"){
+            listado = medicos.filter(e => e.documento.toString().startsWith(contenidoInput));  
+        }else{
+            listado = medicos.filter(e => e.idRefeps.toString().startsWith(contenidoInput));  
+        }
         //chequeamos de que haya alguno...
         if(listado.length > 0){
             borrarListaAnterior(listaMedicos);
             listado.forEach(med => { //recorremos y llenamos lista
                 let li = document.createElement("li");
-                li.innerHTML = `${med.nombre} ${med.apellido}, DNI: ${med.documento}, Matricula: ${med.matricula}, REFEPS: ${med.idREFEPS}`;
+                let p = document.createElement("p");
+                p.innerHTML = `${med.nombre} ${med.apellido}, DNI: ${med.documento}, Matricula: ${med.matricula}, REFEPS: ${med.idRefeps}`;
+                li.appendChild(p);
+                agregarBotonesEditarYBorrar(li, med.documento, medicos);
+                listaMedicos.appendChild(li);
             })
         }else{ // si no hay ninguno mostramos mensaje
             let li = document.createElement("li");
@@ -40,21 +52,22 @@ const buscarPorElemento = (evento, elemento) => {
             li.innerHTML = "No existen medicos con esos datos...";
             listaMedicos.appendChild(li);
         }
+    }
 }
 
 const borrarListaAnterior = (elemento) => { // borra todos los hijos de x elemento, en nuestro caso la lista de médicos
     while(elemento.hasChildNodes()){
-        elemento.remove(elemento.firstChild);
+        elemento.removeChild(elemento.firstChild);
     }
 }
 
 //------------------------------- SECCION VERIFICACION CAMPOS ------------------------------//
 let inputNombre = document.querySelector("#nombre");
 let inputApellido = document.querySelector("#apellido");
-let inputRefeps = document.querySelector("#idRefeps");
-let inputDni = document.querySelector("#documento");
-let inputMatricula = document.querySelector("#matricula");
+let inputDocumento = document.querySelector("#documento");
 let inputDomicilio = document.querySelector("#domicilio");
+let inputMatricula = document.querySelector("#matricula");
+let inputRefeps = document.querySelector("#idRefeps");
 
 const verificarSoloString = (evento) => { //verificamos que solo ingresen letras para nombre y apellido...
     const letrasValidas = evento.target.value.replace(/[^a-zA-Z\s]/g, "");
@@ -86,7 +99,7 @@ const verificarSoloLetrasYNumeros = (evento) => {
 inputNombre.addEventListener("input", verificarSoloString);
 inputApellido.addEventListener("input", verificarSoloString);
 inputRefeps.addEventListener("input", verificarSoloNumero);
-inputDni.addEventListener("input", verificarSoloNumero);
+inputDocumento.addEventListener("input", verificarSoloNumero);
 inputDomicilio.addEventListener("input", verificarSoloLetrasYNumeros);
 
 inputMatricula.addEventListener("input", (evento) => {
@@ -103,7 +116,7 @@ inputMatricula.addEventListener("input", (evento) => {
 //------------------------------- SECCION USUARIO Y PASSWORD -------------------------------//
 let inputUsuario = document.querySelector("#usuario");
 let inputPassword = document.querySelector("#password");
-inputDni.addEventListener("input", (evento) => { //mientras ingresa su documento llenamos los campos usuario y password...
+inputDocumento.addEventListener("input", (evento) => { //mientras ingresa su documento llenamos los campos usuario y password...
     inputUsuario.value = evento.target.value;
     inputPassword.value = evento.target.value;
 })
@@ -111,15 +124,9 @@ inputDni.addEventListener("input", (evento) => { //mientras ingresa su documento
 
 //------------------------------- SECCION BOTON REGISTRAR MEDICO -------------------------------//
 let botonRegistrarMedico = document.querySelector("#botonRegistrarMedico");
-let nombre = document.querySelector("#nombre");
-let apellido = document.querySelector("#apellido");
-let documento = document.querySelector("#documento");
 let profesion = document.querySelector("#idProfesion");
 let especialidades = document.querySelectorAll(".especialidades"); 
 let idEspecialidad = []; //donde guardaremos todas las especialidades seleccioanadas...
-let domicilio = document.querySelector("#domicilio");
-let matricula = document.querySelector("#matricula");
-let refeps = document.querySelector("#idRefeps");
 botonRegistrarMedico.addEventListener("click", () => {
     let hayEspecialidades = false;
     especialidades.forEach(e => {
@@ -130,15 +137,15 @@ botonRegistrarMedico.addEventListener("click", () => {
     });
     let sePuedeRegistrar = true;
     if(!hayEspecialidades){ bordeRojo(document.querySelector(".selectEsp")); sePuedeRegistrar = false}
-    if(!nombre.value){ bordeRojo(nombre);sePuedeRegistrar = false;};
-    if(!apellido.value){bordeRojo(apellido); sePuedeRegistrar = false};
-    if(!documento.value){bordeRojo(documento); sePuedeRegistrar = false};
+    if(!inputNombre.value){ bordeRojo(inputNombre);sePuedeRegistrar = false;};
+    if(!inputApellido.value){bordeRojo(inputApellido); sePuedeRegistrar = false};
+    if(!inputDocumento.value){bordeRojo(inputDocumento); sePuedeRegistrar = false};
     if(!profesion.value){bordeRojo(profesion); sePuedeRegistrar = false};
-    if(!domicilio.value){bordeRojo(domicilio); sePuedeRegistrar = false};
-    if(!matricula.value){bordeRojo(matricula); sePuedeRegistrar = false};
-    if(!refeps.value){bordeRojo(refeps); sePuedeRegistrar = false};
+    if(!inputDomicilio.value){bordeRojo(inputDomicilio); sePuedeRegistrar = false};
+    if(!inputMatricula.value){bordeRojo(inputMatricula); sePuedeRegistrar = false};
+    if(!inputRefeps.value){bordeRojo(inputRefeps); sePuedeRegistrar = false};
     if(sePuedeRegistrar){
-        let registro = {nombre:nombre.value, apellido:apellido.value, documento:documento.value, profesion: profesion.value, especialidad:idEspecialidad,domicilio:domicilio.value,matricula:matricula.value,refeps:refeps.value};
+        let registro = {nombre:inputNombre.value, apellido:inputApellido.value, documento:inputDocumento.value, profesion: profesion.value, especialidad:idEspecialidad,domicilio:inputDomicilio.value,matricula:inputMatricula.value,refeps:inputRefeps.value};
         axios.post("/registrar/medico", registro)
         .then(res => {
             if(res.data.ok){
@@ -146,14 +153,12 @@ botonRegistrarMedico.addEventListener("click", () => {
                     icon: "success",
                     title: "Médico Registrado Correctamente",
                     timer: 1500
-                }).then(()=>{
-                    window.location.href = "/";
-                })
+                }).then(() => limpiarInputs());
             }else{
                 Swal.fire({
                     icon: "error",
                     title: "Ocurrión un error al registrar al profesional"
-                });
+                }).then(() => limpiarInputs());
             }
         })
         .catch(error => console.log(error));
@@ -182,3 +187,161 @@ selectEspecialidad.addEventListener("click", () => {
         estaExpandida = false;
     }
 })
+
+
+//------------------------------- SECCION BOTONES EDITAR Y BORRAR -------------------------------//
+const agregarBotonesEditarYBorrar = (li, documento, medicos) => {
+    const editar = document.createElement("button");
+    editar.type="button";
+    editar.className="tooltip";
+    editar.id = documento;
+    editar.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>
+                        <p class="tooltiptext">Editar médico</p>`;                         
+    const borrar = document.createElement("button");
+    borrar.type="button";
+    borrar.className="tooltip";
+    borrar.id = documento;
+    borrar.innerHTML = `<i class="fa-solid fa-trash-can" style="color: #f50000;"></i>
+                        <p class="tooltiptext">Borrar médico</p>`;
+    editar.addEventListener("click", () => {
+        limpiarInputs();
+        llenarInputsConProfesional(editar.id, medicos);
+    })
+    borrar.addEventListener("click", () => {
+        axios.put("http://localhost:3000/registrar/medico/borrado",{estado:0})
+        .then(res => {
+            if(res.data.ok){
+                Swal.fire({
+                    icon: "success",
+                    title: "Médico borrado correctamente",
+                    timer: 1000
+                }).then(()=>{
+                    remove(li);
+                })
+            }else{
+                Swal.fire({
+                    icon: "error",
+                    title: "Ocurrión un error al borrar al profesional"
+                });
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    })
+    li.appendChild(editar);
+    li.appendChild(borrar);
+}
+
+
+let btnGuardar = document.querySelector("#botonGuardarCambiosUpdateMedico");
+let btnCancelar = document.querySelector("#botonCancelarUpdateMedico");
+const llenarInputsConProfesional = (documento, medicos) => {
+    const medico = medicos.find(e => e.documento == documento);
+    let idMedico = medico.idMedico;
+    if(medico){
+        axios(`http://localhost:3000/registrar/medico/${idMedico}`)
+        .then(res => {
+            let espes = []
+            for(let e of res.data){
+                espes.push(e.idEspecialidad);
+            }
+            for(let i = 0; i < espes.length; i++){ // nos fijamos que especialidades tiene el medico a editar
+                for(let j = 0; j < especialidades.length; j++){
+                    if(especialidades[j].value == espes[i]){
+                        especialidades[j].checked = true;
+                    }
+                }
+            }
+            for(let i = 0; i < profesion.options.length; i++){ //nos fijamos que profesiones tiene el medico a editar
+                if(profesion.options[i].value == medico.idProfesion){
+                    profesion.options[i].selected = true;
+                    break;
+                }
+            }
+            inputNombre.value = medico.nombre;
+            inputApellido.value = medico.apellido;
+            inputDocumento.value = medico.documento;
+            inputDomicilio.value = medico.domicilio;
+            inputMatricula.value = medico.matricula;
+            inputRefeps.value = medico.idRefeps;
+            inputUsuario.value = medico.documento;
+            inputPassword.value = medico.documento;
+        })
+        .catch(error => console.log(error))
+    }else{
+        alert("OCURRIO UN ERROR AL ENCONTRAR AL MÉDICO CON EL ID "+documento);
+    }
+    //mostrar boton guardarCambios y cancelar
+    btnGuardar.addEventListener("click", updateMedico(idMedico));
+    btnCancelar.addEventListener("click", cancelarUpdate);
+    btnGuardar.style.display = "inline-block";
+    btnCancelar.style.display = "inline-block";
+    //esconder boton registrar médico
+    botonRegistrarMedico.style.display ="none";   
+}
+
+const updateMedico = (idMedico) => {
+    return () => {
+        let especialidadesSeleccionadas = [];
+        for(let i = 0; i < especialidades.length; i++){
+            if(especialidades[i].checked){
+                especialidadesSeleccionadas.push(especialidades[i].value);
+            }
+        }
+        const medico = {
+            idMedico,
+            nombre: inputNombre.value, 
+            apellido: inputApellido.value,
+            domicilio: inputDomicilio.value,
+            profesion: profesion.value,
+            especialidad: especialidadesSeleccionadas,
+            documento: inputDocumento.value,
+            matricula: inputMatricula.value,
+            refeps: inputRefeps.value
+        }
+        axios.put("http://localhost:3000/registrar/medico/update", medico)
+        .then(res => {
+            if(res.data.ok){
+                Swal.fire({
+                    icon: "success",
+                    title: "Cambios guardados correctamente",
+                    timer: 1000
+                }).then(()=>{
+                    limpiarInputs();
+                    // window.location.href = "/registrar/medico";
+                })
+            }else{
+                Swal.fire({
+                    icon: "error",
+                    title: "Ocurrión un error al editar al profesional"
+                });
+            }
+        })
+        .catch(error => console.log(error));
+    }
+}
+
+const cancelarUpdate = () => {
+    botonRegistrarMedico.style.display = "inline-block";
+    btnGuardar.style.display = "none";
+    btnCancelar.style.display = "none";
+    limpiarInputs();
+}
+
+const limpiarInputs = () => {
+    inputNombre.value = "";
+    inputApellido.value = "";
+    inputDocumento.value = "";
+    inputDomicilio.value = "";
+    inputMatricula.value = "";
+    inputRefeps.value = "";
+    inputUsuario.value = "";
+    inputPassword.value = "";
+    for(let i = 0; i < especialidades.length; i++){
+        especialidades[i].checked = false;
+    }
+    if(profesion.options.length > 0){
+        profesion.options[0].selected = true;
+    }
+}

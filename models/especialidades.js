@@ -20,6 +20,23 @@ const insertMedicoEspecialidad = async (idMedico, idEspecialidad) => {
     }
 }
 
-// const getEspecialidadById
+const getEspecialidadesByIdMedico = async (idMedico) => {
+    const query = "SELECT * FROM medico_especialidad WHERE idMedico = ?";
+    try {
+        const resultado = await pool.query(query, [idMedico]);
+        return resultado;
+    } catch (error) {
+        throw error;
+    }
+}
 
-export {getEspecialidades, insertMedicoEspecialidad}
+const borrarEspecialidadByMedico = async (idMedico, idEspecialidad) => {
+    const query = "DELETE FROM medico_especialidad WHERE idMedico = ? AND idEspecialidad = ?";
+    try {
+        const resultado = await pool.query(query, [idMedico, idEspecialidad]);
+    } catch (error) {
+        throw error;
+    }
+}
+
+export {getEspecialidades, insertMedicoEspecialidad, getEspecialidadesByIdMedico, borrarEspecialidadByMedico}

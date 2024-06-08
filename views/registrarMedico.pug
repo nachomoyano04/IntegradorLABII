@@ -3,7 +3,7 @@ block content
     script(type="module", src="/js/crudMedicos.js")
     script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
     .divsRegistrarMedico
-        .divformRegistrarMedico
+        .divformRegistrarMedico#registroMedico
             h1.h1RegistrarMedico Registrar Médico
             form.formulariosRegistrarMedico(action="/registrar/medico", method="POST")
                 .labels 
@@ -61,7 +61,9 @@ block content
                     input.input(type="text", readonly, name="password", required, id="password")  
                 .divBotones
                     input.botones(type="button", value="Registrar", id="botonRegistrarMedico")
-        .divformRegistrarMedico
+                    input.botones(type="button", value="Guardar Cambios", id="botonGuardarCambiosUpdateMedico", style="display:none")
+                    input.botones(type="button", value="Cancelar", id="botonCancelarUpdateMedico", style="display:none")
+        .divformRegistrarMedico#busquedaMedico
             h1.h1RegistrarMedico Buscar Profesionales Por DNI o REFEPS
             .formularioBuscarProfesionales 
                 .divLabelsInputs

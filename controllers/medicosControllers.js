@@ -1,7 +1,8 @@
-import { insertDoctor, getAllDoctors } from "../models/medicos.js";
-import { getEspecialidades, insertMedicoEspecialidad } from "../models/especialidades.js";
+import { insertDoctor, getAllDoctors,actualizarMedico, borrarMedico, getIdUsuarioByIdMedico } from "../models/medicos.js";
+import { getEspecialidades, insertMedicoEspecialidad, getEspecialidadesByIdMedico, borrarEspecialidadByMedico } from "../models/especialidades.js";
 import { getProfesiones } from "../models/profesiones.js";
-import { insertarUsuario } from "../models/login.js";
+import { insertarUsuario, insertarUsuarioRol, updateUsuario, getUsuarioByIdUsuario } from "../models/login.js";
+import bcrpyt from "bcrypt";
 import pool from "../models/database.js";
 
 const registroMedicoGet = async (req, res) => {
@@ -36,18 +37,17 @@ const registroMedicoGet = async (req, res) => {
 }
 
 const insertarDoctorPost = async (req, res) => {
-    const {nombre, apellido, documento, idProfesion, domicilio, matricula, idRefeps, especialidad} = req.body;
-    const {usuario, password} = req.body;
-    console.log(req.body);
+    const {nombre, apellido, documento, profesion, domicilio, matricula, refeps, especialidad} = req.body;
+    let passwordHasheada = await bcrpyt.hash(documento, 8);
     const connection = pool.getConnection();
     try{
         (await connection).beginTransaction();    
-        const resultado = await insertarUsuario(usuario, password);
-        console.log(resultado);
+        //cómo al momento de registrar el usuario y password serán el documento del profesional lo insertamos así.
+        const resultado = await insertarUsuario(documento, passwordHasheada);
         let idUsuario = resultado[0].insertId;
-        const resultado2 = await insertDoctor(nombre,apellido,documento,idProfesion,domicilio,matricula,idRefeps, idUsuario);
+        const resultado2 = await insertDoctor(nombre,apellido,documento,profesion,domicilio,matricula,refeps, idUsuario);
         let idMedico = resultado2[0].insertId;
-        console.log(resultado); ///verigicarrrrrrrrrrrrrrrrrr
+        await insertarUsuarioRol(idUsuario, 2); //le asignamos el rol profesional por defecto...
         for(let e of especialidad){
             await insertMedicoEspecialidad(idMedico, e); 
         }
@@ -72,4 +72,81 @@ const getProfesionales = async(req, res) => {
     }
 }
 
-export {registroMedicoGet, insertarDoctorPost, getProfesionales};
+const updateMedico = async(req, res) => {
+    const connection = await pool.getConnection();
+    const {nombre,apellido,documento,profesion,domicilio,matricula,refeps,idMedico} = req.body;
+    const {especialidad} = req.body;
+    try {
+        await connection.beginTransaction();
+        //update medico
+        const resultado = await actualizarMedico(nombre,apellido,documento,profesion,domicilio,matricula,refeps,idMedico);
+        //update usuario
+        const idUsuario = await getIdUsuarioByIdMedico(idMedico);
+        const {nombreUsuario, password} = await getUsuarioByIdUsuario(idUsuario);
+        //chequeamos de que haya algun cambio en el documento para cambiar los datos del usuario
+        if(!(nombreUsuario === documento && await bcrpyt.compare(documento, password))){    
+            const passwordHasheada = await bcrpyt.hash(documento, 8);
+            const resultado2 = await updateUsuario(documento, passwordHasheada, idUsuario);
+        }
+        //update especialidades
+        console.log(especialidad);
+        if(especialidad.length > 0){
+            const especialidadesYaCargadas = await getEspecialidadesByIdMedico(idMedico);
+            // console.log(especialidadesYaCargadas[0]);
+            let especialidadesEnBD = especialidadesYaCargadas[0].map(e => parseInt(e.idEspecialidad));
+            console.log(especialidadesEnBD);
+            // chequeamos de que si no esta la especialidad cargada para ese médico, se la agregamos
+            for(let especial of especialidad){ 
+                if(!(especialidadesEnBD.includes(especial))){
+                    await insertMedicoEspecialidad(idMedico, especial);
+                    especialidadesEnBD.push(especial);
+                }else{
+                    especialidadesEnBD.filter(e => e !== especial);
+                }
+            }
+            console.log(especialidadesEnBD)
+            if(especialidadesEnBD.length !== especialidad.length){
+                for(let es of especialidadesEnBD){
+                    if(!(especialidad.includes(es))){
+                        await borrarEspecialidadByMedico(idMedico, es);
+                    }
+                }
+            }
+        }
+        // console.log(resultado);
+        await connection.commit();
+        if(resultado[0].affectedRows > 0){
+            res.send({ok:true});
+        }
+    } catch (error) {
+        await connection.rollback();
+        res.render("404", {error500:true, mensajeDeError500: error});
+    } finally{
+        connection.release();
+    }
+}
+
+const borradoLogico = async(req, res) => {
+    const estado = req.body.estado;
+    try {
+        const resultado = await borrarMedico(estado);
+        if(resultado[0].affectedRows > 0){
+            res.send({ok:true});
+        }
+    } catch (error) {
+        res.render("404", {error500:true, mensajeDeError500: error});
+    }
+}
+
+
+const getEspecialidadesWithId = async(req,res) => {
+    const idMedico = req.params.idMedico;
+    try {
+        const resultado = await getEspecialidadesByIdMedico(idMedico);
+        res.send(resultado[0])        
+    } catch (error) {
+        res.render("404", {error500:true, mensajeDeError500: error});
+    }
+}
+
+export {registroMedicoGet, insertarDoctorPost, getProfesionales, updateMedico, borradoLogico, getEspecialidadesWithId};
