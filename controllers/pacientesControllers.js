@@ -1,10 +1,10 @@
 // import { getObrasSociales } from "../models/obraSocial.js";
 import {getPlanes, getPlanByIdPaciente} from "../models/planes.js";
-import { getAllPatients, insertPatient } from "../models/pacientes.js";
+import { deletePatient, getAllPatients, insertPatient, updatePatient } from "../models/pacientes.js";
 import { getDoctorById} from "../models/medicos.js";
 import { getObraSocialByIdPlan } from "../models/obraSocial.js";
 import pool from "../models/database.js";
-import { insertPacientePlan } from "../models/pacientePlan.js";
+import { borrarPlanPaciente, insertPacientePlan } from "../models/pacientePlan.js";
 
 const registroPacienteGet = async (req, res) => {
     try {
@@ -75,4 +75,54 @@ const obtenerOSByIdPlan = async (req, res) => {
     }
 }
 
-export {registroPacienteGet, planesPorIdPaciente, registroPacientePost, obtenerPacientes, obtenerOSByIdPlan};
+const registroPacienteUpdate = async (req, res) => {
+    const {idPaciente, nombre, apellido, documento, fechaNacimiento, sexo} = req.body;
+    let {planes} = req.body;
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+        let planesBD = await getPlanByIdPaciente(idPaciente);
+        planesBD = planesBD.map(e => e.idPlan.toString()); //mapeamos los planes de la bd para que sea un arreglo de idPlan's
+        for(let pbd of planesBD){
+            if(planes.includes(pbd)){ // si lo incluye, lo eliminamos de los planes a agregar...
+                planes = planes.filter(e => e !== pbd);
+            }else{
+                let filas = await borrarPlanPaciente(idPaciente, pbd); //si no, eliminamos ese plan para el paciente
+                if(filas !== 1){
+                    throw error;
+                }
+            }
+        }
+        for(let p of planes){ //agregamos los planes al paciente si quedan...
+            await insertPacientePlan(idPaciente, p);
+        }
+        const resultado = await updatePatient(nombre, apellido, documento, fechaNacimiento, sexo, idPaciente);
+        console.log(resultado);
+        if(resultado === 1){ //si
+            res.send({ok:true});
+        }else{
+            res.send({ok:false});
+        }
+        await connection.commit();
+    } catch (error) {
+        await connection.rollback();
+        res.status(500).render("404", {error500:true, mensajeDeError500:error});
+    }finally{
+        connection.release();
+    }
+}
+
+const borradoLogicoPaciente = async (req, res) => {
+    try {
+        const resultado = await deletePatient(idPaciente);
+        if(resultado===1){
+            res.send({ok:true})
+        }else{
+            res.send({ok:false})
+        }
+    } catch (error) {
+        res.status(500).render("404", {error500:true, mensajeDeError500:error});
+    }
+}
+
+export {registroPacienteGet, planesPorIdPaciente, registroPacientePost, obtenerPacientes, obtenerOSByIdPlan, registroPacienteUpdate, borradoLogicoPaciente};

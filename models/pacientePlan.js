@@ -10,4 +10,14 @@ const insertPacientePlan = async (idPaciente, idPlan) => {
     }
 }
 
-export {insertPacientePlan};
+const borrarPlanPaciente = async (idPaciente, idPlan) => {
+    const query = "DELETE FROM paciente_plan WHERE idPaciente = ? AND idPlan = ?";
+    try {
+        const resultado = await pool.query(query, [idPaciente, idPlan]);
+        return resultado[0].affectedRows;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export {insertPacientePlan, borrarPlanPaciente};

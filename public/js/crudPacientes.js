@@ -38,7 +38,7 @@ const llenarListaPacientes = (pacientes, listaPacientes) => {
             botonEditar.innerHTML = editar;
             botonBorrar.innerHTML = borrar;
             botonEditar.addEventListener("click", editarPaciente(paciente));
-            botonBorrar.addEventListener("click", borrarPaciente);
+            botonBorrar.addEventListener("click", borrarPaciente(paciente.idPaciente));
             let li = document.createElement("li");
             li.appendChild(p);
             li.appendChild(botonEditar);
@@ -61,9 +61,11 @@ let inputApellido = document.querySelector("#apellido");
 let inputDocumento = document.querySelector("#documento");
 let inputFechaNacimiento = document.querySelector("#fechaNacimiento");
 let selectSexo = document.querySelector("#selectSexo");
+
+let botonCancelarUpdate = document.querySelector("#botonCancelarUpdate");
+let botonGuardarUpdate = document.querySelector("#botonGuardarUpdate");
 const editarPaciente = (paciente) => {
     return () => {
-        console.log(paciente);
         axios(`http://localhost:3000/registrar/paciente/${paciente.idPaciente}`)
         .then(res => {
             inputNombre.value = paciente.nombre; //insertamos el nombre
@@ -78,21 +80,116 @@ const editarPaciente = (paciente) => {
                 }
             }
             let plans = res.data.map(e => e.idPlan); //insertamos los planes
-            console.log(plans)
             for(let i = 0; i < planes.length; i++){
-                console.log(planes[i].value);
-                if(plans.includes(parseInt(planes[i].value))){
+                if(plans.includes(parseInt(planes[i].value))){ //si el plan esta incluido en los planes del paciente, lo checkeamos 
                     planes[i].checked = true;
+                    let idPlan = planes[i].value;
+                    // buscamos las obras sociales relacionadas para mostrarlas en el campo Obra Social
+                    axios.post(`http://localhost:3000/registrar/paciente/obrasSociales`, {idPlan})
+                    .then(res => {
+                        mostrarObrasSocialesDependiendoElPlan(res.data)
+                    }).catch(error => console.log(error));  
                 }
+            }
+            botonGuardarUpdate.addEventListener("click", updatePaciente(paciente.idPaciente)); //si toca update guardamos el update
+            botonCancelarUpdate.addEventListener("click", cancelarUpdate); //si toca cancelar limpiamos los campos
+            habilitarBotonesEdicion();
+            deshabilitarBotonRegistrar();
+        })
+        .catch(error => console.log(error));
+    }
+}
+const cancelarUpdate = () => {
+    habilitarBotonRegistrar();
+    deshabilitarBotonesEdicion();
+    limpiarCampos();
+}
+const updatePaciente = (idPaciente) => {
+    return () => {
+        planesElegidos = [];
+        let todoCorrecto = verificarCampos();
+        if(todoCorrecto){
+            let paciente = {idPaciente, nombre:inputNombre.value, apellido: inputApellido.value, documento: inputDocumento.value,
+                fechaNacimiento:inputFechaNacimiento.value, sexo: selectSexo.value, planes: planesElegidos
+            }
+            axios.put("http://localhost:3000/registrar/paciente", paciente)
+            .then(res => {
+                if(res.data.ok){
+                    Swal.fire({
+                        icon: "success",
+                        title: "Paciente editado correctamente",
+                        timer: 1500
+                    }).then(() => {
+                        window.location.href = "/registrar/paciente";
+                    })
+                }else{
+                    Swal.fire({
+                        icon: "warning",
+                        title: "No hay campos para modificar...",
+                        timer: 1500
+                    });
+                }
+            })
+            .catch(error => console.log(error));
+        }else{
+            Swal.fire({
+                icon: "warning",
+                title: "LOS CAMPOS NO PUEDEN ESTAR VACÍOS",
+                timer: 1500
+            });
+        }
+    }
+}
+
+const habilitarBotonesEdicion = () => {
+    botonCancelarUpdate.style.display = "inline-block";
+    botonGuardarUpdate.style.display = "inline-block";
+}
+const deshabilitarBotonesEdicion = () => {
+    botonCancelarUpdate.style.display = "none";
+    botonGuardarUpdate.style.display = "none";
+}
+const deshabilitarBotonRegistrar = () => {
+    botonRegistrarPaciente.style.display = "none";
+}
+const habilitarBotonRegistrar = () => {
+    botonRegistrarPaciente.style.display = "inline-block";
+}
+const borrarPaciente = (idPaciente) => {
+    return () => {
+        axios.put("http://localhost:3000/registrar/paciente/", {idPaciente})
+        .then(res => {
+            if(res.data.ok){
+                Swal.fire({
+                    icon: "success",
+                    title: "PACIENTE ELIMINADO CORRECTAMENTE",
+                    timer: 1500
+                }).then(() => window.location.href = "/registrar/paciente");
+            }else{
+                Swal.fire({
+                    icon: "success",
+                    title: "ERROR AL ELIMINAR EL PACIENTE",
+                    timer: 1500
+                }).then(() => window.location.href = "/registrar/paciente");
             }
         })
         .catch(error => console.log(error));
     }
 }
-const borrarPaciente = () => {
-
-}
     
+const limpiarCampos = () => {
+    inputNombre.value = "";
+    inputApellido.value = "";
+    inputDocumento.value = "";
+    inputFechaNacimiento.value = "";
+    selectSexo.childNodes[0].selected = true;
+    planes.forEach(e => e.cheked?e.checked = false:e.checked=false);
+    while(ulObraSocial.hasChildNodes()){
+        ulObraSocial.removeChild(ulObraSocial.firstChild);
+    }
+    idOS = [];
+}
+
 //------------------------------- SECCION SELECT ESPECIALIDADES -------------------------------//
 let checkboxPlan = document.querySelector(".checkboxPlan");
 let selectPlan = document.querySelector(".selectPlan");
@@ -139,7 +236,6 @@ checkboxPlan.addEventListener("change", (event) => {
         }else{
             sacarObraSocialDelPlan(res.data);
         }
-        console.log(idOS);
     }).catch(error => console.log(error));
     checkboxPlan.style.display = "none";
     estaExpandida = false;

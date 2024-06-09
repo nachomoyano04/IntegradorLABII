@@ -37,7 +37,9 @@ html
                                 icon: "error",
                                 title: res.data.mensaje,
                                 heightAuto: false,
-                            });
+                            }).then(()=> {
+                                inputPassword.value = "";
+                            })
                         }else{
                             Swal.fire({
                                 icon: "success",

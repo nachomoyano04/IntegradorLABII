@@ -21,4 +21,23 @@ const insertPatient = async (nombre, apellido, documento, fechaNacimiento, sexo)
     }
 }
 
-export {getAllPatients, insertPatient};
+const updatePatient = async (nombre, apellido, documento, fechaNacimiento, sexo, idPaciente) => {
+    const query = "UPDATE paciente SET nombre=?, apellido=?, documento=?, fechaNacimiento=?, sexo=? WHERE idPaciente = ?";
+    try {
+        const resultado = await pool.query(query, [nombre, apellido, documento, fechaNacimiento, sexo, idPaciente]);
+        return resultado[0].affectedRows;
+    } catch (error) {
+        throw error;
+    }
+}
+
+const deletePatient = async (idPaciente) => {
+    try {
+        const resultado = await pool.query("UPDATE paciente SET estado = 0 WHERE idPaciente = ?", [idPaciente]);
+        return resultado[0].affectedRows;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export {getAllPatients, insertPatient, updatePatient, deletePatient};
