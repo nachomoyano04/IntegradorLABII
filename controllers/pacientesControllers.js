@@ -1,33 +1,35 @@
-import { getObrasSociales } from "../models/obraSocial.js";
-import {getPlanByIdObraSocial} from "../models/planes.js";
-import { insertPatient } from "../models/pacientes.js";
-import { getObrasSocialPlanByIDs } from "../models/obraSocial_plan.js";
+// import { getObrasSociales } from "../models/obraSocial.js";
+import {getPlanes, getPlanByIdPaciente} from "../models/planes.js";
+import { getAllPatients, insertPatient } from "../models/pacientes.js";
+import { getDoctorById} from "../models/medicos.js";
+import { getObraSocialByIdPlan } from "../models/obraSocial.js";
+import pool from "../models/database.js";
+import { insertPacientePlan } from "../models/pacientePlan.js";
 
 const registroPacienteGet = async (req, res) => {
     try {
         if(req.session.loggedin){
-            // let roles = req.session.rol;
-            // let tienePermiso = false;
-            // for(let i = 0; i < roles.length; i++){
-            //     if(roles[i].idRol === 1){
-            //         tienePermiso = true;
-            //         break;       // como tanto un admin como un profesional pueden dar de alta un paciente no hace falta hacer esta validacion
-                // }
-            // }
-            // if(tienePermiso){
-                const obraSocial = await getObrasSociales();
-                res.render("registrarPaciente", {obraSocial})
-        }        
+            // logica para conseguir el nombre y apellido del usuario
+            let usuario = req.session.usuario;
+            if(req.session.idMedico){
+                const medics = await getDoctorById(req.session.idMedico);
+                usuario =  `${medics[0][0].nombre} ${medics[0][0].apellido} REFEPS: ${medics[0][0].idRefeps}`
+            }
+            const planes = await getPlanes();
+            res.render("registrarPaciente", {usuario, planes})
+        }else{
+            res.redirect("/login");
+        }      
     } catch (error) {
         res.render("404", {error500: true, mensajeDeError500: error});
     }
 }
 
-const planesPorId = async(req, res) => {
+const planesPorIdPaciente = async(req, res) => {
+    const idPaciente = req.params.idPaciente;
     try {
-        const idObraSocial = req.params.idObraSocial;
-        const planes = await getPlanByIdObraSocial(idObraSocial);
-        return res.json(planes);
+        const planes = await getPlanByIdPaciente(idPaciente);
+        res.json(planes);
     } catch (error) {
         const mensajeDeError500 = `Error interno en el servidor: ${error}`
         res.status(500).render("404", {error500:true, mensajeDeError500});
@@ -35,17 +37,42 @@ const planesPorId = async(req, res) => {
 }
 
 const registroPacientePost = async (req, res) => {
+    const connection = await pool.getConnection();
+    const {nombre, apellido, documento, fechaNacimiento, sexo, planes} = req.body;
     try {
-        const {nombre, apellido, documento, fechaNacimiento, sexo, obraSocial, plan} = req.body;
-        let idObraSocialPlan = await getObrasSocialPlanByIDs(obraSocial, plan);
-        idObraSocialPlan = idObraSocialPlan[0].id;
-        const paciente = {nombre, apellido, documento, fechaNacimiento, sexo, idObraSocialPlan};
-        const resultado = await insertPatient(paciente);
-        res.json(`Paciente insertado correctamente con el id: ${resultado[0].insertId}`);
+        await connection.beginTransaction();
+        const idPaciente = await insertPatient(nombre,apellido,documento,fechaNacimiento,sexo);
+        for(let p of planes){
+            await insertPacientePlan(idPaciente, p);
+        }
+        await connection.commit();
+        res.send({ok:true});
     } catch (error) {
+        await connection.rollback();
         const mensajeDeError500 = `Error interno en el servidor: ${error}`
         res.status(500).render("404", {error500:true, mensajeDeError500});
+    } finally {
+        connection.release();
     }
 } 
 
-export {registroPacienteGet, planesPorId, registroPacientePost};
+const obtenerPacientes = async (req, res) => {
+    try {
+        const pacientes = await getAllPatients();
+        res.json(pacientes);
+    } catch (error) {
+        res.status(500).render("404", {error500:true, mensajeDeError500:error});
+    }
+}
+
+const obtenerOSByIdPlan = async (req, res) => {
+    const {idPlan} = req.body;
+    try {
+        const resultado = await getObraSocialByIdPlan(idPlan);
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).render("404", {error500:true, mensajeDeError500:error});
+    }
+}
+
+export {registroPacienteGet, planesPorIdPaciente, registroPacientePost, obtenerPacientes, obtenerOSByIdPlan};

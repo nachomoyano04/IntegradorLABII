@@ -1,7 +1,7 @@
-import { insertDoctor, getAllDoctors,actualizarMedico, borrarMedico, getIdUsuarioByIdMedico } from "../models/medicos.js";
+import { insertDoctor, getAllDoctors,actualizarMedico, borrarMedico, getIdUsuarioByIdMedico, getMedicoByIdUsuario } from "../models/medicos.js";
 import { getEspecialidades, insertMedicoEspecialidad, getEspecialidadesByIdMedico, borrarEspecialidadByMedico } from "../models/especialidades.js";
 import { getProfesiones } from "../models/profesiones.js";
-import { insertarUsuario, insertarUsuarioRol, updateUsuario, getUsuarioByIdUsuario } from "../models/login.js";
+import { insertarUsuario, insertarUsuarioRol, updateUsuario, getUsuarioByIdUsuario, buscarUsersByUsuario } from "../models/login.js";
 import bcrpyt from "bcrypt";
 import pool from "../models/database.js";
 
@@ -19,13 +19,14 @@ const registroMedicoGet = async (req, res) => {
             if(tienePermiso){
                     const especialidades = await getEspecialidades(); 
                     const profesiones = await getProfesiones();
-                    res.render("registrarMedico", {especialidades, profesiones})
+                    let usuario = req.session.usuario;
+                    res.render("registrarMedico", {especialidades, profesiones, usuario});
             }else{
                 res.send("No tienes permisos de administrador...");
             }
         }else{
-            const inicio = false;
-            const mensaje = "Debe iniciar sesión";
+            // const inicio = false;
+            // const mensaje = "Debe iniciar sesión";
             res.redirect("/login");
             // res.render("inicio", {inicio, mensaje, usuario: null});
             // res.send("debe iniciar sesión");
@@ -89,31 +90,22 @@ const updateMedico = async(req, res) => {
             const resultado2 = await updateUsuario(documento, passwordHasheada, idUsuario);
         }
         //update especialidades
-        console.log(especialidad);
         if(especialidad.length > 0){
             const especialidadesYaCargadas = await getEspecialidadesByIdMedico(idMedico);
             // console.log(especialidadesYaCargadas[0]);
-            let especialidadesEnBD = especialidadesYaCargadas[0].map(e => parseInt(e.idEspecialidad));
-            console.log(especialidadesEnBD);
+            let especialidadesEnBD = especialidadesYaCargadas[0].map(e => e.idEspecialidad+"");
             // chequeamos de que si no esta la especialidad cargada para ese médico, se la agregamos
             for(let especial of especialidad){ 
                 if(!(especialidadesEnBD.includes(especial))){
                     await insertMedicoEspecialidad(idMedico, especial);
-                    especialidadesEnBD.push(especial);
                 }else{
-                    especialidadesEnBD.filter(e => e !== especial);
+                    especialidadesEnBD = especialidadesEnBD.filter(e => e !== especial);
                 }
             }
-            console.log(especialidadesEnBD)
-            if(especialidadesEnBD.length !== especialidad.length){
-                for(let es of especialidadesEnBD){
-                    if(!(especialidad.includes(es))){
-                        await borrarEspecialidadByMedico(idMedico, es);
-                    }
-                }
+            for(let es of especialidadesEnBD){
+                await borrarEspecialidadByMedico(idMedico, es);
             }
         }
-        // console.log(resultado);
         await connection.commit();
         if(resultado[0].affectedRows > 0){
             res.send({ok:true});
@@ -127,9 +119,9 @@ const updateMedico = async(req, res) => {
 }
 
 const borradoLogico = async(req, res) => {
-    const estado = req.body.estado;
+    const {idMedico} = req.body;
     try {
-        const resultado = await borrarMedico(estado);
+        const resultado = await borrarMedico(idMedico);
         if(resultado[0].affectedRows > 0){
             res.send({ok:true});
         }

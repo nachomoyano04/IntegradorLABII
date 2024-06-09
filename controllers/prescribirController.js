@@ -1,4 +1,4 @@
-import { getAllDoctors } from "../models/medicos.js";
+// import { getAllDoctors } from "../models/medicos.js";
 import { getAllPatients } from "../models/pacientes.js";
 import { getMedicamento } from "../models/medicamentos.js";
 import { getPrestaciones } from "../models/prestaciones.js";
@@ -7,8 +7,9 @@ import { insertPrescripcionMedicamentoDetalle } from "../models/prescripcionMedi
 import { insertPrescripcionPrestacion } from "../models/prescripcionPrestacion.js";
 import { updateResultadoPrestacion } from "../models/prescripcionPrestacion.js";
 import pool from "../models/database.js";
+import { getDoctorById} from "../models/medicos.js";
 
-const prescribirGet = async(req, res) => { //funcion que renderiza el form prescribir obteniendo los medicos y pacientes 
+const prescribirGet = async(req, res) => { //funcion que renderiza el form prescribir obteniendo los pacientes 
     try {
         if(req.session.loggedin){
             let roles = req.session.rol;
@@ -29,15 +30,20 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
                     }
                     return res.status(200).send("");
                 }else{
-                    let medicos = await getAllDoctors();
                     let pacientes = await getAllPatients();
-                    medicos = medicos[0];
                     pacientes = pacientes[0];
-                    res.render("prescribir", {medicos, pacientes});
+
+                    let usuario = req.session.usuario;
+                    // logica para conseguir el nombre y apellido del médico (si existe)
+                    if(req.session.idMedico){
+                        const medics = await getDoctorById(req.session.idMedico);
+                        usuario =  `${medics[0][0].nombre} ${medics[0][0].apellido} REFEPS: ${medics[0][0].idRefeps}`
+                    }
+                    res.render("prescribir", {pacientes, usuario});
                 }
             }
         }else{
-            res.send("Debe iniciar sesión");
+            res.redirect("/login");
         }
     } catch (error) {
         const mensajeDeError500 = `Error interno en el servidor: ${error}`
@@ -46,8 +52,9 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
 }   
 
 const prescribirPost = async (req, res) => {
-    let {diagnostico, vigencia, idMedico, idPaciente, idMedicamentoDetalle, dosis, intervalo, duracion, idPrestacion} = req.body;
-    //convertimos a objeto los idMedicamentoDetalle e idPrestacion para que sea mas facil las inserciones (si existen)
+    let {diagnostico, vigencia, idPaciente, idMedicamentoDetalle, dosis, intervalo, duracion, idPrestacion} = req.body;
+    let idMedico = req.session.idMedico;
+    // convertimos a objeto los idMedicamentoDetalle e idPrestacion para que sea mas facil las inserciones (si existen)
     const connection = await pool.getConnection();
     try{
         if(typeof idMedicamentoDetalle !== "object" && idMedicamentoDetalle){
@@ -83,10 +90,10 @@ const prescribirPost = async (req, res) => {
 }
 
 const postIdPaciente = async (req, res) => {
-    // console.log(req.params)
     const idPaciente = req.params.idPaciente;
+    const idMedico = req.session.idMedico;
     try {
-        const prescripciones = await getPrescripcionByIdPaciente(idPaciente);
+        const prescripciones = await getPrescripcionByIdPaciente(idPaciente, idMedico);
         res.send(prescripciones);
     } catch (error) {
         const mensajeDeError500 = `Error interno en el servidor: ${error}`

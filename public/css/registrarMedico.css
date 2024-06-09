@@ -1,30 +1,32 @@
-.divsRegistrarMedico{
+.divsRegistrarMedico, .divsRegistrarPaciente{
     display: flex;
     justify-content: space-between;
     border: 1px solid #000;
     /* height: 100%; Define la altura del contenedor */
 }
 
-.listaMedicos{
+.listaMedicos, .listaPacientes{
     font-size: 20px;
 }
 
-.listaMedicos p{
+.listaMedicos p, .listaPacientes p{
     background-color: #7baddf;
-    padding: 10px;
+    width: 85%;
+    padding: 10px 5px;
+    border-radius: 5px;
 }
 
-.listaMedicos li{
+.listaMedicos li, .listaPacientes li{
     display: flex;
 }
 
-.listaMedicos .tooltip{
+.listaMedicos .tooltip, .listaPacientes .tooltip{
     background-color: #ccc;
     border: none;
     font-size: 20px;
 }
 
-.divFormRegistrarMedico{
+.divFormRegistrarMedico, .divFormRegistrarPaciente{
     display: flex;
     flex-direction: column;
     /* margin: 10px 20px; */
@@ -34,16 +36,16 @@
     /* justify-content: center; */
 }
 
-#registroMedico{
+#registroMedico, #registroPaciente{
     flex: 0 0 40%;
 }
 
-#busquedaMedico{
+#busquedaMedico, #busquedaPaciente{
     flex: 0 0 60%;
 }
 
 
-.formulariosRegistrarMedico, .formularioBuscarProfesionales{
+.formulariosRegistrarMedico, .formularioBuscarProfesionales, .formularioRegistrarPaciente, .formularioBuscarPaciente{
     background-color: #CCC;
     font-size: 20px;
     border-radius: 15px;
@@ -52,45 +54,51 @@
     margin: 0px 0px 15px 0px;
 }
 
-.formularioBuscarProfesionales{
+.formularioBuscarProfesionales, .formularioBuscarPaciente{
     display: flex;
     flex-direction: column;
 }
 
 .divLabelsInputs{
     display: flex;
+    justify-content: space-around;
 }
 
-.h1RegistrarMedico{
+.h1RegistrarMedico, .h1RegistrarPaciente{
     color: aliceblue;
     margin: 10px;
     font-size: x-large;
 }
 
-.labelEinputBuscarProfesionales{
-    margin: 10px 20px;
+.labelEinputBuscarProfesionales, .labelEinputBuscarPacientes{
+    margin-top: 15px;
+}
+
+.labelEinputBuscarProfesionales input, .labelEinputBuscarPacientes input{
+    border: 1px solid #9a9a9a;
+    padding: 5px;
+    border-radius: 5px;
+    margin-left: 4px;
 }
 
 /* SECCION SELECT ESPECIALIDADES */
-.selectEspecialidad{
+.selectEspecialidad, .selectPlan{
     position: relative;
 }
 
-.secionEspecialidad{
+.secionEspecialidad, .seccionPlan{
     width: 60%;
 }
-.selectEspecialidad select{
+.selectEspecialidad select, .selectPlan select{
     width: 100%;    
-    /* width: 60%; */
     border: 1px solid #9a9a9a;
     padding: 5px;
     border-radius: 5px;
 }
 
-.labelsEspecialidad{
+.labelsEspecialidad, .labelsPlan{
     display: flex;
     margin: 20px 30px;
-    /* align-items: center; */
     justify-content: space-between;
 }
 
@@ -101,18 +109,18 @@
     top: 0;
     bottom: 0;
 }
-.checkBoxEspecialidad{
+.checkBoxEspecialidad, .checkboxPlan{
     display: none;
     border: 1px solid black;
     background-color: white;
 }
-.checkBoxEspecialidad label{
+.checkBoxEspecialidad label, .checkboxPlan label{
     display: flex;
     flex-direction: row-reverse;
     justify-content: flex-end;
     font-size: medium;
 }
 
-.checkBoxEspecialidad label:hover{
+.checkBoxEspecialidad label:hover, .checkboxPlan label:hover{
     background-color: #ccc;
 }

@@ -417,21 +417,8 @@ const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoM
         if(indice > -1){
             idsDeMedicamentos.splice(indice, 1);
         }
-
         //seteamos el valor del idMedicamentoDetalle a vacío nuevamente...
         idMedicamentoDetalle.value = "";
-        
-        //Nos fijamos: Si estan todos los inputs vacíos, entonces deshabilitamos el botón prescribir. 
-        // let inputMedicamentos = document.querySelectorAll(".classEnComunCSS");
-        // let inputMedicamentosYPrestacionesVacio = true; //LOGICA QUE CONTROLA Q TODOS LOS INPUT DE MEDICAMENTO ESTEN VACIOS
-        // inputMedicamentos.forEach(e => {
-        //     if(e.value !== ""){
-        //         inputMedicamentosYPrestacionesVacio = false;
-        //     }
-        // })
-        // if(inputMedicamentosYPrestacionesVacio){
-        //     botonPrescribir.disabled = true;
-        // }
     }
 }
 
@@ -675,16 +662,6 @@ const agregarAutocompletadoPrestacion = (palabra, prestaciones, autocompletadoPr
             }
 
             idPrestacion.value = "";
-            // let inputMedicamentosYPrestaciones = document.querySelectorAll(".classEnComunCSS");
-            // let inputMedicamentosYPrestacionesVacios = true;
-            // inputMedicamentosYPrestaciones.forEach(elemento => {
-            //     if(elemento.value !== ""){
-            //         inputMedicamentosYPrestacionesVacios = false;
-            //     }
-            // })
-            // if(inputMedicamentosYPrestacionesVacios){
-            //     botonPrescribir.disabled = true;
-            // }
         }
 }
 

@@ -5,6 +5,7 @@ let inputBuscarProfesionalesByREFEPS = document.querySelector("#inputBuscarProfe
 let listaMedicos = document.querySelector(".listaMedicos");
 axios("http://localhost:3000/registrar/medico/profesionales")
 .then(res => {
+    console.log(res.data)
     let medicos = res.data;
     if(medicos.length > 0){
         medicos.forEach(med => {
@@ -12,7 +13,7 @@ axios("http://localhost:3000/registrar/medico/profesionales")
             let p = document.createElement("p");
             p.innerHTML = `${med.nombre} ${med.apellido}, DNI: ${med.documento}, Matricula: ${med.matricula}, REFEPS: ${med.idRefeps}`;
             li.appendChild(p);
-            agregarBotonesEditarYBorrar(li, med.documento, medicos);
+            agregarBotonesEditarYBorrar(li, med.documento, medicos, med.idMedico);
             listaMedicos.appendChild(li);
         })
         inputBuscarProfesionalesByDNI.addEventListener("input", buscarPorElemento(medicos, "documento"));
@@ -43,7 +44,7 @@ const buscarPorElemento = (medicos, contenido) => {
                 let p = document.createElement("p");
                 p.innerHTML = `${med.nombre} ${med.apellido}, DNI: ${med.documento}, Matricula: ${med.matricula}, REFEPS: ${med.idRefeps}`;
                 li.appendChild(p);
-                agregarBotonesEditarYBorrar(li, med.documento, medicos);
+                agregarBotonesEditarYBorrar(li, med.documento, medicos, med.idMedico);
                 listaMedicos.appendChild(li);
             })
         }else{ // si no hay ninguno mostramos mensaje
@@ -69,13 +70,14 @@ let inputDomicilio = document.querySelector("#domicilio");
 let inputMatricula = document.querySelector("#matricula");
 let inputRefeps = document.querySelector("#idRefeps");
 
-const verificarSoloString = (evento) => { //verificamos que solo ingresen letras para nombre y apellido...
-    const letrasValidas = evento.target.value.replace(/[^a-zA-Z\s]/g, "");
+const verificarSoloString = (evento) => {
+    let letrasValidas = evento.target.value.replace(/[^a-zA-Z\s]+/g, ''); // Limitamos a sólo letras y espacios
+    letrasValidas = letrasValidas.replace(/\s{2,}/g, ' '); // Eliminamos si hay dos espacios seguidos o más    
     if(evento.target.value !== letrasValidas){
         evento.target.value = letrasValidas;
     }
-    if(evento.target.value.length > 40){
-        evento.target.value = evento.target.value.slice(0,40);
+    if(evento.target.value.length > 40){ //Limitamos la longitud del input...
+        evento.target.value = evento.target.value.slice(0, 50);
     }
 }
 
@@ -153,7 +155,7 @@ botonRegistrarMedico.addEventListener("click", () => {
                     icon: "success",
                     title: "Médico Registrado Correctamente",
                     timer: 1500
-                }).then(() => limpiarInputs());
+                }).then(() => window.location.href = "/registrar/medico");
             }else{
                 Swal.fire({
                     icon: "error",
@@ -190,7 +192,7 @@ selectEspecialidad.addEventListener("click", () => {
 
 
 //------------------------------- SECCION BOTONES EDITAR Y BORRAR -------------------------------//
-const agregarBotonesEditarYBorrar = (li, documento, medicos) => {
+const agregarBotonesEditarYBorrar = (li, documento, medicos, idMedico) => {
     const editar = document.createElement("button");
     editar.type="button";
     editar.className="tooltip";
@@ -208,7 +210,7 @@ const agregarBotonesEditarYBorrar = (li, documento, medicos) => {
         llenarInputsConProfesional(editar.id, medicos);
     })
     borrar.addEventListener("click", () => {
-        axios.put("http://localhost:3000/registrar/medico/borrado",{estado:0})
+        axios.put("http://localhost:3000/registrar/medico/borrado", {idMedico})
         .then(res => {
             if(res.data.ok){
                 Swal.fire({
@@ -216,7 +218,7 @@ const agregarBotonesEditarYBorrar = (li, documento, medicos) => {
                     title: "Médico borrado correctamente",
                     timer: 1000
                 }).then(()=>{
-                    remove(li);
+                    window.location.href = "/registrar/medico";
                 })
             }else{
                 Swal.fire({
@@ -239,7 +241,7 @@ let btnCancelar = document.querySelector("#botonCancelarUpdateMedico");
 const llenarInputsConProfesional = (documento, medicos) => {
     const medico = medicos.find(e => e.documento == documento);
     let idMedico = medico.idMedico;
-    if(medico){
+    if(idMedico){
         axios(`http://localhost:3000/registrar/medico/${idMedico}`)
         .then(res => {
             let espes = []
@@ -306,10 +308,10 @@ const updateMedico = (idMedico) => {
                 Swal.fire({
                     icon: "success",
                     title: "Cambios guardados correctamente",
-                    timer: 1000
+                    timer: 1500
                 }).then(()=>{
-                    limpiarInputs();
-                    // window.location.href = "/registrar/medico";
+                    // limpiarInputs();
+                    window.location.href = "/registrar/medico";
                 })
             }else{
                 Swal.fire({

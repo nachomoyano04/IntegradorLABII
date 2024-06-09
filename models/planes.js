@@ -1,18 +1,34 @@
 import pool from "./database.js";
 
-const getPlanByIdObraSocial = async (idObraSocial) => {
-    const query = `SELECT * 
-                   FROM obra_social_plan 
-                    JOIN plan AS p USING(idPlan)
-                    JOIN obra_social AS os USING(idObraSocial)
-                   WHERE os.idObraSocial = ${idObraSocial}`;
-
+const getPlanByIdPaciente = async (idPaciente) => {
+    const query = `SELECT * FROM paciente_plan WHERE idPaciente = ?`;
     try {
-        const resultado = await pool.query(query);
+        const resultado = await pool.query(query, [idPaciente]);
         return resultado[0];
     } catch (error) {
         throw error;
     }
 }
 
-export { getPlanByIdObraSocial }
+const getPlanById = async (idPlan) => {
+    try {
+        const plan = await pool.query("SELECT * FROM  plan WHERE idPlan = ?", [idPlan]);
+        return plan[0][0];
+    } catch (error) {
+        
+    }
+}
+
+
+const getPlanes = async () => {
+    const query = "SELECT * FROM plan";
+    try {
+        const planes = await pool.query(query);
+        return planes[0];
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+export { getPlanById, getPlanes, getPlanByIdPaciente }

@@ -15,19 +15,19 @@ block content
                     .divVigencia
                         label.labelDivVigencia(for="60dias") 60 días 
                         input.radioDivVigencia(type="radio", name="vigencia", id="60dias", value="60") 
-                .labels
-                    label Medico
-                    a.tooltip(href="/registrar/medico")
-                        i.fa-solid.fa-user-plus
-                            p.tooltiptext Registrar nuevo médico
-                    select.inputFormRegistro(name="idMedico", required, id="selectMedicos")
-                        option(disabled, selected, hidden, value="") Seleccione un médico
-                        //mostramos los nombres de los médicos
-                        -if(medicos)
-                            -for(let med of medicos){
-                                //podria agregar la especialidad del médico al select también.
-                                option(value= med.idMedico) #{med.nombre} #{med.apellido} 
-                            -}
+                //- .labels
+                //-     label Medico
+                //-     a.tooltip(href="/registrar/medico")
+                //-         i.fa-solid.fa-user-plus
+                //-             p.tooltiptext Registrar nuevo médico
+                //-     select.inputFormRegistro(name="idMedico", required, id="selectMedicos")
+                //-         option(disabled, selected, hidden, value="") Seleccione un médico
+                //-         //mostramos los nombres de los médicos
+                //-         -if(medicos)
+                //-             -for(let med of medicos){
+                //-                 //podria agregar la especialidad del médico al select también.
+                //-                 option(value= med.idMedico) #{med.nombre} #{med.apellido} 
+                //-             -}
                 .labels
                     label Paciente
                     a.tooltip(href="/registrar/paciente")
@@ -68,5 +68,5 @@ block content
                 .divBotones
                     input.botones(type="submit", value="Prescribir", id="botonPrescribir")
             div#prescripcionesAnterioresPaciente
-
+    script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
     script(src="js/prescribir/prescribirScript.js", type="module")

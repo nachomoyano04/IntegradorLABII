@@ -1,6 +1,5 @@
 import { borrarAutocompletadoAnterior, listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, configurarBotonCrearPrestacion, agregarAutocompletadoPrestacion, borrarAutocompletadoClickEverywhere, mensajeLlenarEspacioMedicamentoYPrestaciones } from "./prescribirFunciones.js";
 
-
 //SECCION AUTOCOMPLETADOS DE MEDICAMENTOS Y PRESTACIONES
 let inputMedicamentos  = document.querySelector("#inputMedicamentoPrescripcion");
 let autocompletadoMedicamento = document.querySelector(".autocompletadoMedicamentos");
@@ -9,7 +8,6 @@ let inputPrestaciones = document.querySelector("#inputPrestacionPrescripcion");
 let autocompletadoPrestacion = document.querySelector(".autocompletadoPrestaciones");
 
 let botonPrescribir = document.querySelector("#botonPrescribir"); //Boton cargar prescripción
-// botonPrescribir.disabled = true;
 
 axios('http://localhost:3000/prescribir?query=medicamentos')
 .then(res => {
@@ -64,7 +62,7 @@ botonPrescribir.addEventListener("click", (event) => {
     let diagnostico = document.querySelector(".textAreaDiagnostico");
     let diagnosticoOK = diagnostico.value && diagnostico.value.length > 10;
     let vigencia = document.querySelector(".radioDivVigencia:checked").value;
-    let idMedico = document.querySelector("#selectMedicos").value;
+    // let idMedico = document.querySelector("#selectMedicos").value;
     let idPaciente = document.querySelector("#selectPacientes").value;
     let medicamentos = document.querySelectorAll(".idMedicamentoDetalleHidden");
     let medicamentosOk = false;
@@ -124,11 +122,11 @@ botonPrescribir.addEventListener("click", (event) => {
     
     //si no estan llenos los campos diagnosticos, el select de medico y el select de paciente los pintamos de rojo
     if(!diagnosticoOK)mensajeLlenarEspacioMedicamentoYPrestaciones(diagnostico);
-    if(!idMedico)mensajeLlenarEspacioMedicamentoYPrestaciones(document.querySelector("#selectMedicos"));
+    // if(!idMedico)mensajeLlenarEspacioMedicamentoYPrestaciones(document.querySelector("#selectMedicos"));
     if(!idPaciente)mensajeLlenarEspacioMedicamentoYPrestaciones(document.querySelector("#selectPacientes"));
 
     //si esta todo correcto para una prescripcion la creamos y lo mandamos al servidor mediante un POST
-    if(diagnosticoOK && vigencia && idMedico && idPaciente && ((medicamentosOk && dosisIntervaloDuracion) || prestacionesOK)){  
+    if(diagnosticoOK && vigencia/* && idMedico */&& idPaciente && ((medicamentosOk && dosisIntervaloDuracion) || prestacionesOK)){  
         let idMedicamentoDetalle = [];
         let dosis = [];
         let intervalo = [];
@@ -144,22 +142,16 @@ botonPrescribir.addEventListener("click", (event) => {
             prestaciones.forEach(e => idPrestacion.push(e.value));
         }
         const prescripcion = {
-            diagnostico:diagnostico.value, vigencia, idMedico, idPaciente, idMedicamentoDetalle, dosis, intervalo, duracion, idPrestacion 
+            diagnostico:diagnostico.value, vigencia,/* idMedico, */idPaciente, idMedicamentoDetalle, dosis, intervalo, duracion, idPrestacion 
         }
         axios.post("http://localhost:3000/prescribir",prescripcion)
         .then((res) => {
-            mostrarMensajeExitoso(res.data.mensaje);
+            Swal.fire({
+                icon: "success",
+                title: "Prescripcion realizada correctamente",
+                timer: 1500
+            }).then(() => window.location.href = "/prescribir");
         })
         .catch(error => console.log(error));
     }
-}) 
-const mostrarMensajeExitoso = (mensaje) => {
-    let p = document.createElement("p");
-    p.innerHTML = mensaje;
-    document.querySelector("body").appendChild(p);
-    p.className = "mensajeDePrescripcionCargadaConExito";
-    setTimeout(() => {
-        p.remove();
-        window.location.href = "http://localhost:3000";
-    }, 2000);
-}
+})

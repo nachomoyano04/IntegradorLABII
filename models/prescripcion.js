@@ -17,7 +17,7 @@ const insertPrescripcion = async (prescripcion) => {
     }
 }
 
-const getPrescripcionByIdPaciente = async(idPaciente) => {
+const getPrescripcionByIdPaciente = async(idPaciente, idMedico) => {
     const queryMedicamentos = ` SELECT *
                                 FROM prescripcion 
                                     JOIN prescripcion_medicamentodetalle pmd ON(prescripcion.idPrescripcion = pmd.idPrescripcion)
@@ -26,15 +26,15 @@ const getPrescripcionByIdPaciente = async(idPaciente) => {
                                     JOIN concentracion c ON (md.idConcentracion = c.idConcentracion)
                                     JOIN formafarmaceutica ff ON (md.idFormaFarmaceutica = ff.idFormaFarmaceutica)
                                     JOIN presentacion pre ON (md.idPresentacion = pre.idPresentacion)
-                                WHERE idPaciente = ?`;
+                                WHERE idPaciente = ? AND idMedico = ?`;
     const queryPrestaciones = `SELECT *
                                 FROM prescripcion
                                     JOIN prescripcion_prestacion pp ON (prescripcion.idPrescripcion = pp.idPrescripcion)
                                     JOIN prestacion pre ON (pp.idPrestacion = pre.idPrestacion)
-                                WHERE idPaciente = ?;`;
+                                WHERE idPaciente = ? AND idMedico = ?;`;
     try {
-        const medicamentos = await pool.query(queryMedicamentos, [idPaciente]);
-        const prestaciones = await pool.query(queryPrestaciones, [idPaciente]);
+        const medicamentos = await pool.query(queryMedicamentos, [idPaciente, idMedico]);
+        const prestaciones = await pool.query(queryPrestaciones, [idPaciente, idMedico]);
         return [medicamentos[0], prestaciones[0]];
     } catch (error) {
         console.log(error);
