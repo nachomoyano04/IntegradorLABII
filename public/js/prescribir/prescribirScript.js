@@ -11,19 +11,32 @@ let botonPrescribir = document.querySelector("#botonPrescribir"); //Boton cargar
 
 axios('http://localhost:3000/prescribir?query=medicamentos')
 .then(res => {
-    inputMedicamentos.addEventListener("input", (evento) => {
-        let palabra = evento.target.value;
-        let medicamentos = res.data.medicamentos;
-        agregarAutocompletadoMedicamento(palabra, medicamentos, autocompletadoMedicamento, inputMedicamentos);
-    })
+    if(res.data.medicamentos.length > 0){
+        inputMedicamentos.addEventListener("input", (evento) => {
+            let palabra = evento.target.value;
+            let medicamentos = res.data.medicamentos;
+            console.log(medicamentos)
+            if(medicamentos){
+                agregarAutocompletadoMedicamento(palabra, medicamentos, autocompletadoMedicamento, inputMedicamentos);
+            }
+        })
+    }else{
+        inputMedicamentos.placeholder = "No existen medicamentos";
+    }
     borrarAutocompletadoClickEverywhere();
     configurarBotonCrearMedicamento(res.data.medicamentos);
-
-    inputPrestaciones.addEventListener("input", (evento) => {
-        let palabra = evento.target.value;
-        let prestaciones = res.data.prestaciones;
-        agregarAutocompletadoPrestacion(palabra, prestaciones, autocompletadoPrestacion, inputPrestaciones)
-    })
+    if(res.data.prestaciones.length > 0){
+        inputPrestaciones.addEventListener("input", (evento) => {
+            let palabra = evento.target.value;
+            let prestaciones = res.data.prestaciones;
+            console.log(prestaciones)
+            if(prestaciones){
+                agregarAutocompletadoPrestacion(palabra, prestaciones, autocompletadoPrestacion, inputPrestaciones)
+            }
+        })
+    }else{
+        inputPrestaciones.placeholder = "No existen prestaciones";
+    }
     configurarBotonCrearPrestacion(res.data.prestaciones);
 })
 .catch(error => console.log(error));

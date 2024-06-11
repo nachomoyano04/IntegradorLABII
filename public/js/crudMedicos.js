@@ -198,13 +198,13 @@ const agregarBotonesEditarYBorrar = (li, documento, medicos, idMedico) => {
     editar.className="tooltip";
     editar.id = documento;
     editar.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>
-                        <p class="tooltiptext">Editar médico</p>`;                         
+                        <p class="tooltiptext">Editar</p>`;                         
     const borrar = document.createElement("button");
     borrar.type="button";
     borrar.className="tooltip";
     borrar.id = documento;
     borrar.innerHTML = `<i class="fa-solid fa-trash-can" style="color: #f50000;"></i>
-                        <p class="tooltiptext">Borrar médico</p>`;
+                        <p class="tooltiptext">Borrar</p>`;
     editar.addEventListener("click", () => {
         limpiarInputs();
         llenarInputsConProfesional(editar.id, medicos);

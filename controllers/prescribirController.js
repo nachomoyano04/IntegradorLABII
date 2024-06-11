@@ -1,4 +1,3 @@
-// import { getAllDoctors } from "../models/medicos.js";
 import { getAllPatients } from "../models/pacientes.js";
 import { getMedicamento } from "../models/medicamentos.js";
 import { getPrestaciones } from "../models/prestaciones.js";
@@ -25,13 +24,12 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
                 if(queryMedicamento === "medicamentos"){
                     let medicamentos = await getMedicamento();
                     let prestaciones = await getPrestaciones();
-                    if(medicamentos[0].length > 0){
+                    if(medicamentos[0].length > 0 || prestaciones[0].length){
                         return res.status(200).send({medicamentos: medicamentos[0], prestaciones: prestaciones[0]})
                     }
                     return res.status(200).send("");
                 }else{
                     let pacientes = await getAllPatients();
-                    pacientes = pacientes[0];
 
                     let usuario = req.session.usuario;
                     // logica para conseguir el nombre y apellido del médico (si existe)

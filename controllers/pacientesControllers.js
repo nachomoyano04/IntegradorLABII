@@ -1,6 +1,6 @@
 // import { getObrasSociales } from "../models/obraSocial.js";
 import {getPlanes, getPlanByIdPaciente} from "../models/planes.js";
-import { deletePatient, getAllPatients, insertPatient, updatePatient } from "../models/pacientes.js";
+import { deletePatient, getAllPatients, getPatientByDocumento, insertPatient, updatePatient } from "../models/pacientes.js";
 import { getDoctorById} from "../models/medicos.js";
 import { getObraSocialByIdPlan } from "../models/obraSocial.js";
 import pool from "../models/database.js";
@@ -49,7 +49,8 @@ const registroPacientePost = async (req, res) => {
         res.send({ok:true});
     } catch (error) {
         await connection.rollback();
-        const mensajeDeError500 = `Error interno en el servidor: ${error}`
+        const mensajeDeError500 = `Error interno en el servidor: ${error}`;
+        console.log(error);
         res.status(500).render("404", {error500:true, mensajeDeError500});
     } finally {
         connection.release();
@@ -97,7 +98,6 @@ const registroPacienteUpdate = async (req, res) => {
             await insertPacientePlan(idPaciente, p);
         }
         const resultado = await updatePatient(nombre, apellido, documento, fechaNacimiento, sexo, idPaciente);
-        console.log(resultado);
         if(resultado === 1){ //si
             res.send({ok:true});
         }else{
@@ -106,13 +106,18 @@ const registroPacienteUpdate = async (req, res) => {
         await connection.commit();
     } catch (error) {
         await connection.rollback();
-        res.status(500).render("404", {error500:true, mensajeDeError500:error});
+        if(error.code === 'ER_DUP_ENTRY'){
+            res.status(400).json({duplicado:true});
+        }else{
+            res.status(400).render("404", {error500:true, mensajeDeError500:error});
+        }
     }finally{
         connection.release();
     }
 }
 
 const borradoLogicoPaciente = async (req, res) => {
+    const {idPaciente} = req.body;
     try {
         const resultado = await deletePatient(idPaciente);
         if(resultado===1){
@@ -125,4 +130,14 @@ const borradoLogicoPaciente = async (req, res) => {
     }
 }
 
-export {registroPacienteGet, planesPorIdPaciente, registroPacientePost, obtenerPacientes, obtenerOSByIdPlan, registroPacienteUpdate, borradoLogicoPaciente};
+const obtenerPacienteByDocumento = async (req, res) => {
+    const documento = req.params.documento;
+    try {
+        const paciente = await getPatientByDocumento(documento);
+        res.json(paciente);
+    } catch (error) {
+        res.status(500).render("404", {error500:true, mensajeDeError500:error});
+    }
+} 
+
+export {registroPacienteGet, planesPorIdPaciente, registroPacientePost, obtenerPacientes, obtenerOSByIdPlan, registroPacienteUpdate, borradoLogicoPaciente, obtenerPacienteByDocumento};

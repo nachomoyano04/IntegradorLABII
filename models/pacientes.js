@@ -11,6 +11,15 @@ const getAllPatients = async() => { //funcion que obtiene todos los pacientes pa
     }
 }
 
+const getPatientByDocumento = async(documento) => {
+    try {
+        const paciente = await pool.query("SELECT * FROM paciente WHERE documento = ?", [documento]);
+        return paciente[0][0];
+    } catch (error) {
+        throw error;
+    }
+}
+
 const insertPatient = async (nombre, apellido, documento, fechaNacimiento, sexo) => {
     const query = "INSERT INTO paciente (nombre, apellido, documento, fechaNacimiento, sexo, estado) VALUES (?,?,?,?,?,?)";
     try {
@@ -40,4 +49,4 @@ const deletePatient = async (idPaciente) => {
     }
 }
 
-export {getAllPatients, insertPatient, updatePatient, deletePatient};
+export {getAllPatients, insertPatient, updatePatient, deletePatient, getPatientByDocumento};

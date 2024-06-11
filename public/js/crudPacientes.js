@@ -16,6 +16,13 @@ axios("http://localhost:3000/registrar/paciente/pacientes")
 })
 .catch(error => console.log(error))
 
+//borrarListaAnterior
+const borrarListaAnterior = (elemento) => {
+    while(elemento.hasChildNodes()){
+        elemento.removeChild(elemento.firstChild);
+    }
+}
+
 
 //funcion que llena la listaPacientes
 const llenarListaPacientes = (pacientes, listaPacientes) => {
@@ -27,18 +34,22 @@ const llenarListaPacientes = (pacientes, listaPacientes) => {
             botonEditar.type = "button";
             botonEditar.className = "tooltip";
             botonEditar.id = paciente.documento;
+            botonEditar.dataset.action = "editar";
+            botonEditar.dataset.documento = paciente.documento;
             let botonBorrar = document.createElement("button");
             botonBorrar.type = "button";
             botonBorrar.className = "tooltip";
             botonBorrar.id = paciente.documento;
+            botonBorrar.dataset.action = "borrar";
+            botonBorrar.dataset.documento = paciente.documento;
             let editar = `<i class="fa-solid fa-pen-to-square"></i>
-                          <p class="tooltiptext">Editar paciente</p>`;
+                          <p class="tooltiptext">Editar</p>`;
             let borrar = `<i class="fa-solid fa-trash-can" style="color: #f50000"></i>
-                          <p class="tooltiptext">Borrar paciente</p>`;
+                          <p class="tooltiptext">Borrar</p>`;
             botonEditar.innerHTML = editar;
             botonBorrar.innerHTML = borrar;
-            botonEditar.addEventListener("click", editarPaciente(paciente));
-            botonBorrar.addEventListener("click", borrarPaciente(paciente.idPaciente));
+            // botonEditar.addEventListener("click", editarPaciente(paciente)); //probaremos de usar event delegation
+            // botonBorrar.addEventListener("click", borrarPaciente(paciente.idPaciente)); 
             let li = document.createElement("li");
             li.appendChild(p);
             li.appendChild(botonEditar);
@@ -50,11 +61,22 @@ const llenarListaPacientes = (pacientes, listaPacientes) => {
     }
 }
 
-const borrarListaAnterior = (lista) => {
-    while(lista.hasChildNodes()){
-        lista.removeChild(lista.firstChild);
+listaPacientes.addEventListener("click", (evento) => { //Un solo listener para todos los botones editar y borrar
+    if(evento.target.closest("button")){
+        const button = evento.target.closest('button');
+        const action = button.dataset.action;
+        const documento = button.dataset.documento;
+        axios(`http://localhost:3000/registrar/paciente/pacientes/${documento}`)
+        .then(res => {
+            if(action === "editar"){
+                editarPaciente(res.data);
+            }else if(action === "borrar"){
+                borrarPaciente(res.data.idPaciente);
+            }
+        })
+        .catch(err => console.log(err));
     }
-}
+})
 
 let inputNombre = document.querySelector("#nombre");
 let inputApellido = document.querySelector("#apellido");
@@ -65,12 +87,14 @@ let selectSexo = document.querySelector("#selectSexo");
 let botonCancelarUpdate = document.querySelector("#botonCancelarUpdate");
 let botonGuardarUpdate = document.querySelector("#botonGuardarUpdate");
 const editarPaciente = (paciente) => {
-    return () => {
+    // return () => {
         axios(`http://localhost:3000/registrar/paciente/${paciente.idPaciente}`)
         .then(res => {
+            limpiarCampos();
             inputNombre.value = paciente.nombre; //insertamos el nombre
             inputApellido.value = paciente.apellido; //insertamos el apellido
             inputDocumento.value = paciente.documento; //insertamos el documento
+            inputDocumento.dataset.documento = paciente.documento;
             const fechaNacimiento = new Date(paciente.fechaNacimiento);
             inputFechaNacimiento.value = fechaNacimiento.toLocaleDateString("sv-SE"); //insertamos la fecha
             for(let i = 0; i < selectSexo.options.length; i++){ 
@@ -91,21 +115,37 @@ const editarPaciente = (paciente) => {
                     }).catch(error => console.log(error));  
                 }
             }
-            botonGuardarUpdate.addEventListener("click", updatePaciente(paciente.idPaciente)); //si toca update guardamos el update
-            botonCancelarUpdate.addEventListener("click", cancelarUpdate); //si toca cancelar limpiamos los campos
             habilitarBotonesEdicion();
+            // botonGuardarUpdate.addEventListener("click", updatePaciente(paciente.idPaciente)); //si toca update guardamos el update
+            // botonCancelarUpdate.addEventListener("click", cancelarUpdate); //si toca cancelar limpiamos los campos
             deshabilitarBotonRegistrar();
         })
         .catch(error => console.log(error));
-    }
+    // }
 }
+
+let botones = document.querySelector(".divBotones");
+botones.addEventListener("click", (evento) => { // un solo listener para los botones guardar y cancelar editar
+    let documento = inputDocumento.dataset.documento;
+    let valor = evento.target.value;
+    if(valor === "Guardar Cambios" || valor === "Cancelar"){
+        axios(`http://localhost:3000/registrar/paciente/pacientes/${documento}`)
+        .then(res => {
+            if(valor === "Guardar Cambios"){
+                updatePaciente(res.data.idPaciente);
+            }else if(valor === "Cancelar"){
+                cancelarUpdate();
+            }
+        })
+    }
+})
+
 const cancelarUpdate = () => {
     habilitarBotonRegistrar();
     deshabilitarBotonesEdicion();
     limpiarCampos();
 }
 const updatePaciente = (idPaciente) => {
-    return () => {
         planesElegidos = [];
         let todoCorrecto = verificarCampos();
         if(todoCorrecto){
@@ -130,7 +170,22 @@ const updatePaciente = (idPaciente) => {
                     });
                 }
             })
-            .catch(error => console.log(error));
+            .catch(error => {
+                console.log(error);
+                if (error.response.status == 400 && error.response.data.duplicado) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Ese documento ya existe",
+                        timer: 1500
+                    });
+                }else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Ocurrió un error al editar el paciente.",
+                        timer: 1500
+                    }).then(() => window.location.href = "/registrar/paciente");
+                }
+            });
         }else{
             Swal.fire({
                 icon: "warning",
@@ -138,7 +193,6 @@ const updatePaciente = (idPaciente) => {
                 timer: 1500
             });
         }
-    }
 }
 
 const habilitarBotonesEdicion = () => {
@@ -156,8 +210,8 @@ const habilitarBotonRegistrar = () => {
     botonRegistrarPaciente.style.display = "inline-block";
 }
 const borrarPaciente = (idPaciente) => {
-    return () => {
-        axios.put("http://localhost:3000/registrar/paciente/", {idPaciente})
+    // return () => {
+        axios.put("http://localhost:3000/registrar/paciente/pacientes", {idPaciente})
         .then(res => {
             if(res.data.ok){
                 Swal.fire({
@@ -174,7 +228,7 @@ const borrarPaciente = (idPaciente) => {
             }
         })
         .catch(error => console.log(error));
-    }
+    // }
 }
     
 const limpiarCampos = () => {

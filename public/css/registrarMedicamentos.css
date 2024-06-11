@@ -1,0 +1,56 @@
+*::placeholder{
+    font-style: italic;
+}
+#registroMedicamento{
+    flex: 0 0 40%;
+}
+#busquedaMedicamentos{
+    flex: 0 0 60%;
+}
+
+.labelEinputBuscarMedicamentos input{
+    border: 1px solid #9a9a9a;
+    padding: 5px;
+    border-radius: 5px;
+    margin-left: 4px;
+    width: 60%;
+}
+
+.divLabelsInputsBuscarMedicamento {
+    text-align: center;
+}
+
+.divCrearConcentracion, .divCrearPresentacion{
+    display: grid;
+    justify-items: end;
+    display: none;
+}
+
+#botonAgregarFormaFarmaceutica, #botonAgregarCategoria, #botonAgregarFamilia{
+    border: none;
+    background-color: #ccc;
+    font-size: 16px;
+    /* display: none; */
+}
+
+.inputFormRegistroMedicamentos{
+    width: 50%;
+    border: 1px solid #9a9a9a;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.medicamentoVigente{
+    background-color: #7baddf;
+    width: 85%;
+    padding: 10px 5px;
+    border-radius: 5px;
+}
+
+.medicamentoBorrado{
+    background-color: #7baddf;
+    width: 85%;
+    padding: 10px 5px;
+    border-radius: 5px;
+    opacity: 0.2;
+}

@@ -1,11 +1,22 @@
-.divsRegistrarMedico, .divsRegistrarPaciente{
+.divsRegistrarMedico, .divsRegistrarPaciente, .divRegistrarMedicamentos{
     display: flex;
     justify-content: space-between;
     border: 1px solid #000;
-    /* height: 100%; Define la altura del contenedor */
+}
+    
+.divFormRegistrarPaciente{
+    height: 500px;
 }
 
-.listaMedicos, .listaPacientes{
+.divRegistrarMedicamentos{
+    height: 520px;
+}
+
+.divsRegistrarMedico{
+    height: 620px;
+}
+
+.listaMedicos, .listaPacientes, .listaMedicamentos{
     font-size: 20px;
 }
 
@@ -16,36 +27,41 @@
     border-radius: 5px;
 }
 
-.listaMedicos li, .listaPacientes li{
+.listaMedicos li, .listaPacientes li, .listaMedicamentos li{
     display: flex;
 }
 
-.listaMedicos .tooltip, .listaPacientes .tooltip{
+.listaMedicos .tooltip, .listaPacientes .tooltip, .listaMedicamentos .tooltip{
     background-color: #ccc;
     border: none;
     font-size: 20px;
 }
 
-.divFormRegistrarMedico, .divFormRegistrarPaciente{
+.divFormRegistrarMedico, .divFormRegistrarPaciente, .divRegistroMedicamentos{
     display: flex;
     flex-direction: column;
-    /* margin: 10px 20px; */
     border: 1px solid #ccc;
-    /* width: auto; */
     align-items: center;
-    /* justify-content: center; */
 }
 
-#registroMedico, #registroPaciente{
-    flex: 0 0 40%;
-}
-
-#busquedaMedico, #busquedaPaciente{
-    flex: 0 0 60%;
+#registroMedico, #registroPaciente, #registroMedicamento{
+    flex: 0 0 35%;
 }
 
 
-.formulariosRegistrarMedico, .formularioBuscarProfesionales, .formularioRegistrarPaciente, .formularioBuscarPaciente{
+.formularioBuscarPaciente, .formularioBuscarProfesionales, .formularioBuscarMedicamento{
+    overflow-y: auto;
+    max-height: 100%;
+    flex-grow: 1;
+    overflow-x: hidden
+}
+
+#busquedaMedico, #busquedaPaciente, #busquedaMedicamentos{
+    flex: 0 0 65%;
+}
+
+
+.formulariosRegistrarMedico, .formularioBuscarProfesionales, .formularioRegistrarPaciente, .formularioBuscarPaciente, .formularioRegistrarMedicamento, .formularioBuscarMedicamento{
     background-color: #CCC;
     font-size: 20px;
     border-radius: 15px;
@@ -54,7 +70,7 @@
     margin: 0px 0px 15px 0px;
 }
 
-.formularioBuscarProfesionales, .formularioBuscarPaciente{
+.formularioBuscarProfesionales, .formularioBuscarPaciente, .formularioBuscarMedicamento{
     display: flex;
     flex-direction: column;
 }
@@ -64,13 +80,13 @@
     justify-content: space-around;
 }
 
-.h1RegistrarMedico, .h1RegistrarPaciente{
+.h1RegistrarMedico, .h1RegistrarPaciente, .h1RegistrarMedicamento{
     color: aliceblue;
     margin: 10px;
     font-size: x-large;
 }
 
-.labelEinputBuscarProfesionales, .labelEinputBuscarPacientes{
+.labelEinputBuscarProfesionales, .labelEinputBuscarPacientes, .labelEinputBuscarMedicamentos{
     margin-top: 15px;
 }
 
