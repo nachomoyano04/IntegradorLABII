@@ -7,91 +7,104 @@ block content
             h1.h1RegistrarMedicamento RegistrarMedicamentos
             .formularioRegistrarMedicamento
                 .labels
-                    label Nombre Genérico
-                    input.inputFormRegistroMedicamentos(list="nombresGenericos")
-                    datalist#nombresGenericos
+                    label(for="nombreGenerico") Nombre Genérico
+                    .divRar
                         -if(nombresGenericos){
-                            -for(let ng of nombresGenericos){
-                                option(value= ng.nombreGenerico) 
-                            -}
+                            input.inputFormRegistroMedicamentos(list="nombresGenericos", id="nombreGenerico", placeholder= `ej: ${nombresGenericos[0].nombreGenerico}`, autocomplete = "off")
+                            datalist#nombresGenericos
+                                -for(let ng of nombresGenericos){
+                                    option(value= ng.nombreGenerico, data-value= ng.idMedicamento) 
+                                -}
+                            input(id="hiddenNombreGenerico", hidden)
+                        -}else{
+                            input.inputFormRegistroMedicamentos(id="nombreGenerico")
                         -}
+                        button.tooltip#botonAgregarNombreGenerico(type="button")
+                            i.fa-solid.fa-circle-plus
+                            p.tooltiptext Agregar Nombre Genérico                        
                 .labels 
                     label(for="nombreComercial")  Nombre Comercial
-                    input.inputFormRegistroMedicamentos(list= "nombresComerciales", id="nombreComercial")
-                    //- datalist#nombresComerciales
-                    //- -if(nombresComerciales){
-                    //-     -for(let nc of nombresComerciales){
-                    //-         option(value= nc) 
-                    //-     -}
-                    //- -}
+                    input.inputFormRegistroMedicamentos(list= "nombresComerciales", id="nombreComercial", placeholder="opcional...", autocomplete = "off")
                 .labels 
-                    label Concentración
-                    input.inputFormRegistroMedicamentos(list= "concentraciones")
-                    datalist#concentraciones 
-                        -if(concentraciones){
-                            -for(let c of concentraciones){
-                                option(value= `${c.cantidadConcentracion} ${c.unidadMedidaCon}`) 
-                            -}
-                        -}
-                    .divCrearConcentracion
-                        .divCantidad
-                            label cantidad
-                            input(type="number", placeholder="ej: 400")
-                        .divUnidad
-                            label unidad
-                            input(type="text", placeholder="ej: mg")
-                .labels 
-                    label Forma Farmacéutica
-                    input.inputFormRegistroMedicamentos(list= "formasFarmaceuticas")
-                    datalist#formasFarmaceuticas 
-                        -if(formasFarmaceuticas){
-                            -for(let ff of formasFarmaceuticas){
-                                option(value= ff.forma) 
-                            -}
-                        -}
-                    button.tooltip#botonAgregarFormaFarmaceutica(type="button")
-                        i.fa-solid.fa-circle-plus
-                            p.tooltiptext Agregar Forma
-                .labels 
-                    label Presentación
-                    input.inputFormRegistroMedicamentos(list= "presentaciones")
-                    datalist#presentaciones 
-                        -if(presentaciones){
-                            -for(let p of presentaciones){
-                                option(value= `${p.cantidadPresentacion} ${p.unidadMedidaPres}`) 
-                            -}
-                        -}
-                    .divCrearPresentacion
-                        .divCantidad
-                            label cantidad
-                            input(type="number", placeholder="ej: 400")
-                        .divUnidad
-                            label unidad
-                            input(type="text", placeholder="ej: mg")
-                .labels 
-                    label Categoría
-                    input.inputFormRegistroMedicamentos(list= "categorias")
-                    datalist#categorias 
+                    label(for="categoria") Categoría
+                    .divRar
                         -if(categorias){
-                            -for(let c of categorias){
-                                option(value= c.nombreCategoria) 
-                            -}
+                            input.inputFormRegistroMedicamentos(list= "categorias", id="categoria", placeholder= `ej: ${categorias[0].nombreCategoria}`, autocomplete = "off")
+                            datalist#categorias 
+                                -for(let c of categorias){
+                                    option(value= c.nombreCategoria, data-value= c.id) 
+                                -}
+                            input(id="hiddenCategoria", hidden)
+                        -}else{
+                            input.inputFormRegistroMedicamentos(id="categoria")
                         -}
-                    button.tooltip#botonAgregarCategoria(type="button")
-                        i.fa-solid.fa-circle-plus
-                            p.tooltiptext Agregar Forma    
+                        button.tooltip#botonAgregarCategoria(type="button")
+                            i.fa-solid.fa-circle-plus
+                                p.tooltiptext Agregar Categoria    
                 .labels 
-                    label Familia
-                    input.inputFormRegistroMedicamentos(list= "familias")
-                    datalist#familias 
+                    label(for="familia") Familia
+                    .divRar
                         -if(familias){
-                            -for(let f of familias){
-                                option(value= f.nombreFamilia) 
-                            -}
+                            input.inputFormRegistroMedicamentos(list= "familias", id="familia", placeholder= `ej: ${familias[0].nombreFamilia}`, autocomplete = "off")
+                            datalist#familias 
+                                -for(let f of familias){
+                                    option(value= f.nombreFamilia, data-value= f.id) 
+                                -}
+                            input(id="hiddenFamilia", hidden)
+                        -}else{
+                            input.inputFormRegistroMedicamentos(id="familia")
                         -}
-                    button.tooltip#botonAgregarFamilia(type="button")
-                        i.fa-solid.fa-circle-plus
-                            p.tooltiptext Agregar Forma
+                        button.tooltip#botonAgregarFamilia(type="button")
+                            i.fa-solid.fa-circle-plus
+                                p.tooltiptext Agregar Familia
+                .labelsConBoton
+                    label(for="concentracion") Concentración
+                    .divRar
+                        -if(concentraciones){
+                            input.inputFormRegistroMedicamentos(list= "concentraciones", placeholder= `ej: ${concentraciones[0].cantidadConcentracion} ${concentraciones[0].unidadMedidaCon}`, id="concentracion", autocomplete = "off")
+                            datalist#concentraciones 
+                                -for(let c of concentraciones){
+                                    option(value= `${c.cantidadConcentracion} ${c.unidadMedidaCon}`, data-value= c.idConcentracion) 
+                                -}
+                            input(id="hiddenConcentracion", hidden)
+                        -}else{
+                            input.inputFormRegistroMedicamentos(id="concentracion")
+                        -}
+                        button.tooltip#botonAgregarConcentracion(type="button")
+                            i.fa-solid.fa-circle-plus
+                            p.tooltiptext Agregar Concentración
+                .labels 
+                    label(for="formaFarmaceutica") Forma Farmacéutica
+                    .divRar
+                        -if(formasFarmaceuticas){
+                            input.inputFormRegistroMedicamentos(list= "formasFarmaceuticas", id="formaFarmaceutica", placeholder= `ej: ${formasFarmaceuticas[0].forma}`, autocomplete = "off")
+                            datalist#formasFarmaceuticas 
+                                -for(let ff of formasFarmaceuticas){
+                                    option(value= ff.forma, data-value= ff.idFormaFarmaceutica) 
+                                -}
+                            input(id="hiddenFormaFarmaceutica", hidden)
+                        -}else{
+                            input.inputFormRegistroMedicamentos(id="formaFarmaceutica")
+                        -}
+                        button.tooltip#botonAgregarFormaFarmaceutica(type="button")
+                            i.fa-solid.fa-circle-plus
+                                p.tooltiptext Agregar Forma
+                .labelsConBoton 
+                    label(for="presentacion") Presentación
+                    .divRar
+                        -if(presentaciones){
+                            input.inputFormRegistroMedicamentos(list= "presentaciones", id="presentacion", placeholder= `ej: ${presentaciones[0].cantidadPresentacion} ${presentaciones[0].unidadMedidaPres}`, autocomplete = "off")
+                            datalist#presentaciones 
+                                -for(let p of presentaciones){
+                                    option(value= `${p.cantidadPresentacion} ${p.unidadMedidaPres}`, data-value= p.idPresentacion) 
+                                -}
+                            input(id="hiddenPresentacion", hidden)
+                        -}else{
+                            input.inputFormRegistroMedicamentos(id="presentacion")
+                        -}
+                        button.tooltip#botonAgregarPresentacion(type="button")
+                            i.fa-solid.fa-circle-plus
+                            p.tooltiptext Agregar Presentación
                 .divBotones
                     input.botones(type="button", value="Registrar", id="botonRegistrarMedicamento")
                     input.botones(type="button", value="Cancelar", id="botonCancelarUpdate", style="display: none")

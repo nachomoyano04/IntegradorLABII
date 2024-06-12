@@ -26,7 +26,7 @@
     display: none;
 }
 
-#botonAgregarFormaFarmaceutica, #botonAgregarCategoria, #botonAgregarFamilia{
+#botonAgregarConcentracion, #botonAgregarPresentacion, #botonAgregarNombreGenerico, #botonAgregarFormaFarmaceutica, #botonAgregarCategoria, #botonAgregarFamilia{
     border: none;
     background-color: #ccc;
     font-size: 16px;
@@ -38,6 +38,9 @@
     border: 1px solid #9a9a9a;
     padding: 5px;
     border-radius: 5px;
+}
+.inputFormRegistroMedicamentos:focus{
+    outline: none;
 }
 
 .medicamentoVigente{
@@ -53,4 +56,25 @@
     padding: 10px 5px;
     border-radius: 5px;
     opacity: 0.2;
+}
+
+.labelsConBoton{
+    display: flex;
+    margin: 20px 30px;
+    align-items: center;
+    justify-content: space-between;
+}
+.divRar{
+    width: fit-content;
+}
+
+.divRar input {
+    width: 217px;
+    border: 1px solid #9a9a9a;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.divRar button {
+    padding: 0px;
 }
