@@ -55,14 +55,14 @@ block content
                     input.inputFormRegistro(type="text", required, name="idRefeps", id="idRefeps", autocomplete="off")
                 .labels
                     label(for="usuario") Usuario
-                    input.input(type="text", readonly, name="usuario", required, id="usuario")  
+                    input.inputFormRegistro(type="text", readonly, name="usuario", required, id="usuario")  
                 .labels
                     label(for="password") Password 
-                    input.input(type="text", readonly, name="password", required, id="password")  
+                    input.inputFormRegistro(type="text", readonly, name="password", required, id="password")  
                 .divBotones
+                    input.botones(type="button", value="Guardar Cambios", id="botonGuardarUpdate", style="display:none")
+                    input.botones(type="button", value="Cancelar", id="botonCancelarUpdate", style="display:none")
                     input.botones(type="button", value="Registrar", id="botonRegistrarMedico")
-                    input.botones(type="button", value="Guardar Cambios", id="botonGuardarCambiosUpdateMedico", style="display:none")
-                    input.botones(type="button", value="Cancelar", id="botonCancelarUpdateMedico", style="display:none")
         .divformRegistrarMedico#busquedaMedico
             h1.h1RegistrarMedico Buscar Profesionales Por DNI o REFEPS
             .formularioBuscarProfesionales 

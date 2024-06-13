@@ -23,6 +23,9 @@
     font-size: larger;
     border-style: none;   
 }
+.btnRegistrarUser{
+    width: auto;
+}
 
 .checkbox{
     margin: 10px 20px;

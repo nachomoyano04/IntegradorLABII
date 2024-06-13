@@ -5,7 +5,9 @@ html
         link(href="/css/formPrescribir.css", rel="stylesheet")
         link(href="/css/registrarMedico.css", rel="stylesheet")
         link(href="/css/registrarPaciente.css", rel="stylesheet")
+        link(rel="stylesheet", href="/css/loguin.css")
         link(href="/css/registrarMedicamentos.css", rel="stylesheet")
+        link(href="/css/registrarPrestaciones.css", rel="stylesheet")
         link(rel="stylesheet", href="/css/genericosForm.css")
         link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css")
         link(rel="icon", type="image/png" href="/images/iconoPaginaMedicina.png") 
@@ -31,6 +33,7 @@ html
                     //- a.cardBotones(href="/registrar/medico") Registrar Medico 
                     a.cardBotones(href="/registrar/paciente") Registrar Paciente 
                     a.cardBotones(href="/prescribir") Prescribir
+                    a.cardBotones(href="/cambiarCredenciales") Cambiar usuario/password
             -}else if(inicio && administrador){
                 .divCardBotones 
                     a.cardBotones(href="/registrar/medico") Registrar Medico 

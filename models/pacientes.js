@@ -1,7 +1,7 @@
 import pool from "./database.js";
 
 const getAllPatients = async() => { //funcion que obtiene todos los pacientes para el select
-    const query = "SELECT * FROM paciente WHERE estado = 1";
+    const query = "SELECT * FROM paciente";
     try{
         const patients = await pool.query(query);
         return patients[0];
@@ -49,4 +49,14 @@ const deletePatient = async (idPaciente) => {
     }
 }
 
-export {getAllPatients, insertPatient, updatePatient, deletePatient, getPatientByDocumento};
+const toRegisterPatient = async(idPaciente) => {
+    try {
+        const resultado = await pool.query("UPDATE paciente SET estado = 1 WHERE idPaciente = ?", [idPaciente]);
+        return resultado[0].affectedRows
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+export {getAllPatients, insertPatient, updatePatient, deletePatient, getPatientByDocumento, toRegisterPatient};

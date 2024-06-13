@@ -2,83 +2,65 @@ extends inicio.pug
 block content
     script(type="module", src="/js/crudPrestaciones.js") 
     script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
-    .divRegistrarMedicamentos
+    .divRegistrarPrestacion
         .divRegistroMedicamentos#registroMedicamento 
-            h1.h1RegistrarMedicamento RegistrarMedicamentos
+            h1.h1RegistrarMedicamento Registrar prestación
             .formularioRegistrarMedicamento
+                .labelNombrePrestacion
+                    label(for="nombrePrestacion") Nombre Prestación
+                    input.inputFormRegistro(id="nombrePrestacion")
                 .labels
-                    label Nombre Genérico
-                    input.inputFormRegistro(list="nombresGenericos")
-                    datalist#nombreGenerico
-                    -if(nombresGenericos){
-                        -for(let ng of nombresGenericos){
-                            option(value= ng) 
-                        -}
-                    -}
-                .labels 
-                    label Nombre Comercial
-                    input.inputFormRegistro(list= "nombresComerciales")
-                    datalist#nombresComerciales
-                    -if(nombresComerciales){
-                        -for(let nc of nombresComerciales){
-                            option(value= nc) 
-                        -}
-                    -}
-                .labels 
-                    label Concentración
-                    input.inputFormRegistro(list= "concentraciones")
-                    datalist#concentraciones 
-                    -if(concentraciones){
-                        -for(let c of concentraciones){
-                            option(value= c) 
-                        -}
-                    -}
-                .labels 
-                    label Forma Farmacéutica
-                    input.inputFormRegistro(list= "formasFarmaceuticas")
-                    datalist#formasFarmaceuticas 
-                    -if(formasFarmaceuticas){
-                        -for(let ff of formasFarmaceuticas){
-                            option(value= ff) 
-                        -}
-                    -}
-                .labels 
-                    label Presentación
-                    input.inputFormRegistro(list= "presentaciones")
-                    datalist#presentaciones 
-                    -if(presentaciones){
-                        -for(let p of presentaciones){
-                            option(value= p) 
-                        -}
-                    -}
-                .labels 
-                    label Categoría
-                    input.inputFormRegistro(list= "categorias")
-                    datalist#categorias 
-                    -if(categorias){
-                        -for(let c of categorias){
-                            option(value= c) 
-                        -}
-                    -}    
-                .labels 
-                    label Familia
-                    input.inputFormRegistro(list= "familias")
-                    datalist#familias 
-                    -if(familias){
-                        -for(let f of familias){
-                            option(value= f) 
-                        -}
-                    -}
+                    label Lado
+                    .divRarPre
+                        input.inputFormRegistro(list= "lados1",  placeholder="opcional", id="lado1")
+                        datalist#lados1
+                            -if(lados){
+                                -for(let l of lados){
+                                    option(value= l.nombreLado, data-value= l.idLado) 
+                                -}
+                            -}
+                        input(hidden, id="inputHiddenLado1")
+                        button.tooltip#botonAgregarLado(type="button")
+                            i.fa-solid.fa-circle-plus
+                            p.tooltiptext Agregar Lado
+                .labelLado2(style="display:none")
+                    label Lado2
+                    .divRarPre
+                        input.inputFormRegistro(list= "lados2",  placeholder="opcional", id="lado2")
+                        datalist#lados2
+                            -if(lados){
+                                -for(let l of lados){
+                                    option(value= l.nombreLado, data-value= l.idLado) 
+                                -}
+                            -}
+                        input(hidden, id="inputHiddenLado2")
+                .labelLado3(style="display:none") 
+                    label Lado3
+                    .divRarPre
+                        input.inputFormRegistro(list= "lados3", placeholder="opcional", id="lado3")
+                        datalist#lados3 
+                            -if(lados){
+                                -for(let l of lados){
+                                    option(value= l.nombreLado, data-value= l.idLado) 
+                                -}
+                            -}
+                        input(hidden, id="inputHiddenLado3")
+                .labelIndicacion 
+                    label Indicacion
+                    textarea(style="resize: none;width: 60%;height: 85px;").inputFormRegistro(id="inputIndicacion")
+                .labelJustificacion
+                    label Justificación
+                    textarea(style="resize: none;width: 60%;height: 85px;").inputFormRegistro(id="inputJustificacion")
                 .divBotones
-                    input.botones(type="button", value="Registrar", id="botonRegistrarPaciente")
+                    input.botones(type="button", value="Registrar", id="botonRegistrarPrestacion")
                     input.botones(type="button", value="Cancelar", id="botonCancelarUpdate", style="display: none")
                     input.botones(type="button", value="Guardar Cambios", id="botonGuardarUpdate", style="display: none")
         .divRegistroMedicamentos#busquedaMedicamentos
-            h1.h1RegistrarMedicamento Buscar medicamentos
+            h1.h1RegistrarMedicamento Buscar Prestaciones
             .formularioBuscarMedicamento
-                .divLabelsInputs
-                    .labelEinputBuscarPacientes
-                        label(for="inputBuscarPacientesByDNI") Ingrese el DNI
-                        input(type="number", id="inputBuscarPacientesByDNI")
-                .paciente
-                    ul.listaPacientes
+                .divLabelsInputsBuscarMedicamento
+                    .labelEinputBuscarMedicamentos
+                        label(for="inputBuscarPorPrestacion") Buscar Prestación
+                        input(type="text", id="inputBuscarPorPrestacion")
+                .prestaciones
+                    ul.listaPrestaciones

@@ -1,0 +1,34 @@
+.labelNombrePrestacion, .labelLado, .labelLado2, .labelLado3, .labelIndicacion, .labelJustificacion{
+    display: flex;
+    margin: 20px 30px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.divRegistrarPrestacion{
+    height: 554px;
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #000;
+}
+
+#botonAgregarLado{
+    border: none;
+    background-color: #ccc;
+    font-size: 16px;
+}
+
+.divRarPre input{
+    width: 250px;
+    border: 1px solid #9a9a9a;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.inputFormRegistro:focus{
+    outline: none;
+}
+
+.listaPrestaciones li{
+    list-style-type: none;
+}

@@ -9,7 +9,7 @@ import routerPrestacion from "./routes/registroPrestacion.js";
 import routerPrescribir from "./routes/prescribir.js";
 import router404 from "./routes/404.js";
 import routerLogin from "./routes/autenticacion.js";
-import routerRegistrarUser from "./routes/registrarUser.js";
+import routerCambiarCredenciales from "./routes/cambiarCredenciales.js";
 import routerLogout from "./routes/logout.js";
 import session from "express-session";
 
@@ -39,7 +39,7 @@ app.use("/registrar/medicamento", routerMedicamento);
 app.use("/registrar/prestacion", routerPrestacion);
 app.use("/prescribir", routerPrescribir)
 app.use("/login", routerLogin);
-app.use("/registrarUser", routerRegistrarUser);
+app.use("/cambiarCredenciales", routerCambiarCredenciales);
 app.use("/logout", routerLogout)
 
 app.get("*", router404);

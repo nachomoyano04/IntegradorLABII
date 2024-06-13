@@ -2,7 +2,7 @@ import pool from "./database.js";
 
 const getAllDoctors = async() => { //funcion que obtiene todos los medicos para el select
     try{
-        const doctors = await pool.query("SELECT * FROM medico WHERE estado = 1");
+        const doctors = await pool.query("SELECT * FROM medico");
         return doctors;
     }catch(error){
         throw error;
@@ -69,4 +69,13 @@ const borrarMedico = async(idMedico) => {
     }
 }
 
-export {getAllDoctors, insertDoctor, getDoctorById, actualizarMedico, borrarMedico, getIdUsuarioByIdMedico, getMedicoByIdUsuario}
+const toRegisterMedico = async(idMedico) => {
+    try {
+        const res = await pool.query("UPDATE medico SET estado = 1 WHERE idMedico = ?", [idMedico]);
+        return res[0].affectedRows;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export {getAllDoctors, insertDoctor, getDoctorById, actualizarMedico, borrarMedico, getIdUsuarioByIdMedico, getMedicoByIdUsuario, toRegisterMedico}

@@ -90,15 +90,17 @@ const llenarListaMedicamentos = (medicamentos) => {
 
 //SECCIÓN ESCUCHADORES DE EVENTOS BOTONES EDITAR, BORRAR, ACTIVAR
 listaMedicamentos.addEventListener("click", (evento) => {
-    let boton = evento.target.closest("button");
-    let action = boton.dataset.action;
-    let idMedicamentoDetalle = boton.dataset.idMedicamentoDetalle;
-    if(action === "darDeAlta"){
-        darDeAltaMedicamento(idMedicamentoDetalle);
-    }else if(action === "borrar"){
-        borrarMedicamento(idMedicamentoDetalle);
-    }else if(action === "editar"){
-        editarMedicamento(idMedicamentoDetalle);
+    if(evento.target.closest("button")){
+        let boton = evento.target.closest("button");
+        let action = boton.dataset.action;
+        let idMedicamentoDetalle = boton.dataset.idMedicamentoDetalle;
+        if(action === "darDeAlta"){
+            darDeAltaMedicamento(idMedicamentoDetalle);
+        }else if(action === "borrar"){
+            borrarMedicamento(idMedicamentoDetalle);
+        }else if(action === "editar"){
+            editarMedicamento(idMedicamentoDetalle);
+        }
     }
 })
 

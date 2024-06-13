@@ -25,7 +25,9 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
                     let medicamentos = await getMedicamento();
                     let prestaciones = await getPrestaciones();
                     if(medicamentos[0].length > 0 || prestaciones[0].length){
-                        return res.status(200).send({medicamentos: medicamentos[0], prestaciones: prestaciones[0]})
+                        //filtramos sólo las prestaciones que estan activas
+                        prestaciones = prestaciones[0].filter(e => e.estado === 1)
+                        return res.status(200).send({medicamentos: medicamentos[0], prestaciones})
                     }
                     return res.status(200).send("");
                 }else{
@@ -39,6 +41,8 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
                     }
                     res.render("prescribir", {pacientes, usuario});
                 }
+            }else{
+                res.render("404", {sinPermiso:true})
             }
         }else{
             res.redirect("/login");

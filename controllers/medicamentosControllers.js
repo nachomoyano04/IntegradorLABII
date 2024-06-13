@@ -3,13 +3,30 @@ import { getCategorias, getConcentraciones, getFamilias, getFormasFarmaceuticas,
 
 const registroMedicamentoGet = async (req, res) => {
     //logica para verificar tema sessiones
-    const nombresGenericos = await getNombresGenericos();
-    const familias = await getFamilias();
-    const categorias = await getCategorias();
-    const concentraciones = await getConcentraciones();
-    const formasFarmaceuticas = await getFormasFarmaceuticas();
-    const presentaciones = await getPresentaciones();
-    res.render("registrarMedicamento", {nombresGenericos, familias, categorias, concentraciones, formasFarmaceuticas, presentaciones});
+        //logica para verificar las sessiones
+        if(req.session.loggedin){
+            let roles = req.session.rol;
+            let tienePermiso = false;
+            for(let i = 0; i < roles.length; i++){
+                if(roles[i].idRol === 1){
+                    tienePermiso = true;
+                    break;
+                }
+            }
+            if(tienePermiso){
+                const nombresGenericos = await getNombresGenericos();
+                const familias = await getFamilias();
+                const categorias = await getCategorias();
+                const concentraciones = await getConcentraciones();
+                const formasFarmaceuticas = await getFormasFarmaceuticas();
+                const presentaciones = await getPresentaciones();
+                res.render("registrarMedicamento", {nombresGenericos, familias, categorias, concentraciones, formasFarmaceuticas, presentaciones});
+            }else{
+                res.render("404", {sinPermiso:true})
+            }
+        }else{
+            res.redirect("/login")
+        }
 }
 
 const obtenerMedicamentos = async (req, res) => {

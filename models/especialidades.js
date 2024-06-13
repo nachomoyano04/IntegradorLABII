@@ -39,4 +39,5 @@ const borrarEspecialidadByMedico = async (idMedico, idEspecialidad) => {
     }
 }
 
+
 export {getEspecialidades, insertMedicoEspecialidad, getEspecialidadesByIdMedico, borrarEspecialidadByMedico}

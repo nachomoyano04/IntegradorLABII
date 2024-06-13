@@ -24,9 +24,6 @@ const inicioGet = async(req, res) => {
             res.render("inicio", {inicio, administrador, profesional, usuario, esInicio: true});
         }
     }else{
-        // const inicio = false;
-        // const mensaje = "No estás logueado en el sistema";
-        // res.render("inicio", {inicio, mensaje});
         res.redirect("/login");
     }
 }

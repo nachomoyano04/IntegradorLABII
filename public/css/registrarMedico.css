@@ -5,7 +5,7 @@
 }
     
 .divFormRegistrarPaciente{
-    height: 500px;
+    height: 620px;
 }
 
 .divRegistrarMedicamentos{
@@ -13,14 +13,14 @@
 }
 
 .divsRegistrarMedico{
-    height: 620px;
+    height: 700px
 }
 
-.listaMedicos, .listaPacientes, .listaMedicamentos{
+.listaMedicos, .listaPacientes, .listaMedicamentos, .listaPrestaciones{
     font-size: 20px;
 }
 
-.listaMedicos p, .listaPacientes p{
+.listaMedicos p, .listaPacientes p, .listaPrestaciones p{
     background-color: #7baddf;
     width: 85%;
     padding: 10px 5px;
@@ -31,7 +31,7 @@
     display: flex;
 }
 
-.listaMedicos .tooltip, .listaPacientes .tooltip, .listaMedicamentos .tooltip{
+.listaMedicos .tooltip, .listaPacientes .tooltip, .listaMedicamentos .tooltip, .listaPrestaciones .tooltip{
     background-color: #ccc;
     border: none;
     font-size: 20px;

@@ -1,0 +1,71 @@
+extends inicio.pug 
+block content
+    script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+    .form
+            h1.title Cambiar Usuario y/o Password
+            form.formLogin
+                label.label(for="inputUsuario") Nuevo Usuario:
+                input.input(type="text", name="usuario", placeholder="Usuario", required, id="inputUsuario", autocomplete="off")
+                label.label(for="inputPassword") Nueva Password:
+                input.input(type="password", name="password", placeholder="Password", required, id="inputPassword", autocomplete="off")
+                input.btnRegistrarUser(type="button", value="Cambiar password", id="cambiarPassword")
+                a(href="/").btnCancelarRegistrarUser
+                    p.cancelarRegistrarUser Cancelar
+    script. 
+        let botonCambiarPassword = document.querySelector("#cambiarPassword");
+        botonCambiarPassword.addEventListener("click", () => {
+            let inputUsuario = document.querySelector("#inputUsuario");
+            let inputPassword = document.querySelector("#inputPassword");
+            axios.post("http://localhost:3000/cambiarCredenciales", {usuario: inputUsuario.value, password: inputPassword.value})
+            .then(res => {
+                if(res.data.ok){
+                    Swal.fire({
+                        icon: "success",
+                        title: "Cambios efectuados correctamente",
+                        timer: 2000,
+                        heightAuto: false
+                    }).then(() => window.location.href = "/")
+                }else{
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Ocurrió un problema al cambiar los datos",
+                        timer: 2000,
+                        heightAuto: false
+                    }).then(() => window.location.href = "/")
+                }
+            })
+            .catch(error => console.log(error));
+        })             
+
+//- html
+//-     head
+//-         title Labdos
+//-         link(rel="stylesheet", href="/css/loguin.css")
+//-         link(rel="stylesheet", href="/css/navYFooter.css")
+//-         link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css")
+//-         <link rel="preconnect" href="https://fonts.googleapis.com">
+//-         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+//-         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+//-         link(rel="icon", type="image/png" href="/images/iconoPaginaMedicina.png") 
+//-     body.bodyInicio
+//-         .form
+//-             h1.title Registrar
+//-             form.formLogin(action="/registrarUser", method="POST")
+//-                 label.label(for="inputUsuario") Usuario:
+//-                 input.input(type="text", name="usuario", placeholder="Usuario", required, id="inputUsuario")
+//-                 label.label(for="inputPassword") Password:
+//-                 input.input(type="password", name="password", placeholder="Password", required, id="inputPassword")
+//-                 label.label(for="inputRol") Roles:
+//-                 .inputCheckBox
+//-                     -if(roles){
+//-                         -for(let r of roles){
+//-                             .checkbox
+//-                                 input(type="checkbox", name="idRol", value=r.id)
+//-                                 label #{r.nombreRol}
+//-                         -}
+//-                     -}
+//-                 input.btnRegistrarUser(type="submit", value="Registrar Usuario")
+//-                 a(href="/").btnCancelarRegistrarUser
+//-                     p.cancelarRegistrarUser Cancelar
+//-         .footer 
+//-             include includes/footer.pug

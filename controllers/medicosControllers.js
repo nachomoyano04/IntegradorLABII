@@ -1,4 +1,4 @@
-import { insertDoctor, getAllDoctors,actualizarMedico, borrarMedico, getIdUsuarioByIdMedico, getMedicoByIdUsuario } from "../models/medicos.js";
+import { insertDoctor, getAllDoctors,actualizarMedico, borrarMedico, getIdUsuarioByIdMedico, getMedicoByIdUsuario, getDoctorById, toRegisterMedico } from "../models/medicos.js";
 import { getEspecialidades, insertMedicoEspecialidad, getEspecialidadesByIdMedico, borrarEspecialidadByMedico } from "../models/especialidades.js";
 import { getProfesiones } from "../models/profesiones.js";
 import { insertarUsuario, insertarUsuarioRol, updateUsuario, getUsuarioByIdUsuario, buscarUsersByUsuario } from "../models/login.js";
@@ -22,18 +22,24 @@ const registroMedicoGet = async (req, res) => {
                     let usuario = req.session.usuario;
                     res.render("registrarMedico", {especialidades, profesiones, usuario});
             }else{
-                res.send("No tienes permisos de administrador...");
+                res.render("404", {sinPermiso:true});
             }
         }else{
-            // const inicio = false;
-            // const mensaje = "Debe iniciar sesión";
             res.redirect("/login");
-            // res.render("inicio", {inicio, mensaje, usuario: null});
-            // res.send("debe iniciar sesión");
         }
     } catch(error) {
         const mensajeDeError500 = `Error interno en el servidor: ${error}`
         res.status(500).render("404", {error500:true, mensajeDeError500});
+    }
+}
+
+const obtenerMedicoById = async(req, res) => {
+    const idMedico = req.params.idMedico;
+    try {
+        const resultado = await getDoctorById(idMedico);
+        res.json(resultado[0][0]);
+    } catch (error) {
+        res.json(error);
     }
 }
 
@@ -141,4 +147,14 @@ const getEspecialidadesWithId = async(req,res) => {
     }
 }
 
-export {registroMedicoGet, insertarDoctorPost, getProfesionales, updateMedico, borradoLogico, getEspecialidadesWithId};
+const darDeAltaMedico = async(req, res) => {
+    const {idMedico} = req.body;
+    try {
+        const resultado = await toRegisterMedico(idMedico);
+        res.json({ok:true});
+    } catch (error) {
+        res.json(error)
+    }
+}
+
+export {registroMedicoGet, insertarDoctorPost, getProfesionales, updateMedico, borradoLogico, getEspecialidadesWithId, obtenerMedicoById, darDeAltaMedico};

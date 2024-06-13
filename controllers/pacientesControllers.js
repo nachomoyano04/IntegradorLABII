@@ -1,6 +1,6 @@
 // import { getObrasSociales } from "../models/obraSocial.js";
 import {getPlanes, getPlanByIdPaciente} from "../models/planes.js";
-import { deletePatient, getAllPatients, getPatientByDocumento, insertPatient, updatePatient } from "../models/pacientes.js";
+import { deletePatient, getAllPatients, getPatientByDocumento, insertPatient, toRegisterPatient, updatePatient } from "../models/pacientes.js";
 import { getDoctorById} from "../models/medicos.js";
 import { getObraSocialByIdPlan } from "../models/obraSocial.js";
 import pool from "../models/database.js";
@@ -140,4 +140,14 @@ const obtenerPacienteByDocumento = async (req, res) => {
     }
 } 
 
-export {registroPacienteGet, planesPorIdPaciente, registroPacientePost, obtenerPacientes, obtenerOSByIdPlan, registroPacienteUpdate, borradoLogicoPaciente, obtenerPacienteByDocumento};
+const darDeAltaPaciente = async (req, res) => {
+    const {idPaciente} = req.body;
+    try {
+        const resultado = await toRegisterPatient(idPaciente);
+        res.json({ok:true});
+    } catch (error) {
+        res.json(error);
+    }
+}
+
+export {registroPacienteGet, planesPorIdPaciente, registroPacientePost, obtenerPacientes, obtenerOSByIdPlan, registroPacienteUpdate, borradoLogicoPaciente, obtenerPacienteByDocumento, darDeAltaPaciente};
