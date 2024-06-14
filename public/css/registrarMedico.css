@@ -101,6 +101,9 @@
 .selectEspecialidad, .selectPlan{
     position: relative;
 }
+/* #selectPrestaciones{
+    position: sticky;
+} */
 
 .secionEspecialidad, .seccionPlan{
     width: 60%;

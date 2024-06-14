@@ -77,7 +77,16 @@ const updatePrestacion = async (nombrePrestacion, indicacion, justificacion, idP
     } catch (error) {
         throw error;
     }
+}
 
+const updatePrestacionSinNombre = async (indicacion, justificacion, idPrestacion) => {
+    const query = "UPDATE prestacion SET indicacion=?, justificacion=? WHERE idPrestacion=?";
+    try {
+        const resultado = await pool.query(query, [indicacion, justificacion, idPrestacion]);
+        return resultado[0].affectedRows;
+    } catch (error) {
+        throw error;
+    }
 }
 
 const insertPrestacion = async (nombrePrestacion, indicacion, justificacion) => {
@@ -118,4 +127,4 @@ const agregarRelacionPrestacionLado = async(idLado, idPrestacion) => {
 }
 
 
-export {toRegisterPrestacion, logicDeletePrestacion, getPrestacionById, getPrestaciones, insertPrestacion, getLados, updatePrestacion, getLadosByPrestacion, eliminarRelacionPrestacionLado, agregarRelacionPrestacionLado};
+export {toRegisterPrestacion, logicDeletePrestacion, getPrestacionById, getPrestaciones, insertPrestacion, getLados, updatePrestacion, getLadosByPrestacion, eliminarRelacionPrestacionLado, agregarRelacionPrestacionLado, updatePrestacionSinNombre};

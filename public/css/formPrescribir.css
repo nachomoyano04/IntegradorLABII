@@ -141,18 +141,11 @@
     border-radius: 15px;
     margin: 0px 10px 0px 10px;
     height: 100%;
-    width: 100%;
+    width: 60%;
 }
 
 .textAreaResultadoObservacion{
     resize: none;
-}
-
-.divAniadirResultado{
-    /* display: flex;
-    flex-direction: column-reverse;
-    align-items: flex-start; */
-    /* margin-right: 10px; */
 }
 
 .divAniadirResultado button{
@@ -218,4 +211,58 @@
     left: 0;
     display: inline-table;
     right: 0;
+}
+
+/* Estilos generales para la impresión */
+@media print {
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+    }
+    
+    /* Estilos para el contenedor de la prescripción */
+    .prescripcion {
+        width: 100%;
+        margin: 20px auto;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+    }
+
+    /* Estilos para el título de la prescripción */
+    .prescripcion h1 {
+        font-size: 18px;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    /* Estilos para los detalles de la prescripción */
+    .prescripcion .detalles {
+        margin-bottom: 15px;
+    }
+
+    /* Estilos para las secciones de medicamentos y prestaciones */
+    .prescripcion .seccion {
+        margin-bottom: 10px;
+    }
+
+    /* Estilos específicos para etiquetas como 'Fecha', 'Vigencia', etc. */
+    .prescripcion .label {
+        font-weight: bold;
+    }
+
+    /* Estilos específicos para los datos de la prescripción */
+    .prescripcion .dato {
+        margin-left: 10px;
+    }
+
+    /* Estilos para la lista de medicamentos y prestaciones */
+    .prescripcion .lista {
+        margin-left: 20px;
+    }
+
+    /* Estilos para cada ítem de la lista de medicamentos y prestaciones */
+    .prescripcion .lista li {
+        margin-bottom: 5px;
+    }
 }

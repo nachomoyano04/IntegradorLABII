@@ -1,6 +1,6 @@
 import { getAllPatients } from "../models/pacientes.js";
 import { getMedicamento } from "../models/medicamentos.js";
-import { getPrestaciones } from "../models/prestaciones.js";
+import { agregarRelacionPrestacionLado, eliminarRelacionPrestacionLado, getLadosByPrestacion, getPrestaciones, updatePrestacion, updatePrestacionSinNombre } from "../models/prestaciones.js";
 import { insertPrescripcion, getPrescripcionByIdPaciente } from "../models/prescripcion.js";
 import { insertPrescripcionMedicamentoDetalle } from "../models/prescripcionMedicamentoDetalle.js";
 import { insertPrescripcionPrestacion } from "../models/prescripcionPrestacion.js";
@@ -12,10 +12,10 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
     try {
         if(req.session.loggedin){
             let roles = req.session.rol;
-            let tienePermiso = false;
+            let tienePermiso = true;
             for(let i = 0; i < roles.length; i++){
-                if(roles[i].idRol === 2){
-                    tienePermiso = true;
+                if(roles[i].idRol === 1){
+                    tienePermiso = false;
                     break;
                 }
             }
@@ -25,9 +25,10 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
                     let medicamentos = await getMedicamento();
                     let prestaciones = await getPrestaciones();
                     if(medicamentos[0].length > 0 || prestaciones[0].length){
-                        //filtramos sólo las prestaciones que estan activas
-                        prestaciones = prestaciones[0].filter(e => e.estado === 1)
-                        return res.status(200).send({medicamentos: medicamentos[0], prestaciones})
+                        //filtramos sólo las prestaciones y medicamentos que estan activas
+                        medicamentos = medicamentos[0].filter(e => e.estado === 1);
+                        prestaciones = prestaciones[0].filter(e => e.estado === 1);
+                        return res.status(200).send({medicamentos: medicamentos, prestaciones})
                     }
                     return res.status(200).send("");
                 }else{
@@ -54,35 +55,42 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
 }   
 
 const prescribirPost = async (req, res) => {
-    let {diagnostico, vigencia, idPaciente, idMedicamentoDetalle, dosis, intervalo, duracion, idPrestacion} = req.body;
+    let {diagnostico, vigencia, idPaciente, idMedicamentoDetalle, dosis, intervalo, duracion, idPrestacion, indicacion, justificacion, lados} = req.body;
+    console.log(req.body);
     let idMedico = req.session.idMedico;
     // convertimos a objeto los idMedicamentoDetalle e idPrestacion para que sea mas facil las inserciones (si existen)
     const connection = await pool.getConnection();
     try{
-        if(typeof idMedicamentoDetalle !== "object" && idMedicamentoDetalle){
-            idMedicamentoDetalle = [idMedicamentoDetalle];
-            dosis = [dosis];
-            intervalo = [intervalo];
-            duracion = [duracion];
-        }
-        if(typeof idPrestacion !== "object" && idPrestacion){
-            idPrestacion = [idPrestacion];
-        }
         const prescripcion = {diagnostico, vigencia, idMedico, idPaciente};
         await connection.beginTransaction();
         const idPrescripcion = await insertPrescripcion(prescripcion);
-        if(idMedicamentoDetalle){
+        if(idMedicamentoDetalle && Array.isArray(idMedicamentoDetalle)){
             for(let i = 0; i < idMedicamentoDetalle.length; i++){
                 await insertPrescripcionMedicamentoDetalle(idPrescripcion, idMedicamentoDetalle[i], dosis[i], duracion[i], intervalo[i]);
             }
         }
-        if(idPrestacion){
+        if(idPrestacion && Array.isArray(idPrestacion)){
             for(let ip of idPrestacion){
                 await insertPrescripcionPrestacion(idPrescripcion, ip);
             }
+            for(let i = 0; i < idPrestacion.length; i++){
+                await updatePrestacionSinNombre(indicacion[i], justificacion[i], idPrestacion[i]);
+                let idsBD = await getLadosByPrestacion(idPrestacion[i]);
+                idsBD = idsBD.map(e => e.idLado.toString());
+                let idsAEliminar = idsBD.filter(e => !lados[i].includes(e));
+                console.log(idsAEliminar);
+                let idsAAgregar = lados[i].filter(e => !idsBD.includes(e));
+                console.log(idsAAgregar)
+                for(let iae of idsAEliminar){
+                    await eliminarRelacionPrestacionLado(iae, idPrestacion[i]);
+                }
+                for(let iaa of idsAAgregar){
+                    await agregarRelacionPrestacionLado(iaa, idPrestacion[i]);
+                }
+            }
         }
         await connection.commit();
-        res.status(200).json({mensaje: "Se realizó la prescripción correctamente..."})
+        res.status(200).json({ok:true})
     }catch(error){
         await connection.rollback();
         res.status(500).render("404", {error500:true ,mensajeDeError500:"Errooooooooooor"})
@@ -113,7 +121,8 @@ const postGuardarResultadoPrestacion = async (req, res) => {
             res.json({mensaje: "Error al cargar el resultado en la base de datos...", aniadido:false});
         }
     } catch (error) {
-        
+        const mensajeDeError500 = `Error interno en el servidor: ${error}`
+        res.status(500).render("404", {error500:true, mensajeDeError500});
     }
 }
 

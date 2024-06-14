@@ -1,5 +1,6 @@
 extends inicio.pug
 block content
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js")
     .divform
         h1.tituloH1 Prescripción
         .divFormularioYPrescripcionesAnteriores
@@ -14,32 +15,19 @@ block content
                         input.radioDivVigencia(type="radio", name="vigencia", id="30dias", value="30", checked) 
                     .divVigencia
                         label.labelDivVigencia(for="60dias") 60 días 
-                        input.radioDivVigencia(type="radio", name="vigencia", id="60dias", value="60") 
-                //- .labels
-                //-     label Medico
-                //-     a.tooltip(href="/registrar/medico")
-                //-         i.fa-solid.fa-user-plus
-                //-             p.tooltiptext Registrar nuevo médico
-                //-     select.inputFormRegistro(name="idMedico", required, id="selectMedicos")
-                //-         option(disabled, selected, hidden, value="") Seleccione un médico
-                //-         //mostramos los nombres de los médicos
-                //-         -if(medicos)
-                //-             -for(let med of medicos){
-                //-                 //podria agregar la especialidad del médico al select también.
-                //-                 option(value= med.idMedico) #{med.nombre} #{med.apellido} 
-                //-             -}
+                        input.radioDivVigencia(type="radio", name="vigencia", id="60dias", value="60")
                 .labels
                     label Paciente
                     a.tooltip(href="/registrar/paciente")
                         i.fa-solid.fa-user-plus
                             p.tooltiptext Registrar nuevo paciente
-                    select.inputFormRegistro(name="idPaciente", required, id="selectPacientes")
-                        option(disabled, selected, hidden, value="") Seleccione un paciente 
-                        //mostramos los nombres de los pacientes
+                    input.inputFormRegistro(name="idPaciente", required, id="selectPacientes", list="dataListPacientes", autocomplete="off")
+                    datalist#dataListPacientes
                         -if(pacientes)
                             -for(let pac of pacientes){
-                                option(value= pac.idPaciente) #{pac.nombre} #{pac.apellido}, DNI#{pac.documento}
+                                option(value= `${pac.nombre} ${pac.apellido} DNI: ${pac.documento}`, data-value= pac.idPaciente)
                             -}
+                    input(id="inputHiddenPacientes", hidden)
                 .grid-container
                     .labels#divMedicamentos
                         .divLabelYBtnAgregarMedicamento
@@ -63,8 +51,9 @@ block content
                             .divAutocompletadoPrestacion
                                 input.classEnComunCSS#inputPrestacionPrescripcion(type="text", placeholder="Ingrese la prestación", autocomplete = "off")    
                                 input.idPrestacionHidden(type="hidden", name="idPrestacion", id="idPrestacion")
+                                //- input.idPrestacionHidden(name="idPrestacion", id="idPrestacion")
                                 .autocompletadoPrestaciones
-
+                            #divJustificacionPrestacion.divJustificacion
                 .divBotones
                     input.botones(type="submit", value="Prescribir", id="botonPrescribir")
             div#prescripcionesAnterioresPaciente

@@ -54,6 +54,13 @@
     color: black;
 }
 
+/* .eliminarPrestacion, .editarPrestacion{
+    position: inherit;
+    display: inline-block;
+    cursor: pointer;
+    color: black;
+} */
+
 .tooltip .tooltiptext {
     visibility: hidden;
     font-size: 12px;

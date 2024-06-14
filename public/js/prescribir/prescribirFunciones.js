@@ -35,25 +35,18 @@ const borrarAutocompletadoClickEverywhere = () => {
 const crearPrestacionParaAutocompletado = (prestacion) => {
     let ul = document.createElement("ul");
     let liNombre = document.createElement("li");
-    let liLado = document.createElement("li");
-    let liIndicacion = document.createElement("li");
-    let liJustificacion = document.createElement("li");
     liNombre.innerHTML = `${prestacion.nombrePrestacion}`;
-    liLado.innerHTML = `lado: ${prestacion.lado}`;
-    liIndicacion.innerHTML = `indicación: ${prestacion.indicacion}`;
-    liJustificacion.innerHTML = `justificación: ${prestacion.justificacion}`;
     ul.appendChild(liNombre)
-    ul.appendChild(liLado)
-    ul.appendChild(liIndicacion)
-    ul.appendChild(liJustificacion)
     return ul;
 }
 
 //-------------------------------SECCIÓN LISTAR PRESCRIPCIONES ANTERIORES-------------------------------//
-const listadoDePrescripcionesAnteriores = (prescripcionesAnteriores) => {
+const listadoDePrescripcionesAnteriores = (prescripcionesAnteriores, idPaciente) => {
     let div = document.createElement("div");
+    let presAnt = prescripcionesAnteriores;
     prescripcionesAnteriores = acomodarPrescripciontesAnteriores(prescripcionesAnteriores);
     for(let pa of prescripcionesAnteriores){
+        console.log(pa)
         let ul = document.createElement("ul"); 
         let liDiagnostico = document.createElement("li"); //ITEM DIAGNOSTICO
         liDiagnostico.innerHTML = `Diagnóstico: ${pa.diagnostico}`;
@@ -75,7 +68,13 @@ const listadoDePrescripcionesAnteriores = (prescripcionesAnteriores) => {
         if(pa.prestaciones.nombrePrestacion.length > 0){
             for(let i = 0; i < pa.prestaciones.nombrePrestacion.length; i++){
                 let liPrestacion = document.createElement("li"); // ITEM PRESTACION
-                    liPrestacion.innerHTML = `Prestacion ${i+1}: ${pa.prestaciones.nombrePrestacion[i]} ${pa.prestaciones.lado[i]} ${pa.prestaciones.indicacion[i]} ${pa.prestaciones.justificacion[i]}`;
+                    let nombresLados = presAnt[1][i].nombresLados.split(",");
+                    console.log(presAnt[1][i]);
+                    let lados = "";
+                    for(let n of nombresLados){
+                        lados += `, lado ${n}`;
+                    }   
+                    liPrestacion.innerHTML = `Prestacion ${i+1}: ${pa.prestaciones.nombrePrestacion[i]} ${lados}, indicacion: ${pa.prestaciones.indicacion[i]}, justificacion: ${pa.prestaciones.justificacion[i]}`;
                     ul.appendChild(liPrestacion);
                     let divResultadoPrestacion = document.createElement("div");divResultadoPrestacion.className ="divResultadoPrestacion";
                     if(pa.prestaciones.resultadoPrestacion[i] === null){
@@ -89,11 +88,212 @@ const listadoDePrescripcionesAnteriores = (prescripcionesAnteriores) => {
                         divResultadoPrestacion.appendChild(liResultado)
                     }
                     ul.appendChild(divResultadoPrestacion);
-                }
+                    }
             }
-        div.appendChild(ul);
+                    // let idPrescripciones = new Set();
+                    // prescripcionesAnteriores[0].forEach(e => idPrescripciones.add(e.idPrescripcion));
+                    let botonImprimirPrescripcion = document.createElement("button");
+                    botonImprimirPrescripcion.innerHTML = "IMPRIMIR PRESCRIPCION";
+                    botonImprimirPrescripcion.dataset.action = "imprimir";
+                    let idPrescripcion = pa.idPrescripcion;
+                    botonImprimirPrescripcion.setAttribute("data-value", idPrescripcion);
+                    ul.appendChild(botonImprimirPrescripcion)
+                div.appendChild(ul);    
+                    }
+        return div;
     }
-    return div;
+    
+    // for (let pa of prescripcionesAnteriores[0]) {
+    //     if (idPrescripciones.has(pa.idPrescripcion)) {
+    //         let ul = document.createElement("ul"); 
+    //         let liDiagnostico = document.createElement("li");
+    //         liDiagnostico.innerHTML = `Diagnóstico: ${pa.diagnostico}`;
+    //         let liFecha = document.createElement("li");
+    //         liFecha.innerHTML = `Fecha: ${new Date(pa.fecha).toLocaleDateString("en-GB")}`;
+    //         let liVigencia = document.createElement("li");
+    //         liVigencia.innerHTML = `Vigencia: ${new Date(pa.vigencia).toLocaleDateString("en-GB")}`;
+    //         ul.appendChild(liDiagnostico);
+    //         ul.appendChild(liFecha);
+    //         ul.appendChild(liVigencia);
+    
+    //         let liMedicamento = document.createElement("li");
+    //         let medicamento = `Medicamento: ${pa.nombreGenerico} ${pa.cantidadConcentracion} ${pa.unidadMedidaCon} ${pa.forma} x${pa.cantidadPresentacion} ${pa.unidadMedidaPres}`;
+    //         liMedicamento.innerHTML = medicamento;
+    //         ul.appendChild(liMedicamento);
+    
+    //         prescripcionesAnteriores[1].forEach(e => {
+    //             if (e.idPrescripcion === pa.idPrescripcion) {
+    //                 let liPrestacion = document.createElement("li");
+    //                 let nombresLados = e.nombresLados.split(",");
+    //                 let lados = nombresLados.map(n => `lado ${n}`).join(", ");
+    //                 liPrestacion.innerHTML = `Prestacion: ${e.nombrePrestacion} ${lados}, indicacion: ${e.indicacion}, justificacion: ${e.justificacion}`;
+    //                 ul.appendChild(liPrestacion);
+    
+    //                 let divResultadoPrestacion = document.createElement("div");
+    //                 divResultadoPrestacion.className = "divResultadoPrestacion";
+    //                 if (e.resultadoPrestacion === null) {
+    //                     let divAniadirResultado = document.createElement("div");
+    //                     divAniadirResultado.className = "divAniadirResultado";
+    //                     crearDivAniadirResultado(divAniadirResultado, e.idPrescripcion, e.idPrestacion, divResultadoPrestacion);
+    //                     divResultadoPrestacion.appendChild(divAniadirResultado);
+    //                 } else {
+    //                     let liResultado = document.createElement("li");
+    //                     liResultado.innerHTML = `Resultado/Observación: ${e.resultadoPrestacion}`;
+    //                     divResultadoPrestacion.appendChild(liResultado);
+    //                 }
+    //                 ul.appendChild(divResultadoPrestacion);
+    
+    //                 let botonImprimirPrescripcion = document.createElement("button");
+    //                 botonImprimirPrescripcion.innerHTML = "IMPRIMIR PRESCRIPCION";
+    //                 botonImprimirPrescripcion.dataset.action = "imprimir";
+    //                 botonImprimirPrescripcion.setAttribute("data-value", e.idPrescripcion);
+    //                 ul.appendChild(botonImprimirPrescripcion);
+    //             }
+    //         });
+    //         idPrescripciones.delete(pa.idPrescripcion);
+    //         div.appendChild(ul);
+    //     }
+    // }
+    
+    // for (let pa of prescripcionesAnteriores[1]) {
+    //     if (idPrescripciones.has(pa.idPrescripcion)) {
+    //         let ul = document.createElement("ul");
+    //         let liPrestacion = document.createElement("li");
+    //         let nombresLados = pa.nombresLados.split(",");
+    //         let lados = nombresLados.map(n => `lado ${n}`).join(", ");
+    //         liPrestacion.innerHTML = `Prestacion: ${pa.nombrePrestacion} ${lados}, indicacion: ${pa.indicacion}, justificacion: ${pa.justificacion}`;
+    //         ul.appendChild(liPrestacion);
+    
+    //         let divResultadoPrestacion = document.createElement("div");
+    //         divResultadoPrestacion.className = "divResultadoPrestacion";
+    //         if (pa.resultadoPrestacion === null) {
+    //             let divAniadirResultado = document.createElement("div");
+    //             divAniadirResultado.className = "divAniadirResultado";
+    //             crearDivAniadirResultado(divAniadirResultado, pa.idPrescripcion, pa.idPrestacion, divResultadoPrestacion);
+    //             divResultadoPrestacion.appendChild(divAniadirResultado);
+    //         } else {
+    //             let liResultado = document.createElement("li");
+    //             liResultado.innerHTML = `Resultado/Observación: ${pa.resultadoPrestacion}`;
+    //             divResultadoPrestacion.appendChild(liResultado);
+    //         }
+    //         ul.appendChild(divResultadoPrestacion);
+    
+    //         let botonImprimirPrescripcion = document.createElement("button");
+    //         botonImprimirPrescripcion.innerHTML = "IMPRIMIR PRESCRIPCION";
+    //         botonImprimirPrescripcion.dataset.action = "imprimir";
+    //         botonImprimirPrescripcion.setAttribute("data-value", pa.idPrescripcion);
+    //         ul.appendChild(botonImprimirPrescripcion);
+    
+    //         idPrescripciones.delete(pa.idPrescripcion);
+    //         div.appendChild(ul);
+    //     }
+    // }
+
+let divPrescripcionesAnterioresPaciente = document.querySelector("#prescripcionesAnterioresPaciente");
+divPrescripcionesAnterioresPaciente.addEventListener("click", (evento) => {
+    if(evento.target.closest("button")){
+        let btn = evento.target.closest("button");
+        let action = btn.dataset.action;
+        if(action === "imprimir"){
+            let idPrescripcion = btn.getAttribute("data-value");
+            axios.post(`http://localhost:3000/prescribir/prescripcionesByIdPrescripcion`,{idPrescripcion})
+            .then(res => {
+                let medicamentos = [];
+                for(let m of res.data[0]){
+                    let medicamento = `${m.nombreGenerico} ${m.cantidadConcentracion} ${m.unidadMedidaCon} ${m.forma} x${m.cantidadPresentacion} ${m.unidadMedidaPres}`;
+                    medicamentos.push(medicamento);
+                }
+                let prestaciones = [];
+                for(let p of res.data[1]){
+                    let nombrePrestacion = `${p.nombrePrestacion}`;
+                    let indicacion = `${p.indicacion}`;
+                    let justificacion = `${p.justificacion}`;
+                    let nombresLados = p.nombresLados.split(",");
+                    let prestacion = {nombrePrestacion, indicacion, justificacion, nombresLados}; 
+                    prestaciones.push(prestacion);
+                }
+                let demasDatos = res.data[1][0];
+                let diagnostico = demasDatos.diagnostico;
+                let fecha = new Date(demasDatos.fecha);
+                fecha = fecha.toLocaleDateString("en-GB");
+                let vigencia = new Date(demasDatos.vigencia);
+                vigencia = vigencia.toLocaleDateString("en-GB");
+                let nombreMedico = demasDatos.nombreMedico; 
+                let apellidoMedico = demasDatos.apellidoMedico;
+                let refepsMedico = demasDatos.idRefeps;
+                let medico = {nombreMedico, apellidoMedico, refepsMedico};
+                let nombrePaciente = demasDatos.nombrePaciente;
+                let apellidoPaciente = demasDatos.apellidoPaciente;
+                let documentoPaciente = demasDatos.documentoPaciente;
+                let paciente = {nombrePaciente,apellidoPaciente,documentoPaciente};
+                let prescripcion = {diagnostico, fecha, vigencia, medico, paciente, medicamentos, prestaciones};
+                imprimir(prescripcion);
+            })
+        }
+    }
+})
+
+const imprimir = (prescripcion) => {
+    const { jsPDF } = window.jspdf;
+    let pdf = new jsPDF();
+
+    const pageHeight = pdf.internal.pageSize.height; //Altura de la página
+    let y = 20; 
+
+    const addText = (text, x, y) => {
+        if (y + 10 > pageHeight) {
+            pdf.addPage();
+            y = 20;
+        }
+        pdf.text(text, x, y);
+        return y + 10;
+    };
+
+    //Título
+    pdf.setFontSize(16);
+    y = addText("Prescripción Médica", 20, y);
+
+    //Datos de la prescripción
+    pdf.setFontSize(12);
+    y = addText(`Fecha: ${prescripcion.fecha}`, 20, y);
+    y = addText(`Vigencia: ${prescripcion.vigencia}`, 20, y);
+
+    // Datos del médico
+    y = addText("Médico:", 20, y);
+    y = addText(`Nombre: ${prescripcion.medico.nombreMedico}`, 30, y);
+    y = addText(`Apellido: ${prescripcion.medico.apellidoMedico}`, 30, y);
+    y = addText(`RefEPS: ${prescripcion.medico.refepsMedico}`, 30, y);
+
+    // Datos del paciente
+    y = addText("Paciente:", 20, y);
+    y = addText(`Nombre: ${prescripcion.paciente.nombrePaciente}`, 30, y);
+    y = addText(`Apellido: ${prescripcion.paciente.apellidoPaciente}`, 30, y);
+    y = addText(`Documento: ${prescripcion.paciente.documentoPaciente}`, 30, y);
+
+    // Medicamentos
+    pdf.setFontSize(14);
+    y = addText("Medicamentos:", 20, y);
+    pdf.setFontSize(12);
+    prescripcion.medicamentos.forEach(med => {
+        y = addText(med, 30, y);
+    });
+
+    // Prestaciones
+    pdf.setFontSize(14);
+    y = addText("Prestaciones:", 20, y);
+    pdf.setFontSize(12);
+    prescripcion.prestaciones.forEach(pres => {
+        y = addText(pres.nombrePrestacion, 30, y);
+        y = addText(`Indicación: ${pres.indicacion}`, 30, y);
+        y = addText(`Justificación: ${pres.justificacion}`, 30, y);
+        pres.nombresLados.forEach(lado => {
+            y = addText(`lado: ${lado}`, 30, y);
+        });
+        y += 10;
+    });
+
+    // Guardar documento
+    pdf.save("prescripcion.pdf");
 }
 
 let acomodarPrescripciontesAnteriores = (prescripcionesAnteriores) => {
@@ -319,7 +519,11 @@ const agregarNuevoMedicamento = (medicamentos/*, contMedicamentos*/) => {
         })(contador);
         agregarEscuchadoresDeEventosAMedicamentos(medicamentos, autocompletado, elemento, contador)
     }else{
-        alert("No pueden haber más de 5 medicamentos")
+        Swal.fire({
+            icon:"warning",
+            title:"Máximo 5 medicamentos",
+            timer: 2000
+        })
     }
 }
 
@@ -543,7 +747,8 @@ const agregarNuevaPrestacion = (prestaciones/*, contPrestaciones*/) => {
                                 </div>
                                 <input class="idPrestacionHidden" type="hidden" name="idPrestacion" id="idPrestacion${contador}">
                                 <div class="autocompletadoPrestaciones"></div>
-                            </div>`;
+                            </div>
+                            <div id="divJustificacionPrestacion${contador}" class="divJustificacion"></div>`;
         divInput.innerHTML = prestacion;
         divPrestaciones.appendChild(label);
         divPrestaciones.appendChild(divInput);
@@ -574,7 +779,11 @@ const agregarNuevaPrestacion = (prestaciones/*, contPrestaciones*/) => {
         }
         agregarEscuchadoresDeEventosAPrestaciones(prestaciones, autocompletadoPrestacion, elemento, contador);
     }else{
-        alert("No pueden haber más de 5 prestaciones")
+        Swal.fire({
+            icon:"warning",
+            title:"Máximo 5 prestaciones",
+            timer: 2000
+        })
     }
 }
 
@@ -609,21 +818,34 @@ const agregarAutocompletadoPrestacion = (palabra, prestaciones, autocompletadoPr
             }
             // Nos aseguramos de que si borra un caracter nuevo o elimina uno y ya hay un elemento seleccionado, se elimine el value del input hidden
             if(!idsDePrestaciones.find(e => e.nombre === palabra) && idPrestacion.value){
+                //sacamos el id de la prestacion del arreglo
+                let indice = idsDePrestaciones.indexOf(idsDePrestaciones.find(e => e.id === parseInt(idPrestacion.value)));
+                if(indice > -1){
+                    idsDePrestaciones.splice(indice, 1);
+                }
                 idPrestacion.value = "";
             }
 
-            let prestaciones = prestacionesEnString.filter(e => {
+            let presta = prestacionesEnString.filter(e => {
                 let idPrestacion = JSON.parse(e).idPrestacion;
                 //nos aseguramos de que ademas que coincida que no esté en otro medicamento ya
                 return e.toLowerCase().includes(palabra.toLowerCase()) && !idsDePrestaciones.some(i => i.id === idPrestacion);
             });
-            for(let p of prestaciones){
+            for(let p of presta){
                 let div = document.createElement("div");
                 let pre = JSON.parse(p);
                 div.appendChild(crearPrestacionParaAutocompletado(pre));
                 autocompletadoPrestacion.appendChild(div);
                 div.addEventListener("click", () => {
-                    let contenido = `${pre.nombrePrestacion} ${pre.lado} ${pre.indicacion} ${pre.justificacion}`;
+                    let divJustificacionPrestacion;
+                    if(contador >= 0){
+                        divJustificacionPrestacion = document.querySelector(`#divJustificacionPrestacion${contador}`)
+                    }else{
+                        divJustificacionPrestacion = document.querySelector(`#divJustificacionPrestacion`)
+                    }
+                    agregarCamposJustificacionPrestacion(pre, divJustificacionPrestacion);
+                    // let contenido = `${pre.nombrePrestacion} ${pre.lado} ${pre.indicacion} ${pre.justificacion}`;
+                    let contenido = pre.nombrePrestacion;
                     inputPrestaciones.value = contenido;
                     idsDePrestaciones.push({id:pre.idPrestacion, nombre: contenido}); //agregamos al arreglo de ya seleccionados
                     inputPrestaciones.readOnly = true; //configuramos de que si selecciono una prestación no pueda editar el input...
@@ -645,9 +867,17 @@ const agregarAutocompletadoPrestacion = (palabra, prestaciones, autocompletadoPr
             if(contador){
                 let botonEditar = document.querySelector(`#botonEditarInput${contador}`);
                 if(botonEditar)botonEditar.remove();
+                let divJustificacion = document.querySelector(`#divJustificacionPrestacion${contador}`);
+                if(divJustificacion){
+                    divJustificacion.innerHTML = "";
+                }
             }else{
                 let botonEditar = document.querySelector(`#botonEditarInput`);
                 if(botonEditar)botonEditar.remove();
+                let divJustificacion = document.querySelector(`#divJustificacionPrestacion`);
+                if(divJustificacion){
+                    divJustificacion.innerHTML = "";
+                }
             }
 
             borrarAutocompletadoAnterior(autocompletadoPrestacion);
@@ -660,9 +890,126 @@ const agregarAutocompletadoPrestacion = (palabra, prestaciones, autocompletadoPr
             if(indice > -1){
                 idsDePrestaciones.splice(indice, 1);
             }
-
             idPrestacion.value = "";
         }
 }
+
+const getNumerosDisponiblesPrestacionSinJustificacion = () => {
+    let inputsPrestacionPrescribir = document.querySelectorAll(".inputPrestacionPrescribir");
+    let numerosDisponiblesPrestacion = [];
+    inputsPrestacionPrescribir.forEach(e => {
+        let id = e.id.slice(1);
+        if(!document.querySelector(`#divJustificacionPrestacion${id}`).hasChildNodes()){
+            numerosDisponiblesPrestacion.push(parseInt(id));
+        }
+    })
+    return numerosDisponiblesPrestacion;
+} 
+
+const getLados = () => {
+    return axios("http://localhost:3000/registrar/prestacion/getLados")
+        .then(res => res.data)
+        .catch(error => [])
+}
+
+const agregarSeccionJustificacion = (prestacion, sides, contador) => {
+    let idsLados = prestacion.idsLados.split(",");
+    idsLados = idsLados.map(e => parseInt(e));
+    const getId = (idBase) => contador ? `${idBase}${contador}` : idBase; // si hay contador se lo agregamos al final de los id´s
+    let inputJustificacion = `<div>
+                                <label for="${getId('justificacion')}">Justificación</label>
+                                <textarea class="justificacionPrestacion" id="${getId('justificacion')}" style="height: 60px; resize:none">${prestacion.justificacion}</textarea>
+                            </div>`;
+    let inputIndicacion = `<div>
+        <label for="${getId('indicacion')}">Indicación</label>
+        <textarea class="indicacionPrestacion" id="${getId('indicacion')}" style="height: 60px; resize:none">${prestacion.indicacion}</textarea>
+    </div>`;
+    let lados = `
+    <div class="secionEspecialidad">
+        <label>Lados</label>
+        <div class="selectEspecialidad" id="${getId('selectLadosPrestacion')}">
+            <select class="selectEsp" name="${getId('especialidad')}"  style="font-style: italic;">
+                <option disabled hidden selected>Opcional...</option>
+            </select>
+            <div class="overSelect"></div>
+        </div>
+        <div class="checkBoxEspecialidad" id="${getId('checkBoxPrestacion')}">
+            ${sides && sides.length > 0 ? 
+                sides.map(e => `
+                    <label>${e.nombreLado}
+                    <input id="${getId('inputLadoPrestacion')}" class="especialidades" type="checkbox" value="${e.nombreLado}" data-value="${e.idLado}" name="especialidades"
+                    ${idsLados.includes(e.idLado) ? 'checked' : ''}>
+                    </label>
+                `).join('') : 
+                ''
+            }
+        </div>
+    </div>`;
+    return lados + inputJustificacion + inputIndicacion;
+}
+
+const agregarEventoExpandirSelectLados = (contador) => {
+    let checkBoxEspecialidad;
+    let selectEspecialidad;
+    let inputLadoPrestacion;
+    if(contador){
+        selectEspecialidad = document.querySelector(`#selectLadosPrestacion${contador}`) 
+        checkBoxEspecialidad = document.querySelector(`#checkBoxPrestacion${contador}`);
+        inputLadoPrestacion = document.querySelector(`#inputLadoPrestacion${contador}`);
+    }else{
+        selectEspecialidad = document.querySelector(`#selectLadosPrestacion`);
+        checkBoxEspecialidad = document.querySelector("#checkBoxPrestacion");
+        inputLadoPrestacion = document.querySelector(`#inputLadoPrestacion`);
+    }
+    let estaExpandida = false;
+    selectEspecialidad.addEventListener("click", () => {
+        let losOtrosSelects = document.querySelectorAll(".selectEspecialidad");
+        if(!estaExpandida){
+            checkBoxEspecialidad.style.display = "block";
+            checkBoxEspecialidad.style.position = "absolute";
+            checkBoxEspecialidad.style.width = "230px";
+            estaExpandida = true;
+            losOtrosSelects.forEach(e => {
+                if ((e !== selectEspecialidad)) {
+                    e.style.display = "none";
+                }
+            });
+        }else{
+            checkBoxEspecialidad.style.display = "none";
+            estaExpandida = false;
+            losOtrosSelects.forEach(e => {
+                if (e !== selectEspecialidad) {
+                    e.style.display = "block";
+                }
+            });
+        }
+    })
+    checkBoxEspecialidad.addEventListener('change', () => {
+        let checkedCount = checkBoxEspecialidad.querySelectorAll('.especialidades:checked').length;
+        if (checkedCount >= 3) {
+            checkBoxEspecialidad.querySelectorAll('.especialidades:not(:checked)').forEach(e => {
+                e.disabled = true;
+            });
+        } else {
+            checkBoxEspecialidad.querySelectorAll('.especialidades').forEach(e => {
+                e.disabled = false;
+            });
+        }
+    });
+}
+
+const agregarCamposJustificacionPrestacion = async(p, divJustificacionPrestacion) => {
+    let numerosDisponiblesPrestacion = getNumerosDisponiblesPrestacionSinJustificacion();
+    let sides = await getLados(); 
+    let inputsPrestacionPrescribir = document.querySelectorAll(".inputPrestacionPrescribir");
+    if(inputsPrestacionPrescribir.length === 1){
+        divJustificacionPrestacion.innerHTML = agregarSeccionJustificacion(p, sides);
+        agregarEventoExpandirSelectLados();
+    }else{
+        divJustificacionPrestacion.innerHTML = agregarSeccionJustificacion(p, sides, numerosDisponiblesPrestacion[0]);
+        agregarEventoExpandirSelectLados(numerosDisponiblesPrestacion[0]);
+    }
+}
+
 
 export {borrarAutocompletadoAnterior, listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, agregarAutocompletadoPrestacion, configurarBotonCrearPrestacion, borrarAutocompletadoClickEverywhere,mensajeLlenarEspacioMedicamentoYPrestaciones};
