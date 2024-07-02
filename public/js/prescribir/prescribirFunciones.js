@@ -93,153 +93,94 @@ divMedicamentos.addEventListener("click", (e) => {
         }
 })
 
+
 //-------------------------------SECCIÓN LISTAR PRESCRIPCIONES ANTERIORES-------------------------------//
 const listadoDePrescripcionesAnteriores = (prescripcionesAnteriores, idPaciente) => {
     let div = document.createElement("div");
     let presAnt = prescripcionesAnteriores;
-    prescripcionesAnteriores = acomodarPrescripciontesAnteriores(prescripcionesAnteriores);
-    for(let pa of prescripcionesAnteriores){
-        let ul = document.createElement("ul"); 
-        let liDiagnostico = document.createElement("li"); //ITEM DIAGNOSTICO
-        liDiagnostico.innerHTML = `Diagnóstico: ${pa.diagnostico}`;
-        let liFecha = document.createElement("li"); //ITEM FECHA
-        liFecha.innerHTML = `Fecha: ${new Date(pa.fecha).toLocaleDateString()}`;
-        let liVigencia = document.createElement("li"); //ITEM VIGENCIA
-        liVigencia.innerHTML = `Vigencia: ${new Date(pa.vigencia).toLocaleDateString()}`;
-        ul.appendChild(liDiagnostico);
-        ul.appendChild(liFecha);
-        ul.appendChild(liVigencia);
-        if(pa.medicamentos.nombreGenerico.length > 0){
-            for(let i = 0; i < pa.medicamentos.nombreGenerico.length; i++){
-                let liMedicamento = document.createElement("li"); // ITEM MEDICAMENTO
-                let medicamento = `Medicamento ${i+1}: ${pa.medicamentos.nombreGenerico[i]} ${pa.medicamentos.cantidadConcentracion[i]} ${pa.medicamentos.unidadMedidaCon[i]} ${pa.medicamentos.forma[i]} x${pa.medicamentos.cantidadPresentacion[i]} ${pa.medicamentos.unidadMedidaPres[i]}`;
-                liMedicamento.innerHTML = medicamento;
-                ul.appendChild(liMedicamento);
+    console.log(prescripcionesAnteriores);
+    const idsDePrescripciones = new Set(); // añadimos a un set todos los ids de prescripciones
+    for(let i = 0; i < prescripcionesAnteriores.length; i++){
+        for(let j = 0; j < prescripcionesAnteriores[i].length; j++){
+            idsDePrescripciones.add(prescripcionesAnteriores[i][j].idPrescripcion);
+        }
+    }
+    /*Recorremos el set de ids de prescripciones para ir armando la caja de prescripciones anteriores por prescripcion... */
+    idsDePrescripciones.forEach(e => {
+        let medicamentoOfPrescripcion = "";
+        let diagFechVigen = "";
+        for(let m of prescripcionesAnteriores[0]){
+            if(m.idPrescripcion == e){
+                diagFechVigen = `<li><p class="tituloPA">Diagnóstico</p>: ${m.diagnostico}</li> 
+                                 <li><p class="tituloPA">Fecha</p>: ${new Date(m.fecha).toLocaleDateString()}</li>
+                                 <li><p class="tituloPA">Vigencia</p>: ${new Date(m.vigencia).toLocaleDateString()}</li>`
+                medicamentoOfPrescripcion += `
+                    <li><p class="tituloPA">Medicamento</p>: ${m.nombreGenerico} ${m.cantidadConcentracion} ${m.unidadMedidaCon} ${m.forma} x${m.cantidadPresentacion} ${m.unidadMedidaPres}</li>`
             }
         }
-        if(pa.prestaciones.nombrePrestacion.length > 0){
-            for(let i = 0; i < pa.prestaciones.nombrePrestacion.length; i++){
-                let liPrestacion = document.createElement("li"); // ITEM PRESTACION
-                    let nombresLados = presAnt[1][i].nombresLados.split(",");
-                    console.log(presAnt[1][i]);
-                    let lados = "";
-                    for(let n of nombresLados){
-                        lados += `, lado ${n}`;
-                    }   
-                    liPrestacion.innerHTML = `Prestacion ${i+1}: ${pa.prestaciones.nombrePrestacion[i]} ${lados}, indicacion: ${pa.prestaciones.indicacion[i]}, justificacion: ${pa.prestaciones.justificacion[i]}`;
-                    ul.appendChild(liPrestacion);
-                    let divResultadoPrestacion = document.createElement("div");divResultadoPrestacion.className ="divResultadoPrestacion";
-                    if(pa.prestaciones.resultadoPrestacion[i] === null){
-                        let divAniadirResultado = document.createElement("div"); //DIV QUE TENDRA BOTON Y TEXT AREA RESULTADO/OBSERVACION
-                        divAniadirResultado.className = "divAniadirResultado";
-                        crearDivAniadirResultado(divAniadirResultado, pa.idPrescripcion, pa.prestaciones.idPrestacion[i], divResultadoPrestacion); //Funcion que crea boton añadir y guardar resultado. Y textArea 
-                        divResultadoPrestacion.appendChild(divAniadirResultado);
-                    }else{
-                        let liResultado = document.createElement("li");
-                        liResultado.innerHTML = `Resultado/Observación: ${pa.prestaciones.resultadoPrestacion[i]}`;
-                        divResultadoPrestacion.appendChild(liResultado)
-                    }
-                    ul.appendChild(divResultadoPrestacion);
-                    }
+        let prestacionOfPrescripcion = "";
+        for(let p of prescripcionesAnteriores[1]){
+            if(p.idPrescripcion == e){ 
+                prestacionOfPrescripcion += `
+                    <li><p class="tituloPA">Prestación</p>: ${p.nombrePrestacion}</li>
+                    <li><p class="tituloPA">Indicación</p>: ${p.indicacion}</li>
+                    <li><p class="tituloPA">Justificación</p>: ${p.justificacion}</li>`;
+                prestacionOfPrescripcion +=`<li><p class="tituloPA">Lados</p>:</li>`;
+                for(let l of p.nombresLados.split(",")){
+                    prestacionOfPrescripcion +=`<li>${l}</li>`;
+                }
+                if(!p.resultadoPrestacion){
+                    prestacionOfPrescripcion += `
+                    <div class="divResultadoPrestacion">
+                        <div class="divAniadirResultado" id="p${e}restacionAnterior">
+                            <button class="botonAniadirResultado" action="aniadirResultado" data-value="${e}">Añadir resultado</button>
+                        </div>
+                    </div>`                    
+                }else{
+                    prestacionOfPrescripcion += `
+                        <li><p class="tituloPA">Resultado:</p>${p.resultadoPrestacion}</li>
+                    `;
+                }
             }
-                    // let idPrescripciones = new Set();
-                    // prescripcionesAnteriores[0].forEach(e => idPrescripciones.add(e.idPrescripcion));
-                    let botonImprimirPrescripcion = document.createElement("button");
-                    botonImprimirPrescripcion.innerHTML = "IMPRIMIR PRESCRIPCION";
-                    botonImprimirPrescripcion.dataset.action = "imprimir";
-                    let idPrescripcion = pa.idPrescripcion;
-                    botonImprimirPrescripcion.setAttribute("data-value", idPrescripcion);
-                    ul.appendChild(botonImprimirPrescripcion)
-                div.appendChild(ul);    
-                    }
-        return div;
+        }
+        let botonImprimirPrescripcion = `<button action="imprimir" data-value="${e}">IMPRIMIR PRESCRIPCION</button>`
+        let ul = document.createElement("ul");
+        ul.innerHTML = diagFechVigen;
+        ul.innerHTML += medicamentoOfPrescripcion;
+        ul.innerHTML += prestacionOfPrescripcion;
+        ul.innerHTML += botonImprimirPrescripcion;
+        div.appendChild(ul);
+    })
+    console.log(idsDePrescripciones)
+    return div;
+}
+
+const prescripcionesAnterioresPaciente = document.querySelector("#prescripcionesAnterioresPaciente");
+prescripcionesAnterioresPaciente.addEventListener("click", (evento) => {
+    let objetivo = evento.target.closest("button");
+    if(objetivo){
+        console.log(objetivo)
+        switch(objetivo.getAttribute("action")){
+            case "aniadirResultado":
+                let idPrescripcion = objetivo.getAttribute("data-value");
+                objetivo.style.display = "none";
+                let botonGuardarResultado = `
+                <button type="button" action="guardarResultado" class="botonGuardarResultado">Guardar resultado</button>`
+                let botonCancelar = `
+                <button type="button" action="cancelarResultado" class="cancelarGuardarResultado">Cancelar</button>`
+                let textArea = `<textArea class="textAreaResultadoObservacion" cols="53" rows="3" placeholder="Resultado/observación de la prescripción..."></textArea>`;
+                let divAniadirResultado = document.querySelector(`#p${idPrescripcion}restacionAnterior`);
+                divAniadirResultado.innerHTML += textArea;
+                divAniadirResultado.innerHTML += botonGuardarResultado;
+                divAniadirResultado.innerHTML += botonCancelar;
+                break;
+            case "guardarResultado":
+                break;
+            case "cancelarResultado":break;
+            case "imprimir":break;
+        }
     }
-    
-    // for (let pa of prescripcionesAnteriores[0]) {
-    //     if (idPrescripciones.has(pa.idPrescripcion)) {
-    //         let ul = document.createElement("ul"); 
-    //         let liDiagnostico = document.createElement("li");
-    //         liDiagnostico.innerHTML = `Diagnóstico: ${pa.diagnostico}`;
-    //         let liFecha = document.createElement("li");
-    //         liFecha.innerHTML = `Fecha: ${new Date(pa.fecha).toLocaleDateString("en-GB")}`;
-    //         let liVigencia = document.createElement("li");
-    //         liVigencia.innerHTML = `Vigencia: ${new Date(pa.vigencia).toLocaleDateString("en-GB")}`;
-    //         ul.appendChild(liDiagnostico);
-    //         ul.appendChild(liFecha);
-    //         ul.appendChild(liVigencia);
-    
-    //         let liMedicamento = document.createElement("li");
-    //         let medicamento = `Medicamento: ${pa.nombreGenerico} ${pa.cantidadConcentracion} ${pa.unidadMedidaCon} ${pa.forma} x${pa.cantidadPresentacion} ${pa.unidadMedidaPres}`;
-    //         liMedicamento.innerHTML = medicamento;
-    //         ul.appendChild(liMedicamento);
-    
-    //         prescripcionesAnteriores[1].forEach(e => {
-    //             if (e.idPrescripcion === pa.idPrescripcion) {
-    //                 let liPrestacion = document.createElement("li");
-    //                 let nombresLados = e.nombresLados.split(",");
-    //                 let lados = nombresLados.map(n => `lado ${n}`).join(", ");
-    //                 liPrestacion.innerHTML = `Prestacion: ${e.nombrePrestacion} ${lados}, indicacion: ${e.indicacion}, justificacion: ${e.justificacion}`;
-    //                 ul.appendChild(liPrestacion);
-    
-    //                 let divResultadoPrestacion = document.createElement("div");
-    //                 divResultadoPrestacion.className = "divResultadoPrestacion";
-    //                 if (e.resultadoPrestacion === null) {
-    //                     let divAniadirResultado = document.createElement("div");
-    //                     divAniadirResultado.className = "divAniadirResultado";
-    //                     crearDivAniadirResultado(divAniadirResultado, e.idPrescripcion, e.idPrestacion, divResultadoPrestacion);
-    //                     divResultadoPrestacion.appendChild(divAniadirResultado);
-    //                 } else {
-    //                     let liResultado = document.createElement("li");
-    //                     liResultado.innerHTML = `Resultado/Observación: ${e.resultadoPrestacion}`;
-    //                     divResultadoPrestacion.appendChild(liResultado);
-    //                 }
-    //                 ul.appendChild(divResultadoPrestacion);
-    
-    //                 let botonImprimirPrescripcion = document.createElement("button");
-    //                 botonImprimirPrescripcion.innerHTML = "IMPRIMIR PRESCRIPCION";
-    //                 botonImprimirPrescripcion.dataset.action = "imprimir";
-    //                 botonImprimirPrescripcion.setAttribute("data-value", e.idPrescripcion);
-    //                 ul.appendChild(botonImprimirPrescripcion);
-    //             }
-    //         });
-    //         idPrescripciones.delete(pa.idPrescripcion);
-    //         div.appendChild(ul);
-    //     }
-    // }
-    
-    // for (let pa of prescripcionesAnteriores[1]) {
-    //     if (idPrescripciones.has(pa.idPrescripcion)) {
-    //         let ul = document.createElement("ul");
-    //         let liPrestacion = document.createElement("li");
-    //         let nombresLados = pa.nombresLados.split(",");
-    //         let lados = nombresLados.map(n => `lado ${n}`).join(", ");
-    //         liPrestacion.innerHTML = `Prestacion: ${pa.nombrePrestacion} ${lados}, indicacion: ${pa.indicacion}, justificacion: ${pa.justificacion}`;
-    //         ul.appendChild(liPrestacion);
-    
-    //         let divResultadoPrestacion = document.createElement("div");
-    //         divResultadoPrestacion.className = "divResultadoPrestacion";
-    //         if (pa.resultadoPrestacion === null) {
-    //             let divAniadirResultado = document.createElement("div");
-    //             divAniadirResultado.className = "divAniadirResultado";
-    //             crearDivAniadirResultado(divAniadirResultado, pa.idPrescripcion, pa.idPrestacion, divResultadoPrestacion);
-    //             divResultadoPrestacion.appendChild(divAniadirResultado);
-    //         } else {
-    //             let liResultado = document.createElement("li");
-    //             liResultado.innerHTML = `Resultado/Observación: ${pa.resultadoPrestacion}`;
-    //             divResultadoPrestacion.appendChild(liResultado);
-    //         }
-    //         ul.appendChild(divResultadoPrestacion);
-    
-    //         let botonImprimirPrescripcion = document.createElement("button");
-    //         botonImprimirPrescripcion.innerHTML = "IMPRIMIR PRESCRIPCION";
-    //         botonImprimirPrescripcion.dataset.action = "imprimir";
-    //         botonImprimirPrescripcion.setAttribute("data-value", pa.idPrescripcion);
-    //         ul.appendChild(botonImprimirPrescripcion);
-    
-    //         idPrescripciones.delete(pa.idPrescripcion);
-    //         div.appendChild(ul);
-    //     }
-    // }
+})
 
 let divPrescripcionesAnterioresPaciente = document.querySelector("#prescripcionesAnterioresPaciente");
 divPrescripcionesAnterioresPaciente.addEventListener("click", (evento) => {
@@ -390,6 +331,7 @@ let acomodarPrescripciontesAnteriores = (prescripcionesAnteriores) => {
     }
     if(prestaciones){
         for(let p of prestaciones){
+            console.log(p.lado);
             let yaExiste = prescripciones.some(e => e.idPrescripcion === p.idPrescripcion);
             if(yaExiste){
                 let prescripcion = prescripciones.find(e => e.idPrescripcion === p.idPrescripcion);

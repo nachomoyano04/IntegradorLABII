@@ -99,7 +99,7 @@ const getPrescripcionByIdPaciente = async(idPaciente, idMedico) => {
                                     p.idPrescripcion, pp.id, pre.idPrestacion, m.idMedico, pc.idPaciente;`;
     try {
         const medicamentos = await pool.query(queryMedicamentos, [idPaciente, idMedico]);
-        const prestaciones = await pool.query(queryPrestaciones, [idPaciente, idMedico]);
+        const prestaciones = await pool.query(queryPrestaciones, [idMedico, idPaciente]);
         return [medicamentos[0], prestaciones[0]];
     } catch (error) {
         console.log(error);
