@@ -1,4 +1,4 @@
-import { borrarAutocompletadoAnterior, listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, configurarBotonCrearPrestacion, agregarAutocompletadoPrestacion, borrarAutocompletadoClickEverywhere, mensajeLlenarEspacioMedicamentoYPrestaciones } from "./prescribirFunciones.js";
+import {listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, configurarBotonCrearPrestacion, agregarAutocompletadoPrestacion, mensajeLlenarEspacioMedicamentoYPrestaciones } from "./prescribirFunciones.js";
 
 //SECCION AUTOCOMPLETADOS DE MEDICAMENTOS Y PRESTACIONES
 let inputMedicamentos  = document.querySelector("#inputMedicamentoPrescripcion");
@@ -15,7 +15,7 @@ axios('http://localhost:3000/prescribir?query=medicamentos')
         inputMedicamentos.addEventListener("input", (evento) => {
             let palabra = evento.target.value;
             let medicamentos = res.data.medicamentos;
-            console.log(medicamentos)
+            // console.log(medicamentos)
             if(medicamentos){
                 agregarAutocompletadoMedicamento(palabra, medicamentos, autocompletadoMedicamento, inputMedicamentos);
             }
@@ -23,7 +23,6 @@ axios('http://localhost:3000/prescribir?query=medicamentos')
     }else{
         inputMedicamentos.placeholder = "No existen medicamentos";
     }
-    borrarAutocompletadoClickEverywhere();
     configurarBotonCrearMedicamento(res.data.medicamentos);
     if(res.data.prestaciones.length > 0){
         inputPrestaciones.addEventListener("input", (evento) => {
@@ -66,7 +65,8 @@ selectPacientes.addEventListener("input", (evento) => {
         selectPacientes.style.border = "1px solid red";
         inputHiddenPacientes.value = "";
         inputHiddenPacientes.removeAttribute("data-value");
-        borrarAutocompletadoAnterior(areaPrescripcionesAnteriores);
+        areaPrescripcionesAnteriores.innerHTML = "";
+        // borrarAutocompletadoAnterior(areaPrescripcionesAnteriores);
     }
 })
 const llenarPrespripcionesAnteriores = (idPaciente , nombrePaciente) => {

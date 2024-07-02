@@ -10,16 +10,16 @@ import { getDoctorById} from "../models/medicos.js";
 
 const prescribirGet = async(req, res) => { //funcion que renderiza el form prescribir obteniendo los pacientes 
     try {
-        if(req.session.loggedin){
-            let roles = req.session.rol;
-            let tienePermiso = true;
-            for(let i = 0; i < roles.length; i++){
-                if(roles[i].idRol === 1){
-                    tienePermiso = false;
-                    break;
-                }
-            }
-            if(tienePermiso){
+        // if(req.session.loggedin){
+        //     let roles = req.session.rol;
+        //     let tienePermiso = true;
+        //     for(let i = 0; i < roles.length; i++){
+        //         if(roles[i].idRol === 1){
+        //             tienePermiso = false;
+        //             break;
+        //         }
+        //     }
+        //     if(tienePermiso){
                 let queryMedicamento = req.query.query;
                 if(queryMedicamento === "medicamentos"){
                     let medicamentos = await getMedicamento();
@@ -42,12 +42,12 @@ const prescribirGet = async(req, res) => { //funcion que renderiza el form presc
                     }
                     res.render("prescribir", {pacientes, usuario});
                 }
-            }else{
-                res.render("404", {sinPermiso:true})
-            }
-        }else{
-            res.redirect("/login");
-        }
+            // }else{
+            //     res.render("404", {sinPermiso:true})
+            // }
+        // }else{
+        //     res.redirect("/login");
+        // }
     } catch (error) {
         const mensajeDeError500 = `Error interno en el servidor: ${error}`
         res.status(500).render("404", {error500:true, mensajeDeError500});
