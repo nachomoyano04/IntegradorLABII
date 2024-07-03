@@ -123,12 +123,27 @@
 
 .pPrescripcionesAnteriores ul{
     border: 2px solid black;
+    list-style-type: none;
     border-radius: 15px;
     padding: 22px 45px;
 }
 
-.pPrescripcionesAnteriores li{
-    list-style-type: square;
+.groupPA{
+    background-color: #9497a7;
+    padding: 10px 10px;
+    border-radius: 5px;
+    margin: 10px 0px;
+    display: flex;
+    flex-direction: column;
+}
+.groupPA p{
+    margin: 0px;
+    padding: 10px 10px;
+}
+.pPrescripcionesAnteriores p{
+    background-color: #9497a7;
+    padding: 10px 10px;
+    border-radius: 7px;
 }
 
 .botonAniadirResultado{
