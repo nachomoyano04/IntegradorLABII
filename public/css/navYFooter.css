@@ -1,7 +1,5 @@
 /*BODY*/
         .bodyInicio{
-            /* background-color: #2C3E50;
-            margin: 0px; */
             display: flex;
             background-color: #2C3E50;
             margin: 0px;
@@ -17,12 +15,23 @@
             margin-top: 20px;
         }
         .cardBotones{
-            border-radius: 15px;
-            border: 1px solid rebeccapurple;
-            padding: 20px;
-            background-color: #587ca0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            border: 1px solid #CCC;
+            width: 500px;
+            height: 250px;
+            background-color: #000;
             text-decoration: none;
-            color: black;
+            color: wheat;
+            border-radius: 15px;
+            transition: 0.3s;
+        }
+        .cardBotones:hover{
+            font-size: 20px;
+            background-color: #CCC;
+            color: #000;
         }
 
 /*BARRA DE NAVEGACION*/

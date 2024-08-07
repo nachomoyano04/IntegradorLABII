@@ -28,8 +28,12 @@
     max-height: 200px;
     overflow-y: auto;
     z-index: 1000;
-    /* width: 100%; */
     font-size: 15px;
+    margin: 0px;
+    background-color: #fffbfb;
+    /* width: 100%; */
+    padding: 0px;
+    list-style-type: none
 }
 .autocompletadoMedicamentos div, .autocompletadoPrestaciones div{
     padding: 10px;
@@ -46,10 +50,6 @@
 }
 .inputMedicamentoPrescribir, .inputPrestacionPrescribir{
     width: 100%;
-}
-.autocompletadoMedicamentos::-webkit-scrollbar{
-    width: 0;
-    height: 0;
 }
 
 .autocompletadoPrestaciones ul{
@@ -101,7 +101,6 @@
 
 .tituloPrescripcionesAnteriores{
     font-size: 25px;
-    /* color: #2C3E50; */
     text-align: center;
 }
 
@@ -280,4 +279,18 @@
     .prescripcion .lista li {
         margin-bottom: 5px;
     }
+
+}
+.medicamentoLista:hover, .medicamentoListaFocus, .prestacionLista:hover, .prestacionListaFocus{
+    background-color: #ccc;
+    cursor:pointer;
+}
+.medicamentoLista, .prestacionLista{
+    padding: 10px;
+    border: 1px solid black;
+}
+
+.inputMedicamentoPrescribir input{
+    box-sizing: border-box;
+    width: 100%;
 }

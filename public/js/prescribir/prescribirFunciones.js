@@ -10,7 +10,7 @@ const mensajeLlenarEspacioMedicamentoYPrestaciones = (elemento, mensajeError, co
         elemento.placeholder = placeholder;
     },1000)
 }
-
+//---------------------------------------------------------------------------------//
 /*Listener para cerrar autocompletados si toca cualquier lugar de la pantalla*/
 const formulariosPrescribir = document.querySelector("#formulariosPrescribir");
 formulariosPrescribir.addEventListener("click", () => {
@@ -33,9 +33,7 @@ formularioPrescripcion.addEventListener("click", (e) => {
                 divMedicamento.previousElementSibling.remove();
                 divMedicamento.remove();
                 if(nroMedicamento){
-                    console.log(idsDeMedicamentos);
-                    idsDeMedicamentos = idsDeMedicamentos.filter(e => e.id !== nroMedicamento);
-                    console.log(idsDeMedicamentos);
+                    idsDeMedicamentos = idsDeMedicamentos.filter(e => e.id != nroMedicamento);
                 }
             }break;
             case "eliminarPrestacion": {
@@ -45,7 +43,7 @@ formularioPrescripcion.addEventListener("click", (e) => {
                 divPrestacion.previousElementSibling.remove();
                 divPrestacion.remove();
                 if(nroPrestacion){
-                    idsDePrestaciones = idsDePrestaciones.filter(e => e.id !== nroPrestacion);
+                    idsDePrestaciones = idsDePrestaciones.filter(e => e.id != nroPrestacion);
                 }
             }break;
             case "editarMedicamento": {
@@ -63,8 +61,7 @@ formularioPrescripcion.addEventListener("click", (e) => {
             case "agregarMedicamento": {
                 let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
                 if(idMedicamentoDetalle.value !== ""){ // CHEQUEAMOS DE QUE HAYA UN MEDICAMENTO SELECCIONADO ANTES DE AÑADIR OTRO...
-                    agregarNuevoMedicamento(medicamentos);
-                    agregarNewMedicamento();
+                    agregarNuevo("medicamento");
                 }else{
                     mensajeLlenarEspacioMedicamentoYPrestaciones(inputMedicamentoPrescripcion, "SELECCIONE UN MEDICAMENTO ANTES DE AÑADIR OTRO", "red");
                 }
@@ -72,53 +69,240 @@ formularioPrescripcion.addEventListener("click", (e) => {
             case "agregarPrestacion": {
                 let idPrestacion = document.querySelector("#idPrestacion");
                 if(idPrestacion.value !== ""){ // CHEQUEAMOS DE QUE HAYAN SELECCIONADO UNA PRESTACIÓN PRIMERO 
-                    agregarNuevaPrestacion(prestaciones);
+                    agregarNuevo("prestacion");
                 }else{
                     mensajeLlenarEspacioMedicamentoYPrestaciones(inputPrestacionPrescripcion, "SELECCIONE UNA PRESTACIÓN ANTES DE AÑADIR OTRA", "red");
                 }
-                console.log("rawP")
             }break;
         }
     }
 });
 
-const agregarNewMedicamento = ()=>{
+const agregarNuevo = (elemento)=>{
     axios('http://localhost:3000/prescribir?query=medicamentos')
     .then(res => {
-        //implementar que a partir de los medicamentos de la bd, hacer la funcion para cuando tocan el boton
-        //agregar un nuevo medicamento...
+        if(elemento === "medicamento"){
+            let medicamentos = res.data.medicamentos;
+            medicamentos = medicamentos.filter(e => {
+                return !idsDeMedicamentos.find(i => i.id == e.id);
+            });
+            medicamentos = medicamentos.map(e => {
+                const id = e.id;
+                const nombre = `${e.nombreGenerico} ${e.cantidadConcentracion}${e.unidadMedidaCon} ${e.forma} x${e.cantidadPresentacion}${e.unidadMedidaPres}`
+                return {id, nombre};
+            });
+            // medicamentos = medicamentos.filter(e => idsDeMedicamentos.find(i => e.id !== i.id));
+            let inputsDeMedicamentos = document.querySelectorAll(".inputMedicamentoPrescribir");
+            if(inputsDeMedicamentos.length < 5){
+                let contador = consultarQueNumerosQuedanDisponiblesDeMedicamentos()[0];
+                let divMedicamentos = document.querySelector("#divMedicamentos");
+                const label = document.createElement("label"); label.innerHTML = `Medicamento ${contador+1}`;
+                const divInput = document.createElement("div");divInput.className = "inputMedicamentoPrescribir";
+                divInput.id=`m${contador}`; //le ponemos un id para poder identificar el medicamento a eliminar 
+                const medicamento = `
+                                        <div class="divAutocompletadoMedicamento" id="${contador}">
+                                            <div class="inputYBotonEliminarMedicamento" id="m${contador}inputYBotonEliminarMedicamento">
+                                                <input class="classEnComunCSS" id="inputMedicamentoPrescripcion${contador}" type="text" placeholder="opcional" autocomplete = "off", required>
+                                                <button class="tooltip eliminarMedicamento" type="button" data-action="eliminarMedicamento" id="mb${contador}">
+                                                    <i class="fa-solid fa-trash-can" style="color: #f50000;"></i>
+                                                    <p class="tooltiptext">Eliminar medicamento</p>
+                                                </button> 
+                                            </div>
+                                            <input class="idMedicamentoDetalleHidden" type="hidden" name="idMedicamentoDetalle" id="idMedicamentoDetalle${contador}">
+                                            <div class="autocompletadoMedicamentos" id="m${contador}autoMed"></div>
+                                        </div>`;
+                divInput.innerHTML = medicamento;
+                divMedicamentos.appendChild(label);    
+                divMedicamentos.appendChild(divInput);
+                let input = document.querySelector(`#inputMedicamentoPrescripcion${contador}`);
+                let autocompletadoMedicamento = document.querySelector(`#m${contador}autoMed`);
+                let inputHidden = document.querySelector(`#idMedicamentoDetalle${contador}`);
+                autocompleteFunction(medicamentos, input, autocompletadoMedicamento, inputHidden, input.offsetWidth, "medicamentoLista", "medicamentoListaFocus");
+            }else{
+                mensajeAlerta("warning", "Máximo 5 medicamentos");
+            }
+        }else{
+            let prestaciones = res.data.prestaciones;
+            prestaciones = prestaciones.map(e => {
+                const id = e.idPrestacion;
+                const nombre = e.nombrePrestacion;
+                return {id, nombre};
+            })
+            let inputsPrestaciones = document.querySelectorAll(".inputPrestacionPrescribir");
+            if(inputsPrestaciones.length < 5){
+                // let divPrestaciones = document.querySelector("#divPrestaciones");
+                let numerosDisponibles = getNumerosDisponiblesPrestaciones();
+                let contador = numerosDisponibles[0];
+                const label = document.createElement("label"); label.innerHTML = `Prestación ${contador+1}`;
+                const divInput = document.createElement("div"); divInput.className = "inputPrestacionPrescribir";
+                divInput.id = `p${contador}`; 
+                const prestacion = `<div class="divAutocompletadoPrestacion">
+                                        <div class="inputYBotonEliminarPrestacion" id="m${contador}inputYBotonEliminarPrestacion">
+                                            <input class="classEnComunCSS" id="inputPrestacionPrescripcion${contador}" type="text" placeholder="opcional" autocomplete="off", required>
+                                            <button class="tooltip eliminarPrestacion" type="button" data-action="eliminarPrestacion" id="pb${contador}">
+                                                <i class="fa-solid fa-trash-can" style="color: #f50000;"></i>
+                                                <p class="tooltiptext">Eliminar prestación</p>
+                                            </button>
+                                        </div>
+                                        <input class="idPrestacionHidden" type="hidden" name="idPrestacion" id="idPrestacion${contador}">
+                                        <div class="autocompletadoPrestaciones" id="p${contador}autoPres"></div>
+                                    </div>
+                                    <div id="divJustificacionPrestacion${contador}" class="divJustificacion"></div>`;
+                divInput.innerHTML = prestacion;
+                divPrestaciones.appendChild(label);
+                divPrestaciones.appendChild(divInput);
+                let input = document.querySelector(`#inputPrestacionPrescripcion${contador}`);
+                let autocompletado = document.querySelector(`#p${contador}autoPres`);
+                let inputHidden = document.querySelector(`#idPrestacion${contador}`);
+                autocompleteFunction(prestaciones, input, autocompletado, inputHidden, input.offsetWidth, "prestacionLista", "prestacionListaFocus");
+            }else{
+                mensajeAlerta("warning", "Máximo 5 prestaciones");
+            }
+        }
     })
     .catch(error => console.log(error));
 }
 
 /*Listener que manipula las selecciones de medicamentos de los autocompletados */
 let divMedicamentos = document.querySelector("#divMedicamentos");
-divMedicamentos.addEventListener("click", (e) => {
-        let objetivo = e.target.closest(".medicamentoAutocomplete");
-        if(objetivo){
-            let numeroDeAutocompletado = parseInt(objetivo.parentElement.id.slice(1,2)) || 0;
-            let inputMedicamento = document.querySelector("#inputMedicamentoPrescripcion");
-            let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
-            if(numeroDeAutocompletado > 0){
-                inputMedicamento = document.querySelector(`#inputMedicamentoPrescripcion${numeroDeAutocompletado}`);
-                idMedicamentoDetalle = document.querySelector(`#idMedicamentoDetalle${numeroDeAutocompletado}`);
+divMedicamentos.addEventListener("click", async(e) => {
+    let objetivo = e.target.closest(".medicamentoLista");
+    if(objetivo){
+        alSeleccionarMedicamento(objetivo);
+    }
+    let objetivo2 = e.target.closest(".classEnComunCSS");
+    if(objetivo2){
+        let divAutocompletadoMedicamento = objetivo2.closest(".divAutocompletadoMedicamento");
+        let divAutocompletado = divAutocompletadoMedicamento.querySelector(".autocompletadoMedicamentos");
+        if(divAutocompletado.innerHTML === "" && !objetivo2.readOnly){
+            let medicamentos = await getListado("medicamentos");
+            medicamentos = medicamentos.map(e => {
+                const id = e.id;
+                const nombre = `${e.nombreGenerico} ${e.cantidadConcentracion}${e.unidadMedidaCon} ${e.forma} x${e.cantidadPresentacion}${e.unidadMedidaPres}`;
+                return {id, nombre};
+            });
+            divAutocompletado.style.width = objetivo2.offsetWidth;
+            divAutocompletado.innerHTML = "";
+            for(let m of medicamentos){
+                divAutocompletado.innerHTML += `<li class="medicamentoLista" data-value="${m.id}">${m.nombre}</li>`; 
             }
-            let idMedicamento = objetivo.getAttribute("data-value");
-            inputMedicamento.value = objetivo.textContent;
-            inputMedicamento.readOnly = true; //Limitamos a que no se pueda editar el input una vez seleccionado el medicamento...
-            idsDeMedicamentos.push({id:idMedicamento, nombre:objetivo.textContent});
-            idMedicamentoDetalle.value = idMedicamento; //AÑADIMOS EL ID AL INPUT HIDDEN QUE MANDA LA INFO EN EL POST
-            agregarCamposAMedicamentoSeleccionado(numeroDeAutocompletado);
-            // AGREGAMOS EL BOTON EDITAR INPUT MEDICAMENTO
-            let divParaAgregarBoton = document.querySelector(`#m${numeroDeAutocompletado}inputYBotonEliminarMedicamento`)
-            if(numeroDeAutocompletado>0){
-                    agregarBotonEditarInput(divParaAgregarBoton, "editarMedicamento", "editarMedicamento", `em${numeroDeAutocompletado}`);
-            }else{
-                divParaAgregarBoton = document.querySelector(".divLabelYBtnAgregarMedicamento");
-                agregarBotonEditarInput(divParaAgregarBoton, "editarMedicamento", "editarMedicamento", `em`);
+        }else{
+            divAutocompletado.innerHTML = "";
+        }
+    }
+})
+
+const getListado = async (tipo) => {
+    try {
+        const res = await axios("http://localhost:3000/prescribir?query=medicamentos")
+        if(tipo === "medicamentos"){
+            return res.data.medicamentos;
+        }else if(tipo === "prestaciones"){
+            return res.data.prestaciones;
+        }else{
+            return {};
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+/*Listener que maneja los autocompletados en los inputs de medicamentos*/
+divMedicamentos.addEventListener("input", async(e) => {
+    let objetivo = e.target.closest(".divAutocompletadoMedicamento");
+    if(objetivo){
+        let medicamentos = await getListado("medicamentos");
+        medicamentos = medicamentos.map(e => {
+            const id = e.id;
+            const nombre = `${e.nombreGenerico} ${e.cantidadConcentracion}${e.unidadMedidaCon} ${e.forma} x${e.cantidadPresentacion}${e.unidadMedidaPres}`;
+            return {id, nombre};
+        });
+        let arreglo = medicamentos.filter(e => !idsDeMedicamentos.some(i => i.id == e.id));
+        let lista = objetivo.querySelector(".autocompletadoMedicamentos");
+        let inputHidden = objetivo.querySelector(".idMedicamentoDetalleHidden");
+        let palabra = e.target.value.toLowerCase();
+        lista.style.width = `${objetivo.querySelector("input").offsetWidth}px`;
+        lista.innerHTML = "";
+        if(palabra !== ""){
+            for(let a of arreglo){
+                if(a.nombre.toLowerCase().startsWith(palabra)){
+                    lista.innerHTML += `<li class="medicamentoLista" data-value="${a.id}">${a.nombre}</li>`; 
+                }
             }
         }
+        if(palabra === ""){
+            for(let a of arreglo){
+                lista.innerHTML += `<li class="medicamentoLista" data-value="${a.id}">${a.nombre}</li>`; 
+            }
+        }
+        if(inputHidden.value){
+            idsDeMedicamentos = idsDeMedicamentos.filter(e => e.id != inputHidden.value);
+            inputHidden.value = "";
+        }
+    }
+});
+
+/*Listener que maneja las selecciones de flechita para abajo y para arriba de autocompletados en los inputs de medicamentos*/
+let contadorTeclas = 0;
+divMedicamentos.addEventListener("keydown", (e) => {
+    let objetivo = e.target.closest(".divAutocompletadoMedicamento");
+    if(objetivo){
+        let lista = objetivo.querySelector(".autocompletadoMedicamentos");
+            if(e.code === "ArrowUp" || e.code === "ArrowDown"){
+                if(lista.hasChildNodes()){
+                    if(e.code === "ArrowUp" && contadorTeclas > 0){
+                        contadorTeclas--;
+                    }
+                    if(e.code === "ArrowDown" && contadorTeclas < lista.childNodes.length){
+                        contadorTeclas++;
+                    }
+                    for(let i = 0; i < lista.children.length; i++){
+                        if(contadorTeclas-1 === i){
+                            lista.children[i].classList.add("medicamentoListaFocus");
+                            lista.children[i].scrollIntoView({ behavior: 'smooth'});
+                        }else{
+                            lista.children[i].classList.remove("medicamentoListaFocus");    
+                        }
+                    }
+                }
+            }else if(e.code == "Enter"){
+                e.preventDefault();
+                let elemento = document.getElementsByClassName("medicamentoListaFocus")[0];
+                alSeleccionarMedicamento(elemento);
+                lista.innerHTML = "";
+            }else{
+                contadorTeclas = 0;
+            }
+    }
 })
+
+
+
+const alSeleccionarMedicamento = (objetivo) => {
+    let numeroDeAutocompletado = parseInt(objetivo.parentElement.id.slice(1,2)) || 0;
+    let inputMedicamento = document.querySelector("#inputMedicamentoPrescripcion");
+    let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
+    if(numeroDeAutocompletado > 0){
+        inputMedicamento = document.querySelector(`#inputMedicamentoPrescripcion${numeroDeAutocompletado}`);
+        idMedicamentoDetalle = document.querySelector(`#idMedicamentoDetalle${numeroDeAutocompletado}`);
+    }
+    let idMedicamento = parseInt(objetivo.getAttribute("data-value"));
+    inputMedicamento.value = objetivo.textContent;
+    inputMedicamento.readOnly = true; //Limitamos a que no se pueda editar el input una vez seleccionado el medicamento...
+    idsDeMedicamentos.push({id:idMedicamento, nombre:objetivo.textContent});
+    idMedicamentoDetalle.value = idMedicamento; //AÑADIMOS EL ID AL INPUT HIDDEN QUE MANDA LA INFO EN EL POST
+    agregarCamposAMedicamentoSeleccionado(numeroDeAutocompletado);
+    // AGREGAMOS EL BOTON EDITAR INPUT MEDICAMENTO
+    let divParaAgregarBoton = document.querySelector(`#m${numeroDeAutocompletado}inputYBotonEliminarMedicamento`)
+    if(numeroDeAutocompletado>0){
+            agregarBotonEditarInput(divParaAgregarBoton, "editarMedicamento", "editarMedicamento", `em${numeroDeAutocompletado}`);
+    }else{
+        divParaAgregarBoton = document.querySelector(".divLabelYBtnAgregarMedicamento");
+        agregarBotonEditarInput(divParaAgregarBoton, "editarMedicamento", "editarMedicamento", `em`);
+    }
+}
+
+
 
 //-------------------------------SECCIÓN LISTAR PRESCRIPCIONES ANTERIORES-------------------------------//
 const listadoDePrescripcionesAnteriores = (prescripcionesAnteriores, idPaciente) => {
@@ -347,62 +531,6 @@ const imprimir = (prescripcion) => {
 
 //-------------------------------SECCIÓN FUNCIONES DEL AUTOCOMPLETADO MEDICAMENTO-------------------------------//
 
-const configurarBotonCrearMedicamento = (medicamentos) => {
-    // let botonAgregarMedicamento = document.querySelector("#botonAgregarMedicamento");
-    // let inputMedicamentoPrescripcion = document.querySelector("#inputMedicamentoPrescripcion");
-    // botonAgregarMedicamento.addEventListener("click", () => {
-    //     let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
-    //     // if(idMedicamentoDetalle.value !== ""){ // CHEQUEAMOS DE QUE HAYA UN MEDICAMENTO SELECCIONADO ANTES DE AÑADIR OTRO...
-    //     //     agregarNuevoMedicamento(medicamentos);
-    //     // }else{
-    //     //     mensajeLlenarEspacioMedicamentoYPrestaciones(inputMedicamentoPrescripcion, "SELECCIONE UN MEDICAMENTO ANTES DE AÑADIR OTRO", "red");
-    //     // }
-    // })
-}
-
-const agregarNuevoMedicamento = (medicamentos) => {
-    let inputsMedicamentos = document.querySelectorAll(".inputMedicamentoPrescribir");
-    if(inputsMedicamentos.length < 5){
-        let numerosDisponibles = consultarQueNumerosQuedanDisponiblesDeMedicamentos();
-        let contador = numerosDisponibles[0];
-        let divMedicamentos = document.querySelector("#divMedicamentos");
-        const label = document.createElement("label"); label.innerHTML = `Medicamento ${contador+1}`;
-        const divInput = document.createElement("div");divInput.className = "inputMedicamentoPrescribir";
-        divInput.id=`m${contador}`; //le ponemos un id para poder identificar el medicamento a eliminar 
-        const medicamento = `
-                                <div class="divAutocompletadoMedicamento">
-                                    <div class="inputYBotonEliminarMedicamento" id="m${contador}inputYBotonEliminarMedicamento">
-                                        <input class="classEnComunCSS" id="inputMedicamentoPrescripcion${contador}" type="text" placeholder="opcional" autocomplete = "off", required>
-                                        <button class="tooltip eliminarMedicamento" type="button" data-action="eliminarMedicamento" id="mb${contador}">
-                                            <i class="fa-solid fa-trash-can" style="color: #f50000;"></i>
-                                            <p class="tooltiptext">Eliminar medicamento</p>
-                                        </button> 
-                                    </div>
-                                    <input class="idMedicamentoDetalleHidden" type="hidden" name="idMedicamentoDetalle" id="idMedicamentoDetalle${contador}">
-                                    <div class="autocompletadoMedicamentos" id="m${contador}autoMed"></div>
-                                </div>`;
-        divInput.innerHTML = medicamento;
-        divMedicamentos.appendChild(label);    
-        divMedicamentos.appendChild(divInput);
-        let elemento = document.querySelector(`#inputMedicamentoPrescripcion${contador}`);
-        let autocompletadoMedicamentos = document.querySelectorAll(".autocompletadoMedicamentos");
-        let autocompletado = [];
-        for(let am of autocompletadoMedicamentos){
-            if(parseInt(am.parentElement.parentElement.id.slice(1)) === contador){
-                autocompletado = am;
-                break;
-            }
-        }
-        elemento.addEventListener("input", (event) => {
-            let palabra = event.target.value;
-            agregarAutocompletadoMedicamento(palabra, medicamentos, autocompletado, elemento, contador);
-        })
-        // agregarEscuchadoresDeEventosAMedicamentos(medicamentos, autocompletado, elemento, contador)
-    }else{
-        Swal.fire({icon:"warning", title:"Máximo 5 medicamentos", timer: 2000});
-    }
-}
-
 const consultarQueNumerosQuedanDisponiblesDeMedicamentos = () => {
     let medicamentos = document.querySelectorAll(".inputMedicamentoPrescribir");
     let numerosOcupados = [];
@@ -416,63 +544,8 @@ const consultarQueNumerosQuedanDisponiblesDeMedicamentos = () => {
     numeros = numeros.filter((n) => !numerosOcupados.includes(n));
     return numeros;
 }
+
 let idsDeMedicamentos = [];
-const agregarAutocompletadoMedicamento = (palabra, medicamentos, autocompletadoMedicamento, inputMedicamentos, contador) => {
-    if(palabra !== ""){
-        let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
-        if(contador){
-            idMedicamentoDetalle = document.querySelector(`#idMedicamentoDetalle${contador}`);
-        }
-        //nos fijamos de que si el contenido del input no coincide con algun medicamento eliminamos el id del medicamento
-        if(!idsDeMedicamentos.find(e => e.nombre === palabra) && idMedicamentoDetalle.value){
-            idMedicamentoDetalle.value = "";
-        }
-        autocompletadoMedicamento.innerHTML="";
-        let medicamentoRecomendado = medicamentos.filter(e => {
-            const medicamentoString = e.nombreGenerico.concat(" ", e.cantidadConcentracion, " ",e.unidadMedidaCon, " ", e.forma, " x", e.cantidadPresentacion , " ", e.unidadMedidaPres);
-            const comparacion = medicamentoString.toLowerCase().includes(palabra.toLowerCase())
-            return comparacion && !idsDeMedicamentos.some(i => i.id == e.id); // mostramos los recomendados y que no hayan sido elegidos antes...
-        });
-        for(let mr of medicamentoRecomendado){
-            let div = document.createElement("div");
-            let contenido = mr.nombreGenerico.concat(" ", mr.cantidadConcentracion, " ",mr.unidadMedidaCon, " ", mr.forma, " x", mr.cantidadPresentacion , " ", mr.unidadMedidaPres);
-            div.innerHTML = contenido;
-            div.className = "medicamentoAutocomplete";
-            div.setAttribute("data-value", mr.id);
-            autocompletadoMedicamento.appendChild(div);
-        }
-    }else if(palabra === ""){
-        //borramos el boton editar creado en la posicion que va el contador...
-        if(contador){
-            let botonEditarInput = document.querySelector(`#em${contador}`);
-            if(botonEditarInput)botonEditarInput.remove();
-        }else{ //si es el primer input
-            let botonEditarInput = document.querySelector(`#em`);
-            if(botonEditarInput)botonEditarInput.remove();
-        }
-        autocompletadoMedicamento.innerHTML = "";
-
-        let idMedicamentoDetalle = document.querySelector("#idMedicamentoDetalle");
-        let divJustificacion = document.querySelector("#divJustificacion");
-        if(contador){ 
-            idMedicamentoDetalle = document.querySelector(`#idMedicamentoDetalle${contador}`);
-            let divJustificacionContador = document.querySelector(`#divJustificacion${contador}`)
-            if(divJustificacionContador){
-                divJustificacionContador.remove();
-            }
-        }else{
-            divJustificacion.innerHTML = "";
-        }
-
-        //borramos el id del medicamento de nuestro arreglo de ids ya seleccionados
-        let indice = idsDeMedicamentos.indexOf(idsDeMedicamentos.find(e => e.id === parseInt(idMedicamentoDetalle.value)));
-        if(indice > -1){
-            idsDeMedicamentos.splice(indice, 1);
-        }
-        //seteamos el valor del idMedicamentoDetalle a vacío nuevamente...
-        idMedicamentoDetalle.value = "";
-    }
-}
 
 //Función que permite editar un input de medicamento una vez que es seleccionado uno de estos...
 const agregarBotonEditarInput = (divParaAgregarBoton, nombreDeClase, action, idButton) => {
@@ -518,7 +591,7 @@ const agregarCamposAMedicamentoSeleccionado = (contador) => {
         }
     }else if(contador > 0){
         let divJustificacion = document.createElement("div");
-        let inputMedicamentoPrescribir = document.querySelector(`.inputMedicamentoPrescribir#m${contador}`);
+        let inputMedicamento = document.querySelector(`.inputMedicamentoPrescribir#m${contador}`);
         divJustificacion.className="divJustificacion";divJustificacion.id=`divJustificacion${contador}`;
         let inputs = `
                 <div class="divDosis">
@@ -535,74 +608,18 @@ const agregarCamposAMedicamentoSeleccionado = (contador) => {
                 </div>`;
         divJustificacion.innerHTML = inputs;
         let tieneDivJustificacion = false;
-        for(let ic of inputMedicamentoPrescribir.children){
+        for(let ic of inputMedicamento.children){
             if(ic.id === `divJustificacion${contador}`){    
                 tieneDivJustificacion = true;
                 break;
             }
         }
         if(!tieneDivJustificacion){ // chequeamos de que no haya un divJustificacion ya creado...
-            inputMedicamentoPrescribir.appendChild(divJustificacion);
+            inputMedicamento.appendChild(divJustificacion);
         }
     }
 }
 
-//-------------------------------SECCIÓN FUNCIONES DEL AUTOCOMPLETADO PRESTACIÓN-------------------------------//
-
-const configurarBotonCrearPrestacion = (prestaciones) => {
-    let botonAgregarPrestacion = document.querySelector("#botonAgregarPrestacion");
-    botonAgregarPrestacion.addEventListener("click", () => {
-        let idPrestacion = document.querySelector("#idPrestacion");
-        if(idPrestacion.value !== ""){ // CHEQUEAMOS DE QUE HAYAN SELECCIONADO UNA PRESTACIÓN PRIMERO 
-            agregarNuevaPrestacion(prestaciones);
-        }else{
-            mensajeLlenarEspacioMedicamentoYPrestaciones(inputPrestacionPrescripcion, "SELECCIONE UNA PRESTACIÓN ANTES DE AÑADIR OTRA", "red");
-        }
-    })
-}
-
-const agregarNuevaPrestacion = (prestaciones) => {
-    let inputsPrestaciones = document.querySelectorAll(".inputPrestacionPrescribir");
-    if(inputsPrestaciones.length < 5){
-        // let divPrestaciones = document.querySelector("#divPrestaciones");
-        let numerosDisponibles = getNumerosDisponiblesPrestaciones();
-        let contador = numerosDisponibles[0];
-        const label = document.createElement("label"); label.innerHTML = `Prestación ${contador+1}`;
-        const divInput = document.createElement("div"); divInput.className = "inputPrestacionPrescribir";
-        divInput.id = `p${contador}`; 
-        const prestacion = `<div class="divAutocompletadoPrestacion">
-                                <div class="inputYBotonEliminarPrestacion" id="m${contador}inputYBotonEliminarPrestacion">
-                                    <input class="classEnComunCSS" id="inputPrestacionPrescripcion${contador}" type="text" placeholder="opcional" autocomplete="off", required>
-                                    <button class="tooltip eliminarPrestacion" type="button" data-action="eliminarPrestacion" id="pb${contador}">
-                                        <i class="fa-solid fa-trash-can" style="color: #f50000;"></i>
-                                        <p class="tooltiptext">Eliminar prestación</p>
-                                    </button>
-                                </div>
-                                <input class="idPrestacionHidden" type="hidden" name="idPrestacion" id="idPrestacion${contador}">
-                                <div class="autocompletadoPrestaciones" id="p${contador}autoPres"></div>
-                            </div>
-                            <div id="divJustificacionPrestacion${contador}" class="divJustificacion"></div>`;
-        divInput.innerHTML = prestacion;
-        divPrestaciones.appendChild(label);
-        divPrestaciones.appendChild(divInput);
-        let elemento = document.querySelector(`#inputPrestacionPrescripcion${contador}`);
-        let autocompletadoPrestaciones = document.querySelectorAll(".autocompletadoPrestaciones");
-        let autocompletadoPrestacion = [];
-        for(let ap of autocompletadoPrestaciones){ 
-            if(parseInt(ap.parentElement.parentElement.id.slice(1)) === contador){
-                autocompletadoPrestacion = ap;
-                break;
-            }
-        }
-        agregarEscuchadoresDeEventosAPrestaciones(prestaciones, autocompletadoPrestacion, elemento, contador);
-    }else{
-        Swal.fire({
-            icon:"warning",
-            title:"Máximo 5 prestaciones",
-            timer: 2000
-        })
-    }
-}
 
 const getNumerosDisponiblesPrestaciones = () => {
     let inputsPrescribir = document.querySelectorAll(".inputPrestacionPrescribir");
@@ -618,105 +635,119 @@ const getNumerosDisponiblesPrestaciones = () => {
     return numeros;
 }
 
-const agregarEscuchadoresDeEventosAPrestaciones = (prestaciones, autocompletadoPrestaciones, elemento, contador) => {
-    elemento.addEventListener("input", (event) => {
-        let palabra = event.target.value;
-        agregarAutocompletadoPrestacion(palabra, prestaciones, autocompletadoPrestaciones, elemento, contador);
-    })
-}
 let idsDePrestaciones = [];
-const agregarAutocompletadoPrestacion = (palabra, prestaciones, autocompletadoPrestacion, inputPrestaciones, contador) => {
-    let prestacionesEnString = prestaciones.map(e => JSON.stringify(e));
-        autocompletadoPrestacion.innerHTML = "";
-        if(palabra !== ""){
-            let idPrestacion = document.getElementById("idPrestacion");
-            if(contador){
-                idPrestacion = document.getElementById(`idPrestacion${contador}`)
-            }
-            // Nos aseguramos de que si borra un caracter nuevo o elimina uno y ya hay un elemento seleccionado, se elimine el value del input hidden
-            if(!idsDePrestaciones.find(e => e.nombre === palabra) && idPrestacion.value){
-                //sacamos el id de la prestacion del arreglo
-                let indice = idsDePrestaciones.indexOf(idsDePrestaciones.find(e => e.id === parseInt(idPrestacion.value)));
-                if(indice > -1){
-                    idsDePrestaciones.splice(indice, 1);
-                }
-                idPrestacion.value = "";
-            }
-
-            let presta = prestacionesEnString.filter(e => {
-                let idPrestacion = JSON.parse(e).idPrestacion;
-                //nos aseguramos de que ademas que coincida que no esté en otro medicamento ya
-                return e.toLowerCase().includes(palabra.toLowerCase()) && !idsDePrestaciones.some(i => i.id == idPrestacion);
-            });
-            for(let p of presta){
-                let div = document.createElement("div");
-                let pre = JSON.parse(p);
-                div.className = "prestacionAutocomplete";
-                div.innerHTML = pre.nombrePrestacion;
-                div.setAttribute("data-value", pre.idPrestacion);
-                autocompletadoPrestacion.appendChild(div);
-            }
-        }else{
-            //borramos el boton editar creado en la posicion que va el contador...
-            if(contador){
-                let botonEditar = document.querySelector(`#em${contador}`);
-                if(botonEditar)botonEditar.remove();
-                let divJustificacion = document.querySelector(`#divJustificacionPrestacion${contador}`);
-                if(divJustificacion){
-                    divJustificacion.innerHTML = "";
-                }
-            }else{
-                let botonEditar = document.querySelector(`#em`);
-                if(botonEditar)botonEditar.remove();
-                let divJustificacion = document.querySelector(`#divJustificacionPrestacion`);
-                if(divJustificacion){
-                    divJustificacion.innerHTML = "";
-                }
-            }
-
-            autocompletadoPrestacion.innerHTML = "";
-            let idPrestacion = document.getElementById("idPrestacion");
-            if(contador){
-                idPrestacion = document.getElementById(`idPrestacion${contador}`);
-            }
-            //sacamos el id de la prestacion del arreglo
-            let indice = idsDePrestaciones.indexOf(idsDePrestaciones.find(e => e.id === parseInt(idPrestacion.value)));
-            if(indice > -1){
-                idsDePrestaciones.splice(indice, 1);
-            }
-            idPrestacion.value = "";
-        }
-}
 
 const divPrestaciones = document.querySelector("#divPrestaciones");
-divPrestaciones.addEventListener("click", (evento) => {
-    let objetivo = evento.target.closest(".prestacionAutocomplete");
+divPrestaciones.addEventListener("click", async(evento) => {
+    let objetivo = evento.target.closest(".prestacionLista");
     if(objetivo){
-        let numeroDePrestacion = (objetivo.parentElement.id).slice(1,2) || 0;
-        let ipp = document.querySelector("#inputPrestacionPrescripcion");
-        let ip = document.querySelector("#idPrestacion");
-        let divJustificacionPrestacion = document.querySelector("#divJustificacionPrestacion");
-        let idPrestacion = objetivo.getAttribute("data-value"); 
-        if(numeroDePrestacion){
-            ip = document.querySelector(`#idPrestacion${numeroDePrestacion}`);
-            ipp = document.querySelector(`#inputPrestacionPrescripcion${numeroDePrestacion}`);
-            divJustificacionPrestacion = document.querySelector(`#divJustificacionPrestacion${numeroDePrestacion}`);
-        } 
-        ipp.value = objetivo.textContent;
-        ipp.readOnly = true;
-        ip.value = idPrestacion;
-        idsDePrestaciones.push({id: idPrestacion, nombre: objetivo.textContent});
-        agregarCamposJustificacionPrestacion(idPrestacion, divJustificacionPrestacion);
-        //Agregamos el boton editar prestación dependiendo si es la primera prestación o las demás...
-        let divParaAgregarBoton = document.querySelector(".divLabelYBtnAgregarPrestacion");
-        if(numeroDePrestacion){
-            divParaAgregarBoton = document.querySelector(`#m${numeroDePrestacion}inputYBotonEliminarPrestacion`);
-            agregarBotonEditarInput(divParaAgregarBoton, "editarPrestacion", "editarPrestacion", `ep${numeroDePrestacion}`)
-        }else{
-            agregarBotonEditarInput(divParaAgregarBoton, "editarPrestacion", "editarPrestacion", "ep");
+        alSeleccionarPrestacion(objetivo);  
+    }
+    let objetivo2 = evento.target.closest(".classEnComunCSS");
+    if(objetivo2){
+        let divAutocompletadoPrestacion = objetivo2.closest(".divAutocompletadoPrestacion");
+        let autocompletadoPrestaciones = divAutocompletadoPrestacion.querySelector(".autocompletadoPrestaciones");
+        if(autocompletadoPrestaciones.innerHTML === "" && !objetivo2.readOnly){
+            let prestaciones = await getListado("prestaciones");
+            autocompletadoPrestaciones.style.width = objetivo2.offsetWidth;
+            prestaciones = prestaciones.map(e => {
+                const id = e.idPrestacion;
+                const nombre = e.nombrePrestacion;
+                return {id, nombre};
+            })
+            for(let p of prestaciones){
+                autocompletadoPrestaciones.innerHTML += `<li class="prestacionLista" data-value="${p.id}">${p.nombre}</li>`; 
+            }
         }
     }
 })
+
+divPrestaciones.addEventListener("input", async (evento) => {
+    let objetivo = evento.target.closest(".classEnComunCSS");
+    if(objetivo){
+        let prestaciones = await getListado("prestaciones");
+        let divAutocompletadoPrestacion = objetivo.closest(".divAutocompletadoPrestacion");
+        let autocompletadoPrestaciones = divAutocompletadoPrestacion.querySelector(".autocompletadoPrestaciones");
+        autocompletadoPrestaciones.style.width = objetivo.offsetWidth; 
+        let inputHidden = divAutocompletadoPrestacion.querySelector("#idPrestacion");
+        let palabra = evento.target.value;
+        if(palabra){
+            autocompletadoPrestaciones.innerHTML = "";
+            for(let p of prestaciones){
+                if(p.nombrePrestacion.toLowerCase().startsWith(palabra.toLowerCase())){
+                    autocompletadoPrestaciones.innerHTML += `<li class="prestacionLista" data-value="${p.idPrestacion}">${p.nombrePrestacion}</li>`;
+                }
+            }
+        }else if(palabra === ""){
+            for(let p of prestaciones){
+                autocompletadoPrestaciones.innerHTML += `<li class="prestacionLista" data-value="${p.idPrestacion}">${p.nombrePrestacion}</li>`;
+            }
+        }
+        if(inputHidden.value){
+            idsDePrestaciones = idsDeMedicamentos.filter(e => e.id != inputHidden.value);
+            inputHidden.value = "";
+        }
+    }
+})
+
+let contadorTeclas2 = 0;
+divPrestaciones.addEventListener("keydown", (evento) => {
+    let objetivo = evento.target.closest(".divAutocompletadoPrestacion");
+    if(objetivo){
+        let lista = objetivo.querySelector(".autocompletadoPrestaciones");
+        if(evento.code === "ArrowDown" || evento.code === "ArrowUp"){
+                if(lista.hasChildNodes()){
+                    if(evento.code === "ArrowUp" && contadorTeclas2 > 0){
+                        contadorTeclas2--;
+                    }
+                    if(evento.code === "ArrowDown" && contadorTeclas2 < lista.childNodes.length){
+                        contadorTeclas2++;
+                    }
+                    for(let i = 0; i < lista.children.length; i++){
+                        if(contadorTeclas2-1 === i){
+                            lista.children[i].classList.add("prestacionListaFocus");
+                            lista.children[i].scrollIntoView({ behavior: 'smooth'});
+                        }else{
+                            lista.children[i].classList.remove("prestacionListaFocus");    
+                        }
+                    }
+                }
+        }else if(evento.code == "Enter"){
+            evento.preventDefault();
+            let elemento = document.getElementsByClassName("prestacionListaFocus")[0];
+            alSeleccionarPrestacion(elemento);
+            lista.innerHTML = "";
+        }else{
+            contadorTeclas2 = 0;
+        }
+    }
+})
+
+const alSeleccionarPrestacion = (elemento) => {
+    let numeroDePrestacion = (elemento.parentElement.id).slice(1,2) || 0;
+    let ipp = document.querySelector("#inputPrestacionPrescripcion");
+    let ip = document.querySelector("#idPrestacion");
+    let divJustificacionPrestacion = document.querySelector("#divJustificacionPrestacion");
+    let idPrestacion = elemento.getAttribute("data-value"); 
+    if(numeroDePrestacion){
+        ip = document.querySelector(`#idPrestacion${numeroDePrestacion}`);
+        ipp = document.querySelector(`#inputPrestacionPrescripcion${numeroDePrestacion}`);
+        divJustificacionPrestacion = document.querySelector(`#divJustificacionPrestacion${numeroDePrestacion}`);
+    } 
+    ipp.value = elemento.textContent;
+    ipp.readOnly = true;
+    ip.value = idPrestacion;
+    idsDePrestaciones.push({id: idPrestacion, nombre: elemento.textContent});
+    agregarCamposJustificacionPrestacion(idPrestacion, divJustificacionPrestacion);
+    //Agregamos el boton editar prestación dependiendo si es la primera prestación o las demás...
+    let divParaAgregarBoton = document.querySelector(".divLabelYBtnAgregarPrestacion");
+    if(numeroDePrestacion){
+        divParaAgregarBoton = document.querySelector(`#m${numeroDePrestacion}inputYBotonEliminarPrestacion`);
+        agregarBotonEditarInput(divParaAgregarBoton, "editarPrestacion", "editarPrestacion", `ep${numeroDePrestacion}`)
+    }else{
+        agregarBotonEditarInput(divParaAgregarBoton, "editarPrestacion", "editarPrestacion", "ep");
+    }
+}
 
 const getNumerosDisponiblesPrestacionSinJustificacion = () => {
     let inputsPrestacionPrescribir = document.querySelectorAll(".inputPrestacionPrescribir");
@@ -737,7 +768,11 @@ const getLados = () => {
 }
 
 const agregarSeccionJustificacion = (prestacion, sides, contador) => {
-    let idsLados = prestacion.idsLados.split(",");
+    console.log(prestacion);
+    let idsLados = [];
+    if(prestacion.idsLados){
+        idsLados = prestacion.idsLados.split(","); 
+    }
     idsLados = idsLados.map(e => parseInt(e));
     const getId = (idBase) => contador ? `${idBase}${contador}` : idBase; // si hay contador se lo agregamos al final de los id´s
     let inputJustificacion = `<div>
@@ -824,6 +859,7 @@ const agregarCamposJustificacionPrestacion = (idPrestacion, divJustificacionPres
         let prestacion = res.data[0];
         let numerosDisponiblesPrestacion = getNumerosDisponiblesPrestacionSinJustificacion();
         let sides = await getLados(); 
+        console.log(sides);
         let inputsPrestacionPrescribir = document.querySelectorAll(".inputPrestacionPrescribir");
         if(inputsPrestacionPrescribir.length === 1){
             divJustificacionPrestacion.innerHTML = agregarSeccionJustificacion(prestacion, sides);
@@ -834,4 +870,9 @@ const agregarCamposJustificacionPrestacion = (idPrestacion, divJustificacionPres
         }
     })
 }
-export {listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, agregarAutocompletadoPrestacion, configurarBotonCrearPrestacion, mensajeLlenarEspacioMedicamentoYPrestaciones};
+
+const mensajeAlerta = (icon, title, timer) => {
+    Swal.fire({icon, title, timer});
+}
+
+export {listadoDePrescripcionesAnteriores, mensajeLlenarEspacioMedicamentoYPrestaciones};

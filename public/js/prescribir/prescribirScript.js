@@ -1,42 +1,34 @@
-import {listadoDePrescripcionesAnteriores, configurarBotonCrearMedicamento, agregarAutocompletadoMedicamento, configurarBotonCrearPrestacion, agregarAutocompletadoPrestacion, mensajeLlenarEspacioMedicamentoYPrestaciones } from "./prescribirFunciones.js";
+import {listadoDePrescripcionesAnteriores, mensajeLlenarEspacioMedicamentoYPrestaciones } from "./prescribirFunciones.js";
 
 //SECCION AUTOCOMPLETADOS DE MEDICAMENTOS Y PRESTACIONES
 let inputMedicamentos  = document.querySelector("#inputMedicamentoPrescripcion");
-let autocompletadoMedicamento = document.querySelector(".autocompletadoMedicamentos");
 
 let inputPrestaciones = document.querySelector("#inputPrestacionPrescripcion");
-let autocompletadoPrestacion = document.querySelector(".autocompletadoPrestaciones");
 
 let botonPrescribir = document.querySelector("#botonPrescribir"); //Boton cargar prescripción
 
 axios('http://localhost:3000/prescribir?query=medicamentos')
 .then(res => {
     if(res.data.medicamentos.length > 0){
-        inputMedicamentos.addEventListener("input", (evento) => {
-            let palabra = evento.target.value;
-            let medicamentos = res.data.medicamentos;
-            // console.log(medicamentos)
-            if(medicamentos){
-                agregarAutocompletadoMedicamento(palabra, medicamentos, autocompletadoMedicamento, inputMedicamentos);
-            }
-        })
+        let medicamentos = res.data.medicamentos;
+        medicamentos = medicamentos.map(e => {
+                        const id = e.id;
+                        const nombre = `${e.nombreGenerico} ${e.cantidadConcentracion}${e.unidadMedidaCon} ${e.forma} x${e.cantidadPresentacion}${e.unidadMedidaPres}`;
+                        return {id, nombre};
+                    });
     }else{
         inputMedicamentos.placeholder = "No existen medicamentos";
     }
-    configurarBotonCrearMedicamento(res.data.medicamentos);
     if(res.data.prestaciones.length > 0){
-        inputPrestaciones.addEventListener("input", (evento) => {
-            let palabra = evento.target.value;
-            let prestaciones = res.data.prestaciones;
-            console.log(prestaciones)
-            if(prestaciones){
-                agregarAutocompletadoPrestacion(palabra, prestaciones, autocompletadoPrestacion, inputPrestaciones)
-            }
+        let prestaciones = res.data.prestaciones;
+        prestaciones = prestaciones.map(e => {
+            const id = e.idPrestacion;
+            const nombre = e.nombrePrestacion;
+            return {id, nombre};
         })
     }else{
         inputPrestaciones.placeholder = "No existen prestaciones";
     }
-    configurarBotonCrearPrestacion(res.data.prestaciones);
 })
 .catch(error => console.log(error));
 
@@ -132,7 +124,6 @@ botonPrescribir.addEventListener("click", (event) => {
             medicamentosOk = true;
         }
     }
-
     let dosisM;
     let intervalos;
     let duraciones;
